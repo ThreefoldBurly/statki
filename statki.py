@@ -45,8 +45,8 @@ class Plansza(object):
         nowy_rzad = "".join(rzad_lista)
         self.pola[rzad - 1] = nowy_rzad
 
-    def czyPoleWolne(self, rzad, kolumna):
-        """Sprawdza czy wskazane pole jest niezajęte"""
+    def czyPolePuste(self, rzad, kolumna):
+        """Sprawdza czy wskazane pole jest puste"""
         if self.pola[rzad - 1][kolumna - 1] == ZNACZNIK_PUSTY:
             return True
         else:
@@ -60,15 +60,19 @@ class Plansza(object):
             return True 
 
     def umiescStatek(self, rozmiar, rzad, kolumna):
-        """Umieszcza statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego"""
+        """Stara się umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu metoda zwraca umieszczony statek, w razie porażki zwraca None (czyszcząc oznaczone wcześniej pola).  """
+
         licznik_oznaczen = 0
         licznik_iteracji = 0
         sciezka = []
-        wspolrzedne_pol = []
+        wspolrz_ozn_pol = []
 
-        while licznik_oznaczen < rozmiar and licznik_iteracji < 50:
+        while licznik_oznaczen < rozmiar:
+
             
-            print # do testów
+            # do testów
+            assert licznik_iteracji < 100, "Plansza probowala umieszcic statek w wiecej niz 100 iteracjach. Cos jest nie tak. Sprawdz logike metody umiescStatek()"
+            print
             komunikat = "ITERACJA " + str(licznik_iteracji + 1)
             print komunikat.center(3 * self.kolumny)
             
@@ -76,92 +80,101 @@ class Plansza(object):
             if licznik_iteracji == 0:
                 self.oznaczPole(ZNACZNIK_STATEK, rzad, kolumna)
                 licznik_oznaczen += 1
-                wspolrzedne_pol.append((rzad, kolumna))
+                wspolrz_ozn_pol.append((rzad, kolumna))
             else:
                 oznaczono = False
-                licznik_zapetlenia = 0
+                kierunki = KIERUNKI[:]
 
                 while not oznaczono:
-                    licznik_zapetlenia += 1
 
-                    # obsługa zapętlenia
-                    if licznik_zapetlenia > 50:
-                        ostatni_kierunek = sciezka[len(sciezka) - 1]
-                        if ostatni_kierunek == "prawo":
-                            kolumna -= 1
-                            print "Cofam: '" + sciezka.pop() + "'"
-                        elif ostatni_kierunek == "lewo":
-                            kolumna += 1
-                            print "Cofam: '" + sciezka.pop() + "'"
-                        elif ostatni_kierunek == "gora":
-                            rzad += 1
-                            print "Cofam: '" + sciezka.pop() + "'"
-                        elif ostatni_kierunek == "dol":
-                            rzad -= 1
-                            print "Cofam: '" + sciezka.pop() + "'"
-                        print "Uciekam z zapetlenia"
+                    # obsługa zapętlenia - pętla może się wykonać maksymalnie 4 razy (tyle ile możliwych kierunków ruchu)
+                    if len(kierunki) < 1: # wyczerpaliśmy wszystkie możliwe kierunki - trzeba wracać (o ile jest gdzie!)
+                        if len(sciezka) > 0:
+                            ostatni_kierunek = sciezka[len(sciezka) - 1]
+                            if ostatni_kierunek == "prawo":
+                                kolumna -= 1
+                                print "Cofam: '" + sciezka.pop() + "'" #test
+                            elif ostatni_kierunek == "lewo":
+                                kolumna += 1
+                                print "Cofam: '" + sciezka.pop() + "'" #test
+                            elif ostatni_kierunek == "gora":
+                                rzad += 1
+                                print "Cofam: '" + sciezka.pop() + "'" #test
+                            elif ostatni_kierunek == "dol":
+                                rzad -= 1
+                                print "Cofam: '" + sciezka.pop() + "'" #test
+                            print "Uciekam z zapetlenia" #test
 
-                        break
+                            break
+                        else: # nie ma gdzie wracać, jesteśmy w punkcie startowym - NIEUDANE UMIESZCZENIE statku
+                            for wspolrzedne_pola in wspolrz_ozn_pol: # czyszczenie planszy
+                                rzad, kolumna = wspolrzedne_pola
+                                self.oznaczPole(ZNACZNIK_PUSTY, rzad, kolumna)
+                            return None
 
-                    kierunek = KIERUNKI[randint(0, 3)]
+                    kierunek = kierunki[randint(0, len(kierunki) - 1)]
                     if kierunek == "prawo":
                         kolumna += 1
-                        if self.czyPoleWPlanszy(rzad, kolumna) and self.czyPoleWolne(rzad, kolumna):
+                        if self.czyPoleWPlanszy(rzad, kolumna) and self.czyPolePuste(rzad, kolumna):
                             self.oznaczPole(ZNACZNIK_STATEK, rzad, kolumna)
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
-                            wspolrzedne_pol.append((rzad, kolumna))
+                            wspolrz_ozn_pol.append((rzad, kolumna))
                             #test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
                             kolumna -= 1
+                            kierunki.remove(kierunek)
                     elif kierunek == "lewo":
                         kolumna -= 1
-                        if self.czyPoleWPlanszy(rzad, kolumna) and self.czyPoleWolne(rzad, kolumna):
+                        if self.czyPoleWPlanszy(rzad, kolumna) and self.czyPolePuste(rzad, kolumna):
                             self.oznaczPole(ZNACZNIK_STATEK, rzad, kolumna)
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
-                            wspolrzedne_pol.append((rzad, kolumna))
+                            wspolrz_ozn_pol.append((rzad, kolumna))
                             #test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
                             kolumna += 1
+                            kierunki.remove(kierunek)
                     elif kierunek == "gora":
                         rzad -= 1
-                        if self.czyPoleWPlanszy(rzad, kolumna) and self.czyPoleWolne(rzad, kolumna):
+                        if self.czyPoleWPlanszy(rzad, kolumna) and self.czyPolePuste(rzad, kolumna):
                             self.oznaczPole(ZNACZNIK_STATEK, rzad, kolumna)
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
-                            wspolrzedne_pol.append((rzad, kolumna))
+                            wspolrz_ozn_pol.append((rzad, kolumna))
                             #test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
                             rzad += 1
+                            kierunki.remove(kierunek)
                     else: # idziemy w dół
                         rzad += 1
-                        if self.czyPoleWPlanszy(rzad, kolumna) and self.czyPoleWolne(rzad, kolumna):
+                        if self.czyPoleWPlanszy(rzad, kolumna) and self.czyPolePuste(rzad, kolumna):
                             self.oznaczPole(ZNACZNIK_STATEK, rzad, kolumna)
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
-                            wspolrzedne_pol.append((rzad, kolumna))
+                            wspolrz_ozn_pol.append((rzad, kolumna))
                             #test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
                             rzad -= 1
+                            kierunki.remove(kierunek)
 
             self.rysujSie() # do testów
             licznik_iteracji += 1
 
-        self.statki.append(Statek(wspolrzedne_pol))
+        return Statek(wspolrz_ozn_pol)
 
     def umiescObwiednieStatku(self, statek):
-        """Oznacza pola obwiedni wskazanego statku"""
+        """Umieszcza na planszy obwiednię wskazanego statku"""
         
-        # wystarczy zaznaczyć wszystkich 8 bezposrednich sąsiadów danego punktu (sprawdzając za kazdym razem czy sa w planszy i czy sa wolne)
+        # wystarczy zaznaczyć wszystkich 8 bezposrednich sąsiadów danego punktu (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
         for wspolrzedne_pola in statek.wspolrzedne_pol:
             rzad, kolumna = wspolrzedne_pola
             a = 0 # współczynnik przesunięcia w pionie (x)
@@ -181,7 +194,7 @@ class Plansza(object):
                 x = rzad + a
                 y = kolumna + b
 
-                if i != 4 and self.czyPoleWPlanszy(x, y) and self.czyPoleWolne(x, y):
+                if i != 4 and self.czyPoleWPlanszy(x, y) and self.czyPolePuste(x, y):
                     self.oznaczPole(ZNACZNIK_OBWIEDNIA, x, y)
 
     def zatopStatek(self, statek):
@@ -221,10 +234,9 @@ class Gra(object):
 
 plansza = Plansza(20, 20)
 plansza.rysujSie()
-plansza.umiescStatek(15, 10, 10)
-statek = plansza.statki[0]
-plansza.umiescObwiednieStatku(statek)
-plansza.rysujSie()
-plansza.zatopStatek(statek)
-plansza.rysujSie()
-# plansza.rysujSie()    
+statek = plansza.umiescStatek(15, 1, 20)
+if statek is not None:
+    plansza.umiescObwiednieStatku(statek)
+    plansza.rysujSie()
+    plansza.zatopStatek(statek)
+    plansza.rysujSie()
