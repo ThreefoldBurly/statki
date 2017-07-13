@@ -9,22 +9,22 @@ from random import randint
 
 from wspolne import *
 
+
 class Plansza(object):
     """Abstrakcyjna reprezentacja planszy"""
 
-    def __init__(self, kolumny, rzedy, zapelnienie = 10, granulacja = 4.0):
+    def __init__(self, kolumny, rzedy, zapelnienie=10, granulacja=4.0):
         super(Plansza, self).__init__()
-        self.kolumny = kolumny # max 69 ze względu na stout
-        self.rzedy = rzedy # max. 99
+        self.kolumny = kolumny  # max 69 ze względu na stout - nie zawarte w kodzie
+        self.rzedy = rzedy  # max. 99 - nie zawarte w kodzie
         self.rozmiar = rzedy * kolumny
-        self.pola = [ZNACZNIK_PUSTY * kolumny for rzad in xrange(rzedy)] #lista stringów odpowiadających rzędom pól planszy
+        self.pola = [ZNACZNIK_PUSTY * kolumny for rzad in xrange(rzedy)]  # lista stringów odpowiadających rzędom pól planszy
         self.statki = []
 
         # UWAGA 1 - plansze o większym rozmiarze wymagają wyższej wartości zapełnienia dla uzyskania tego samego efektu (wynika to z tego że obwiednie statków zajmują stosunkowo więcej miejsca na małej planszy)
-        # UWAGA 2 - większe plansze wymagają większej granulacji  
-        self.zapelnienie = zapelnienie # stosunek sumarycznego rozmiaru umieszczonych statków do rozmiaru planszy (w procentach)
-        #TODO: poprawić obsługę granulacji - większe plansze wymagają większej granulacji (rozumianej jako argument tej metody) dla uzyskania tego samego efektu. Rozważyć wprowadzenie podobnej poprawki do zapełnienia
-        self.granulacja = granulacja # współczynnik ograniczający umieszczanie dużych statków na planszy. Musi być większy lub równy 1.0. Przy 1.0 - brak ograniczenia
+        # UWAGA 2 - większe plansze wymagają większej granulacji
+        self.zapelnienie = zapelnienie  # wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych statków do rozmiaru planszy
+        self.granulacja = granulacja  # współczynnik ograniczający umieszczanie dużych statków na planszy. Musi być większy lub równy 1.0. Przy 1.0 - brak ograniczenia
 
     def rysujSie(self):
         """Rysuje planszę"""
@@ -45,7 +45,7 @@ class Plansza(object):
     def oznaczPole(self, znacznik, kolumna, rzad):
         """Oznacza wskazane polę wskazanym znacznikiem"""
         rzad_lista = list(self.pola[rzad - 1])
-        rzad_lista[kolumna - 1] = znacznik    
+        rzad_lista[kolumna - 1] = znacznik
         nowy_rzad = "".join(rzad_lista)
         self.pola[rzad - 1] = nowy_rzad
 
@@ -61,11 +61,11 @@ class Plansza(object):
         if rzad < 1 or rzad > self.rzedy or kolumna < 1 or kolumna > self.kolumny:
             return False
         else:
-            return True 
+            return True
 
     def umiescStatek(self, rozmiar, kolumna, rzad):
         """
-        Stara się umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu metoda zwraca umieszczony statek, w razie porażki zwraca None (czyszcząc oznaczone wcześniej pola). 
+        Stara się umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu metoda zwraca umieszczony statek, w razie porażki zwraca None (czyszcząc oznaczone wcześniej pola).
         """
 
         licznik_oznaczen = 0
@@ -75,15 +75,13 @@ class Plansza(object):
 
         while licznik_oznaczen < rozmiar:
 
-            
             # do testów
-            assert licznik_iteracji < rozmiar * 3, "Petla metody umiescStatek() klasy Plansza probowala umiescic statek w zbyt wielu iteracjach (prog = 3 * rozmiar statku). Cos jest nie tak. Sprawdz logike metody"
+            assert licznik_iteracji < rozmiar * 3, u"Petla metody umiescStatek() klasy Plansza próbowała umieścić statek w zbyt wielu iteracjach (próg = 3 * rozmiar statku). Coś jest nie tak. Sprawdź logikę metody"
             print
             komunikat = "ITERACJA " + str(licznik_iteracji + 1)
             print komunikat.center(3 * self.kolumny)
-            
 
-            if licznik_iteracji == 0: # pole startowe
+            if licznik_iteracji == 0:  # pole startowe
                 if self.czyPoleWPlanszy(kolumna, rzad) and self.czyPolePuste(kolumna, rzad):
                     self.oznaczPole(ZNACZNIK_STATEK, kolumna, rzad)
                     licznik_oznaczen += 1
@@ -97,26 +95,26 @@ class Plansza(object):
                 while not oznaczono:
 
                     # obsługa zapętlenia - pętla może się wykonać maksymalnie 4 razy (tyle ile możliwych kierunków ruchu)
-                    if len(kierunki) < 1: # wyczerpaliśmy wszystkie możliwe kierunki - trzeba wracać (o ile jest gdzie!)
+                    if len(kierunki) < 1:  # wyczerpaliśmy wszystkie możliwe kierunki - trzeba wracać (o ile jest gdzie!)
                         if len(sciezka) > 0:
                             ostatni_kierunek = sciezka[len(sciezka) - 1]
                             if ostatni_kierunek == "prawo":
                                 kolumna -= 1
-                                print "Cofam: '" + sciezka.pop() + "'" #test
+                                print "Cofam: '" + sciezka.pop() + "'"  # test
                             elif ostatni_kierunek == "lewo":
                                 kolumna += 1
-                                print "Cofam: '" + sciezka.pop() + "'" #test
+                                print "Cofam: '" + sciezka.pop() + "'"  # test
                             elif ostatni_kierunek == "gora":
                                 rzad += 1
-                                print "Cofam: '" + sciezka.pop() + "'" #test
+                                print "Cofam: '" + sciezka.pop() + "'"  # test
                             elif ostatni_kierunek == "dol":
                                 rzad -= 1
-                                print "Cofam: '" + sciezka.pop() + "'" #test
-                            print "Uciekam z zapetlenia" #test
+                                print "Cofam: '" + sciezka.pop() + "'"  # test
+                            print "Uciekam z zapetlenia"  # test
 
                             break
-                        else: # nie ma gdzie wracać, jesteśmy w punkcie startowym - NIEUDANE UMIESZCZENIE statku
-                            for wspolrzedne_pola in wspolrz_ozn_pol: # czyszczenie planszy
+                        else:  # nie ma gdzie wracać, jesteśmy w punkcie startowym - NIEUDANE UMIESZCZENIE statku
+                            for wspolrzedne_pola in wspolrz_ozn_pol:  # czyszczenie planszy
                                 kolumna, rzad = wspolrzedne_pola
                                 self.oznaczPole(ZNACZNIK_PUSTY, kolumna, rzad)
                             return None
@@ -130,7 +128,7 @@ class Plansza(object):
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
                             wspolrz_ozn_pol.append((kolumna, rzad))
-                            #test
+                            # test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
                             kolumna -= 1
@@ -143,7 +141,7 @@ class Plansza(object):
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
                             wspolrz_ozn_pol.append((kolumna, rzad))
-                            #test
+                            # test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
                             kolumna += 1
@@ -156,12 +154,12 @@ class Plansza(object):
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
                             wspolrz_ozn_pol.append((kolumna, rzad))
-                            #test
+                            # test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
                             rzad += 1
                             kierunki.remove(kierunek)
-                    else: # idziemy w dół
+                    else:  # idziemy w dół
                         rzad += 1
                         if self.czyPoleWPlanszy(kolumna, rzad) and self.czyPolePuste(kolumna, rzad):
                             self.oznaczPole(ZNACZNIK_STATEK, kolumna, rzad)
@@ -169,7 +167,7 @@ class Plansza(object):
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
                             wspolrz_ozn_pol.append((kolumna, rzad))
-                            #test
+                            # test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
                             rzad -= 1
@@ -178,26 +176,26 @@ class Plansza(object):
             # self.rysujSie() #test
             licznik_iteracji += 1
 
-        print "Umieszczam statek [%d]" % len(wspolrz_ozn_pol) #test
+        print "Umieszczam statek [%d]" % len(wspolrz_ozn_pol)  # test
         return Statek(wspolrz_ozn_pol)
 
     def umiescObwiednieStatku(self, statek):
         """Umieszcza na planszy obwiednię wskazanego statku"""
-        
+
         # wystarczy zaznaczyć wszystkich 8 bezposrednich sąsiadów danego punktu (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
         for wspolrzedne_pola in statek.wspolrzedne_pol:
             kolumna, rzad = wspolrzedne_pola
-            a = 0 # współczynnik przesunięcia w pionie (x)
-            b = 0 # współczynnik przesunięcia w poziomie (y)
+            a = 0  # współczynnik przesunięcia w pionie (x)
+            b = 0  # współczynnik przesunięcia w poziomie (y)
 
             for i in xrange(9):
-                if i in xrange(3): # 1szy rząd sąsiadów
+                if i in xrange(3):  # 1szy rząd sąsiadów
                     a = -1
                     b = i - 1
-                elif i in xrange(3, 6): # 2gi rząd sąsiadów
+                elif i in xrange(3, 6):  # 2gi rząd sąsiadów
                     a = 0
                     b = i - 4
-                else: # 3ci rząd sąsiadów
+                else:  # 3ci rząd sąsiadów
                     a = 1
                     b = i - 7
 
@@ -214,14 +212,16 @@ class Plansza(object):
             self.oznaczPole(ZNACZNIK_ZATOPIONY, kolumna, rzad)
 
     def wypelnijStatkami(self):
-        """Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decyduje zapełnienie i granulacja planszy"""
-        licznik_iteracji = 0        
+        """
+        Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decyduje zapełnienie i granulacja planszy
+        """
+        licznik_iteracji = 0
         sum_rozmiar_statkow = int(self.rozmiar * self.zapelnienie / 100)
         akt_rozmiar_statkow = sum_rozmiar_statkow
 
         while akt_rozmiar_statkow > 0:
             # obsługa granulacji
-            max_rozmiar_statku = int(akt_rozmiar_statkow / self.granulacja)
+            max_rozmiar_statku = int(20 / self.granulacja)
             if max_rozmiar_statku == 0:
                 max_rozmiar_statku = 1
 
@@ -236,9 +236,9 @@ class Plansza(object):
                 self.statki.append(umieszczony_statek)
                 akt_rozmiar_statkow -= rozmiar_statku
 
-            #obsługa wyjścia    
-            if licznik_iteracji > sum_rozmiar_statkow * 10: # wielkość do przetestowania
-                print "Ilosc iteracji petli zapelniajacej plansze statkami wieksza od oczekiwanej. Nastapilo przedwczesne przerwanie petli. Umieszczono mniej statkow" #test
+            # obsługa wyjścia
+            if licznik_iteracji > sum_rozmiar_statkow * 10:  # wielkość do przetestowania
+                print "Ilosc iteracji petli zapelniajacej plansze statkami wieksza od oczekiwanej. Nastapilo przedwczesne przerwanie petli. Umieszczono mniej statkow"  # test
                 break
 
             licznik_iteracji += 1
@@ -249,17 +249,17 @@ class Statek(object):
 
     def __init__(self, wspolrzedne_pol):
         super(Statek, self).__init__()
-        self.wspolrzedne_pol = sorted(wspolrzedne_pol) # lista krotek ze współrzędnymi (x, y) pól statku posortowana najpierw wg "x" potem wg "y"
+        self.wspolrzedne_pol = sorted(wspolrzedne_pol)  # lista krotek ze współrzędnymi (x, y) pól statku posortowana najpierw wg "x" potem wg "y"
         self.rozmiar = len(wspolrzedne_pol)
-        #self.ranga
-        #self.nazwa
+        self.ranga = RANGI_STATKOW[self.rozmiar]
+        # self.nazwa
 
     def czyZatopiony(self, plansza):
         """Sprawdza czy wszystkie pola statku zostały trafione na wskazanej planszy"""
         licznik_trafien = 0
         for wspolrzedne_pola in self.wspolrzedne_pol:
             kolumna, rzad = wspolrzedne_pola
-            if plansza.pola[rzad - 1][ kolumna - 1] == ZNACZNIK_TRAFIONY:
+            if plansza.pola[rzad - 1][kolumna - 1] == ZNACZNIK_TRAFIONY:
                 licznik_trafien += 1
         if licznik_trafien == self.rozmiar:
             return True
@@ -274,8 +274,9 @@ class Gra(object):
         super(Gra, self).__init__()
         self.plansza = None
 
-#testy
-plansza = Plansza(25, 25)
+
+# testy
+plansza = Plansza(69, 69)
 plansza.rysujSie()
 plansza.wypelnijStatkami()
 plansza.rysujSie()
