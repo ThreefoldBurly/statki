@@ -1,28 +1,30 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+"""
+Gra w statki na planszy o arbitralnym rozmiarze.
+"""
+
 from random import randint
 
-ZNACZNIK_PUSTY = "0"
-ZNACZNIK_PUDLO = "x"
-ZNACZNIK_TRAFIONY = "T"
-ZNACZNIK_ZATOPIONY = "Z"
-ZNACZNIK_STATEK = "&"
-ZNACZNIK_OBWIEDNIA = "."
-KIERUNKI = ["prawo", "lewo", "gora", "dol"]
+from wspolne import *
 
 class Plansza(object):
     """Abstrakcyjna reprezentacja planszy"""
 
-    def __init__(self, kolumny, rzedy, zapelnienie = 10, granulacja = 5.0):
+    def __init__(self, kolumny, rzedy, zapelnienie = 10, granulacja = 4.0):
         super(Plansza, self).__init__()
         self.kolumny = kolumny # max 69 ze względu na stout
         self.rzedy = rzedy # max. 99
         self.rozmiar = rzedy * kolumny
-        self.zapelnienie = zapelnienie # stosunek sumarycznego rozmiaru umieszczonych statków do rozmiaru planszy (w procentach)
-        #TODO: poprawić obsługę granulacji - większe plansze wymagają większej granulacji (rozumianej jako argument tej metody) dla uzyskania tego samego efektu
-        self.granulacja = granulacja # współczynnik ograniczający umieszczanie dużych statków na planszy. Musi być większy lub równy 1.0. Przy 1.0 - brak ograniczenia
         self.pola = [ZNACZNIK_PUSTY * kolumny for rzad in xrange(rzedy)] #lista stringów odpowiadających rzędom pól planszy
         self.statki = []
+
+        # UWAGA 1 - plansze o większym rozmiarze wymagają wyższej wartości zapełnienia dla uzyskania tego samego efektu (wynika to z tego że obwiednie statków zajmują stosunkowo więcej miejsca na małej planszy)
+        # UWAGA 2 - większe plansze wymagają większej granulacji  
+        self.zapelnienie = zapelnienie # stosunek sumarycznego rozmiaru umieszczonych statków do rozmiaru planszy (w procentach)
+        #TODO: poprawić obsługę granulacji - większe plansze wymagają większej granulacji (rozumianej jako argument tej metody) dla uzyskania tego samego efektu. Rozważyć wprowadzenie podobnej poprawki do zapełnienia
+        self.granulacja = granulacja # współczynnik ograniczający umieszczanie dużych statków na planszy. Musi być większy lub równy 1.0. Przy 1.0 - brak ograniczenia
 
     def rysujSie(self):
         """Rysuje planszę"""
@@ -62,7 +64,9 @@ class Plansza(object):
             return True 
 
     def umiescStatek(self, rozmiar, kolumna, rzad):
-        """Stara się umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu metoda zwraca umieszczony statek, w razie porażki zwraca None (czyszcząc oznaczone wcześniej pola).  """
+        """
+        Stara się umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu metoda zwraca umieszczony statek, w razie porażki zwraca None (czyszcząc oznaczone wcześniej pola). 
+        """
 
         licznik_oznaczen = 0
         licznik_iteracji = 0
@@ -171,7 +175,7 @@ class Plansza(object):
                             rzad -= 1
                             kierunki.remove(kierunek)
 
-            # self.rysujSie() # do testów
+            # self.rysujSie() #test
             licznik_iteracji += 1
 
         print "Umieszczam statek [%d]" % len(wspolrz_ozn_pol) #test
@@ -215,7 +219,6 @@ class Plansza(object):
         sum_rozmiar_statkow = int(self.rozmiar * self.zapelnienie / 100)
         akt_rozmiar_statkow = sum_rozmiar_statkow
 
-
         while akt_rozmiar_statkow > 0:
             # obsługa granulacji
             max_rozmiar_statku = int(akt_rozmiar_statkow / self.granulacja)
@@ -248,6 +251,8 @@ class Statek(object):
         super(Statek, self).__init__()
         self.wspolrzedne_pol = sorted(wspolrzedne_pol) # lista krotek ze współrzędnymi (x, y) pól statku posortowana najpierw wg "x" potem wg "y"
         self.rozmiar = len(wspolrzedne_pol)
+        #self.ranga
+        #self.nazwa
 
     def czyZatopiony(self, plansza):
         """Sprawdza czy wszystkie pola statku zostały trafione na wskazanej planszy"""
@@ -266,18 +271,11 @@ class Gra(object):
     """Abstrakcyjna reprezentacja interakcji pomiędzy graczem a planszą"""
 
     def __init__(self):
-        super(Gra, self).___init___()
+        super(Gra, self).__init__()
         self.plansza = None
 
 #testy
-plansza = Plansza(50, 50)
+plansza = Plansza(25, 25)
 plansza.rysujSie()
 plansza.wypelnijStatkami()
-# statek = plansza.umiescStatek(20, 1, 1)
-# if statek is not None:
-#     plansza.umiescObwiednieStatku(statek)
-#     plansza.rysujSie()
-#     plansza.zatopStatek(statek)
-# else:
-#     print "\nNieudane umieszczanie statku"
 plansza.rysujSie()
