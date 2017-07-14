@@ -11,12 +11,12 @@ from wspolne import *
 
 
 class Plansza(object):
-    """Abstrakcyjna reprezentacja planszy"""
+    """Abstrakcyjna reprezentacja planszy do gry w statki"""
 
     def __init__(self, kolumny, rzedy):
         super(Plansza, self).__init__()
-        self.kolumny = kolumny  # max 69 ze względu na stout - nie zawarte w kodzie
-        self.rzedy = rzedy  # max. 99 - nie zawarte w kodzie
+        self.kolumny = kolumny  # max 69 ze względu na stout - ograniczenie nie zawarte w kodzie
+        self.rzedy = rzedy  # max. 99 - ograniczenie nie zawarte w kodzie
         self.rozmiar = rzedy * kolumny
         self.pola = [ZNACZNIK_PUSTY * kolumny for rzad in xrange(rzedy)]  # lista stringów odpowiadających rzędom pól planszy
         self.statki = []
@@ -62,7 +62,6 @@ class Plansza(object):
         """
         Stara się umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu metoda zwraca umieszczony statek, w razie porażki zwraca None (czyszcząc oznaczone wcześniej pola).
         """
-
         licznik_oznaczen = 0
         licznik_iteracji = 0
         sciezka = []
@@ -70,11 +69,12 @@ class Plansza(object):
 
         while licznik_oznaczen < rozmiar:
 
+            if licznik_iteracji > rozmiar * 5:  # za dużo iteracji - nieudane umieszczenie
+                return None
             # do testów
-            assert licznik_iteracji < rozmiar * 3, u"Petla metody umiescStatek() klasy Plansza próbowała umieścić statek w zbyt wielu iteracjach (próg = 3 * rozmiar statku). Coś jest nie tak. Sprawdź logikę metody"
-            print
-            komunikat = "ITERACJA " + str(licznik_iteracji + 1)
-            print komunikat.center(3 * self.kolumny)
+            # print
+            # komunikat = "ITERACJA " + str(licznik_iteracji + 1)
+            # print komunikat.center(3 * self.kolumny)
 
             if licznik_iteracji == 0:  # pole startowe
                 if self.czyPoleWPlanszy(kolumna, rzad) and self.czyPolePuste(kolumna, rzad):
@@ -95,17 +95,17 @@ class Plansza(object):
                             ostatni_kierunek = sciezka[len(sciezka) - 1]
                             if ostatni_kierunek == "prawo":
                                 kolumna -= 1
-                                print "Cofam: '" + sciezka.pop() + "'"  # test
+                                # print "Cofam: '" + sciezka.pop() + "'"  # test
                             elif ostatni_kierunek == "lewo":
                                 kolumna += 1
-                                print "Cofam: '" + sciezka.pop() + "'"  # test
+                                # print "Cofam: '" + sciezka.pop() + "'"  # test
                             elif ostatni_kierunek == "gora":
                                 rzad += 1
-                                print "Cofam: '" + sciezka.pop() + "'"  # test
+                                # print "Cofam: '" + sciezka.pop() + "'"  # test
                             elif ostatni_kierunek == "dol":
                                 rzad -= 1
-                                print "Cofam: '" + sciezka.pop() + "'"  # test
-                            print "Uciekam z zapetlenia"  # test
+                                # print "Cofam: '" + sciezka.pop() + "'"  # test
+                            # print "Uciekam z zapetlenia"  # test
 
                             break
                         else:  # nie ma gdzie wracać, jesteśmy w punkcie startowym - NIEUDANE UMIESZCZENIE statku
@@ -176,7 +176,7 @@ class Plansza(object):
     def umiescObwiednieStatku(self, statek):
         """Umieszcza na planszy obwiednię wskazanego statku"""
 
-        # wystarczy zaznaczyć wszystkich 8 bezposrednich sąsiadów danego punktu (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
+        # wystarczy zaznaczyć wszystkich 8 bezpośrednich sąsiadów danego punktu (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
         for wspolrzedne_pola in statek.wspolrzedne_pol:
             kolumna, rzad = wspolrzedne_pola
             a = 0  # współczynnik przesunięcia w pionie (x)
@@ -205,23 +205,35 @@ class Plansza(object):
             kolumna, rzad = wspolrzedne_pola
             self.oznaczPole(ZNACZNIK_ZATOPIONY, kolumna, rzad)
 
-    def wypelnijStatkami(self, zapelnienie=15):
+    def wypelnijStatkami(self, zapelnienie=15, odch_st=9, prz_mediany=-8):
         """
         Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry metody
         """
         # zapelnienie to wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych statków do rozmiaru planszy
-        # UWAGA 1 - plansze o większym rozmiarze wymagają wyższej wartości zapełnienia dla uzyskania tego samego efektu (wynika to z tego że obwiednie statków zajmują stosunkowo więcej miejsca na małej planszy)
+
+        # odch_st to odchylenie standardowe w rozkładzie Gaussa, z którego losowany jest rozmiar statku
+        # czym wyższa wartość, tym większy rozrzut rozmiarów
+
+        # prz_mediany to przesunięcie mediany w rozkładzie Gaussa, z którego losowany jest rozmiar statku
+        # wartość ujemna spowoduje losowanie większej ilości małych statków
+        # wartość dodatnia spowodują losowanie większej ilości dużych statków
+        # zero (brak przesunięcia) powoduje losowanie wg standardowego rozkładu normalnego,
+        # gdzie mediana jest średnią arytmetyczną przedziału losowania
+
+        # wartości domyślne parametrów zostały ustalone po testach
+        # większa granulacja rozmiarów statków (z zapewnieniem sporadycznego występowania dużych statków) zapewnia ciekawszą grę
+        min_rozmiar_statku = 1
         max_rozmiar_statku = 20
+        mediana = (min_rozmiar_statku + max_rozmiar_statku) / 2.0  # 10.5
 
         licznik_iteracji = 0
         sum_rozmiar_statkow = int(self.rozmiar * zapelnienie / 100)
         akt_rozmiar_statkow = sum_rozmiar_statkow
 
         while akt_rozmiar_statkow > 0:
-            if akt_rozmiar_statkow < max_rozmiar_statku:
-                rozmiar_statku = randint(1, akt_rozmiar_statkow)
-            else:
-                rozmiar_statku = randint(1, max_rozmiar_statku)
+            rozmiar_statku = podajIntZRozkladuGaussa(mediana, odch_st, min_rozmiar_statku, max_rozmiar_statku, prz_mediany)
+            if rozmiar_statku > akt_rozmiar_statkow:
+                continue
             pole_startowe_x = randint(1, self.kolumny)
             pole_startowe_y = randint(1, self.rzedy)
 
@@ -230,8 +242,7 @@ class Plansza(object):
             if umieszczony_statek is not None:
                 self.umiescObwiednieStatku(umieszczony_statek)
                 self.statki.append(umieszczony_statek)
-                print  # test
-                print "Umieszczony statek: %s [%d]" % (umieszczony_statek.ranga, umieszczony_statek.rozmiar)  # test
+                # print "\nUmieszczony statek: %s [%d]" % (umieszczony_statek.ranga, umieszczony_statek.rozmiar)  # test
                 akt_rozmiar_statkow -= rozmiar_statku
 
             # obsługa wyjścia
@@ -240,6 +251,15 @@ class Plansza(object):
                 break
 
             licznik_iteracji += 1
+
+        self.statki.sort(key=lambda s: s.rozmiar, reverse=True)  # nie wierzę że to było takie proste!
+
+        # do testów
+        sum_rozmiar = 0
+        for statek in self.statki:
+            sum_rozmiar += statek.rozmiar
+            print "\nUmieszczony statek: %s [%d]" % (statek.ranga, statek.rozmiar)
+        print u"\nWszystkich umieszczonych statków: %d. Ich sumaryczny rozmiar: [%d]" % (len(self.statki), sum_rozmiar)
 
 
 class Statek(object):
@@ -274,7 +294,7 @@ class Gra(object):
 
 
 # testy
-plansza = Plansza(15, 15)
+plansza = Plansza(20, 20)
 plansza.rysujSie()
-plansza.wypelnijStatkami(17)
+plansza.wypelnijStatkami()
 plansza.rysujSie()

@@ -44,15 +44,16 @@ RANGI_STATKOW = sparsujRangiStatkow()  # słownik
 
 
 def podajIntZRozkladuGaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
-    """Podaje losowy int wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany"""
+    """
+    Podaje losowy int wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany. Liczby spoza zadanego przedziału zwracane przez random.gauss() są odbijane proporcjonalnie do wewnątrz przedziału. PRZYKŁAD: dla przedziału <1, 20>, jeśli random.gauss() zwraca -2, to zwróconą liczbą będzie 3, jeśli -5, to 6 jeśli random.gauss() zwraca 22, to zwróconą liczbą, będzie 19, jeśli 27, to 14.
+    """
     i = int(round(gauss(mediana + prz_mediany, odch_st)))
     if i < minimum:
         i = minimum - i
+        if i > maximum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite minimum-, miałoby wyjść poza zadany przedział, jest przycinane do maximum bez odbicia)
+            i = maximum
     if i > maximum:
         i = maximum - (i - maximum) + 1
+        if i < minimum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite maximum+, miałoby wyjść poza zadany przedział, jest przycinane do minimum bez odbicia)
+            i = minimum
     return i
-
-# test
-# slownik = sparsujRangiStatkow()
-# for klucz in slownik:
-#     print "%s [%d]" % (slownik[klucz], klucz)
