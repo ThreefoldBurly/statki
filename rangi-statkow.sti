@@ -1,0 +1,23 @@
+# -*- coding: utf-8 -*-
+# lewa kolumna - ilość pol
+# prawa kolumna - nazwa rangi
+ 1:::kuter
+ 2:::patrolowiec
+ 3:::patrolowiec
+ 4:::korweta
+ 5:::korweta
+ 6:::korweta
+ 7:::fregata
+ 8:::fregata
+ 9:::fregata
+10:::niszczyciel
+11:::niszczyciel
+12:::niszczyciel
+13:::krążownik
+14:::krążownik
+15:::krążownik
+16:::krążownik
+17:::pancernik
+18:::pancernik
+19:::pancernik
+20:::pancernik
