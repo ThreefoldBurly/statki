@@ -47,9 +47,9 @@ def podajIntZRozkladuGaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
     """Podaje losowy int wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany"""
     i = int(round(gauss(mediana + prz_mediany, odch_st)))
     if i < minimum:
-        i = minimum
+        i = minimum - i
     if i > maximum:
-        i = maximum
+        i = maximum - (i - maximum) + 1
     return i
 
 # test
