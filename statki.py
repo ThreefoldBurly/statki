@@ -13,18 +13,13 @@ from wspolne import *
 class Plansza(object):
     """Abstrakcyjna reprezentacja planszy"""
 
-    def __init__(self, kolumny, rzedy, zapelnienie=10, granulacja=4.0):
+    def __init__(self, kolumny, rzedy):
         super(Plansza, self).__init__()
         self.kolumny = kolumny  # max 69 ze względu na stout - nie zawarte w kodzie
         self.rzedy = rzedy  # max. 99 - nie zawarte w kodzie
         self.rozmiar = rzedy * kolumny
         self.pola = [ZNACZNIK_PUSTY * kolumny for rzad in xrange(rzedy)]  # lista stringów odpowiadających rzędom pól planszy
         self.statki = []
-
-        # UWAGA 1 - plansze o większym rozmiarze wymagają wyższej wartości zapełnienia dla uzyskania tego samego efektu (wynika to z tego że obwiednie statków zajmują stosunkowo więcej miejsca na małej planszy)
-        # UWAGA 2 - większe plansze wymagają większej granulacji
-        self.zapelnienie = zapelnienie  # wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych statków do rozmiaru planszy
-        self.granulacja = granulacja  # współczynnik ograniczający umieszczanie dużych statków na planszy. Musi być większy lub równy 1.0. Przy 1.0 - brak ograniczenia
 
     def rysujSie(self):
         """Rysuje planszę"""
@@ -176,7 +171,6 @@ class Plansza(object):
             # self.rysujSie() #test
             licznik_iteracji += 1
 
-        print "Umieszczam statek [%d]" % len(wspolrz_ozn_pol)  # test
         return Statek(wspolrz_ozn_pol)
 
     def umiescObwiednieStatku(self, statek):
@@ -211,21 +205,23 @@ class Plansza(object):
             kolumna, rzad = wspolrzedne_pola
             self.oznaczPole(ZNACZNIK_ZATOPIONY, kolumna, rzad)
 
-    def wypelnijStatkami(self):
+    def wypelnijStatkami(self, zapelnienie=15):
         """
-        Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decyduje zapełnienie i granulacja planszy
+        Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry metody
         """
+        # zapelnienie to wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych statków do rozmiaru planszy
+        # UWAGA 1 - plansze o większym rozmiarze wymagają wyższej wartości zapełnienia dla uzyskania tego samego efektu (wynika to z tego że obwiednie statków zajmują stosunkowo więcej miejsca na małej planszy)
+        max_rozmiar_statku = 20
+
         licznik_iteracji = 0
-        sum_rozmiar_statkow = int(self.rozmiar * self.zapelnienie / 100)
+        sum_rozmiar_statkow = int(self.rozmiar * zapelnienie / 100)
         akt_rozmiar_statkow = sum_rozmiar_statkow
 
         while akt_rozmiar_statkow > 0:
-            # obsługa granulacji
-            max_rozmiar_statku = int(20 / self.granulacja)
-            if max_rozmiar_statku == 0:
-                max_rozmiar_statku = 1
-
-            rozmiar_statku = randint(1, max_rozmiar_statku)
+            if akt_rozmiar_statkow < max_rozmiar_statku:
+                rozmiar_statku = randint(1, akt_rozmiar_statkow)
+            else:
+                rozmiar_statku = randint(1, max_rozmiar_statku)
             pole_startowe_x = randint(1, self.kolumny)
             pole_startowe_y = randint(1, self.rzedy)
 
@@ -234,11 +230,13 @@ class Plansza(object):
             if umieszczony_statek is not None:
                 self.umiescObwiednieStatku(umieszczony_statek)
                 self.statki.append(umieszczony_statek)
+                print  # test
+                print "Umieszczony statek: %s [%d]" % (umieszczony_statek.ranga, umieszczony_statek.rozmiar)  # test
                 akt_rozmiar_statkow -= rozmiar_statku
 
             # obsługa wyjścia
             if licznik_iteracji > sum_rozmiar_statkow * 10:  # wielkość do przetestowania
-                print "Ilosc iteracji petli zapelniajacej plansze statkami wieksza od oczekiwanej. Nastapilo przedwczesne przerwanie petli. Umieszczono mniej statkow"  # test
+                print u"Ilość iteracji pętli zapełniającej planszę statkami większa od oczekiwanej. Nastąpiło przedwczesne przerwanie petli. Umieszczono mniej statków"  # test
                 break
 
             licznik_iteracji += 1
@@ -276,7 +274,7 @@ class Gra(object):
 
 
 # testy
-plansza = Plansza(69, 69)
+plansza = Plansza(15, 15)
 plansza.rysujSie()
-plansza.wypelnijStatkami()
+plansza.wypelnijStatkami(17)
 plansza.rysujSie()

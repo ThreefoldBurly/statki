@@ -6,6 +6,8 @@ Moduł współdzielony, z którego pozostałe importują stałe i funkcje.
 """
 
 import codecs
+from random import gauss
+
 
 ZNACZNIK_PUSTY = "0"
 ZNACZNIK_PUDLO = "x"
@@ -39,6 +41,16 @@ def sparsujRangiStatkow():
 
 
 RANGI_STATKOW = sparsujRangiStatkow()  # słownik
+
+
+def podajIntZRozkladuGaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
+    """Podaje losowy int wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany"""
+    i = int(round(gauss(mediana + prz_mediany, odch_st)))
+    if i < minimum:
+        i = minimum
+    if i > maximum:
+        i = maximum
+    return i
 
 # test
 # slownik = sparsujRangiStatkow()
