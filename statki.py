@@ -5,7 +5,7 @@
 Gra w statki na planszy o arbitralnym rozmiarze.
 """
 
-from random import randint
+from random import randint, choice
 
 from wspolne import *
 
@@ -258,7 +258,7 @@ class Plansza(object):
         sum_rozmiar = 0
         for statek in self.statki:
             sum_rozmiar += statek.rozmiar
-            print "\nUmieszczony statek: %s [%d]" % (statek.ranga, statek.rozmiar)
+            print '\nUmieszczony statek: %s "%s" [%d]' % (statek.ranga, statek.nazwa, statek.rozmiar)
         print u"\nWszystkich umieszczonych statków: %d. Ich sumaryczny rozmiar: [%d]" % (len(self.statki), sum_rozmiar)
 
 
@@ -270,7 +270,14 @@ class Statek(object):
         self.wspolrzedne_pol = sorted(wspolrzedne_pol)  # lista krotek ze współrzędnymi (x, y) pól statku posortowana najpierw wg "x" potem wg "y"
         self.rozmiar = len(wspolrzedne_pol)
         self.ranga = RANGI_STATKOW[self.rozmiar]
-        # self.nazwa
+        self.nazwa = self.losujNazwe(self.ranga)
+
+    def losujNazwe(self, ranga):
+        """Losuje nazwę dla statku o określonej randze z listy w słowniku NAZWY_STATKOW modulu wspolne.py. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z listy"""
+        lista_nazw = NAZWY_STATKOW[ranga]
+        nazwa = choice(lista_nazw)
+        lista_nazw.remove(nazwa)
+        return nazwa
 
     def czyZatopiony(self, plansza):
         """Sprawdza czy wszystkie pola statku zostały trafione na wskazanej planszy"""
@@ -294,7 +301,7 @@ class Gra(object):
 
 
 # testy
-plansza = Plansza(20, 20)
+plansza = Plansza(50, 50)
 plansza.rysujSie()
 plansza.wypelnijStatkami()
 plansza.rysujSie()
