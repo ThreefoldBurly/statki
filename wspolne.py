@@ -83,7 +83,17 @@ def sparsujNazwyStatkow():
     return nazwy_statkow
 
 
-NAZWY_STATKOW = sparsujNazwyStatkow()
+NAZWY_STATKOW = sparsujNazwyStatkow()  # słownik
+
+
+def sklonujNazwyStatkow():
+    """
+    Klonuje słownik NAZWY_STATKOW, wykonując kopię każdej składowej listy
+    """
+    nazwy = {}
+    for klucz in NAZWY_STATKOW:
+        nazwy[klucz] = NAZWY_STATKOW[klucz][:]
+    return nazwy
 
 
 def podajIntZRozkladuGaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):

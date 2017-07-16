@@ -205,7 +205,7 @@ class Plansza(object):
             kolumna, rzad = wspolrzedne_pola
             self.oznaczPole(ZNACZNIK_ZATOPIONY, kolumna, rzad)
 
-    def wypelnijStatkami(self, zapelnienie=15, odch_st=9, prz_mediany=-8):
+    def wypelnijStatkami(self, zapelnienie=15, odch_st=9, prz_mediany=-7):
         """
         Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry metody
         """
@@ -265,6 +265,9 @@ class Plansza(object):
 class Statek(object):
     """Abstrakcyjna reprezentacja statku"""
 
+    nazwy = sklonujNazwyStatkow()  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
+    rzymskie = dict([[ranga, [u"II", u"III", u"IV", u"V", u"VI", u"VII", u"VIII", u"IX", u"X"]] for ranga in NAZWY_RANG])
+
     def __init__(self, wspolrzedne_pol):
         super(Statek, self).__init__()
         self.wspolrzedne_pol = sorted(wspolrzedne_pol)  # lista krotek ze współrzędnymi (x, y) pól statku posortowana najpierw wg "x" potem wg "y"
@@ -272,10 +275,32 @@ class Statek(object):
         self.ranga = RANGI_STATKOW[self.rozmiar]
         self.nazwa = self.losujNazwe(self.ranga)
 
+    @classmethod
+    def zresetujNazwy(cls, ranga):
+        """
+        Resetuje wyczerpaną listę nazw dostępnych dla instancji klasy, pobierając ze stałej modułu wspolne.py pełną listę nazw, dodając do każdej nazwy kolejny liczebnik rzymski i zwracając tak zmienioną listę
+        """
+        assert len(cls.rzymskie[ranga]) > 0, "Wyczerpano liczbe mozliwych nazw dla statkow"
+        rzymska = cls.rzymskie[ranga][0]
+
+        nowa_lista = []
+        for nazwa in NAZWY_STATKOW[ranga]:
+            nowa_lista.append(u" ".join([nazwa, rzymska]))
+
+        cls.rzymskie[ranga].remove(rzymska)
+        return nowa_lista
+
     def losujNazwe(self, ranga):
-        """Losuje nazwę dla statku o określonej randze z listy w słowniku NAZWY_STATKOW modulu wspolne.py. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z listy"""
-        lista_nazw = NAZWY_STATKOW[ranga]
-        nazwa = choice(lista_nazw)
+        """
+        Losuje nazwę dla statku o określonej randze z listy w atrybucie klasy. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z listy
+        """
+        lista_nazw = Statek.nazwy[ranga]
+        if len(lista_nazw) > 0:
+            nazwa = choice(lista_nazw)
+        else:  # obsługa wyczerpania dostępnych nazw dla danej rangi
+            lista_nazw = Statek.nazwy[ranga] = self.zresetujNazwy(ranga)
+            nazwa = choice(lista_nazw)
+
         lista_nazw.remove(nazwa)
         return nazwa
 

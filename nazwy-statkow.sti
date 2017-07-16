@@ -1,428 +1,526 @@
-Bocian:::kuter
+Bocian Biały:::kuter
+Bocian Czarny:::kuter
 Borsuk:::kuter
+Bułanek:::kuter
 Bóbr:::kuter
+Budrys:::patrolowiec
+Buzdygan:::patrolowiec
+Chorąży:::patrolowiec
+Chwat:::patrolowiecBocian Biały:::kuter
+Bocian Czarny:::kuter
+Borsuk:::kuter
+Bułanek:::kuter
+Bóbr:::kuter
+Chart:::kuter
 Cietrzew:::kuter
 Czajka:::kuter
 Czapla:::kuter
 Delfin:::kuter
 Dzik:::kuter
 Foka:::kuter
+Gniadosz:::kuter
 Jaskółka:::kuter
 Jastrząb:::kuter
+Karosz:::kuter
 Kondor:::kuter
 Kormoran:::kuter
+Kot Morski:::kuter
 Krogulec:::kuter
 Kruk:::kuter
 Kuna:::kuter
 Lis:::kuter
-Łabędź:::kuter
 Mewa:::kuter
 Morświn:::kuter
 Niedźwiadek:::kuter
+Ogar:::kuter
 Pliszka:::kuter
+Rekin:::kuter
 Rosomak:::kuter
 Rybitwa:::kuter
 Ryś:::kuter
 Skowronek:::kuter
 Sokół:::kuter
+Srokacz:::kuter
 Szakal:::kuter
+Szerszeń:::kuter
 Sęp:::kuter
 Słowik:::kuter
+Tarant:::kuter
 Trzmiel:::kuter
+Tur:::kuter
 Wilga:::kuter
 Wilk:::kuter
-Wilk:::kuter
 Wydra:::kuter
-Tur:::kuter
 Zaskroniec:::kuter
+Łabędź:::kuter
 Łasica:::kuter
 Łoś:::kuter
 Żbik:::kuter
 Żeglarz:::kuter
-Chwat:::kuter
-Żuraw:::kuter
 Żubr:::kuter
-Szerszeń:::kuter
-Kot Morski:::kuter
-Mały Rycerz:::patrolowiec
-Szybki:::patrolowiec
-Zręczny:::patrolowiec
-Zwinny:::patrolowiec
-Zwrotny:::patrolowiec
-Harpun:::patrolowiec
-Latawiec:::patrolowiec
-Rekin:::patrolowiec
+Żuraw:::kuter
+Budrys:::patrolowiec
+Buzdygan:::patrolowiec
 Chorąży:::patrolowiec
-Harnaś:::patrolowiec
+Chwat:::patrolowiec
 Ciwun:::patrolowiec
 Cześnik:::patrolowiec
+Góral:::patrolowiec
+Harnaś:::patrolowiec
+Harpun:::patrolowiec
 Horodniczy:::patrolowiec
-Miecznik:::patrolowiec
-Myśliwy:::patrolowiec
-Podczaszy:::patrolowiec
-Podkomorzy:::patrolowiec
-Podstoli:::patrolowiec
-Starosta Grodowy:::patrolowiec
-Stolnik:::patrolowiec
-Wojski:::patrolowiec
-Łowczy:::patrolowiec
-Budrys:::patrolowiec
+Hucuł:::patrolowiec
 Kaszub:::patrolowiec
+Klif:::patrolowiec
 Kozak:::patrolowiec
 Krakus:::patrolowiec
 Kresowiak:::patrolowiec
 Kujawiak:::patrolowiec
 Kurp:::patrolowiec
+Kusy:::patrolowiec
+Latawiec:::patrolowiec
 Litwin:::patrolowiec
-Hucuł:::patrolowiec
 Mazowszanin:::patrolowiec
 Mazur:::patrolowiec
+Małopolanin:::patrolowiec
+Mały Rycerz:::patrolowiec
+Miecznik:::patrolowiec
+Mnich:::patrolowiec
+Myśliwy:::patrolowiec
+Podczaszy:::patrolowiec
 Podhalanin:::patrolowiec
+Podkomorzy:::patrolowiec
 Podolanin:::patrolowiec
+Podstoli:::patrolowiec
 Pomorzanin:::patrolowiec
 Prus:::patrolowiec
-Sas:::patrolowiec
 Rusin:::patrolowiec
+Sas:::patrolowiec
+Starosta Grodowy:::patrolowiec
+Stolnik:::patrolowiec
+Szybki:::patrolowiec
 Tatarzyn:::patrolowiec
+Wielkopolanin:::patrolowiec
+Wojski:::patrolowiec
 Wołyniak:::patrolowiec
+Zręczny:::patrolowiec
+Zwinny:::patrolowiec
+Zwrotny:::patrolowiec
+Łowczy:::patrolowiec
+Łużyczanin:::patrolowiec
 Ślązak:::patrolowiec
 Żmudzin:::patrolowiec
-Gniadosz:::patrolowiec
-Karosz:::patrolowiec
-Srokacz:::patrolowiec
-Bułanek:::patrolowiec
-Tarant:::patrolowiec
-Buzdygan:::patrolowiec
-Żmija:::korweta
-Wilga:::korweta
-Osa:::korweta
-Salamandra:::korweta
-Kasztanka:::korweta
-Hreczka:::korweta
-Szabla:::korweta
+Balista:::korweta
+Bazyliszek:::korweta
+Beskidy:::korweta
+Biały Lew:::korweta
+Bieszczady:::korweta
 Bryza:::korweta
+Brześć Litewski:::korweta
+Cerber:::korweta
+Charitas:::korweta
+Częstochowa:::korweta
+Duch:::korweta
 Fala:::korweta
+Feniks:::korweta
+Gdańsk:::korweta
+Gdynia:::korweta
+Giewont:::korweta
+Gniezno:::korweta
+Gorce:::korweta
+Grodno:::korweta
+Gryf:::korweta
+Hreczka:::korweta
+Jasna Góra:::korweta
 Jutrzenka:::korweta
+Kalwaria:::korweta
+Kapitan Grudziński:::korweta
+Kapitan Krawczyk:::korweta
+Karkonosze:::korweta
+Kasztanka:::korweta
+Komandor Grochowski:::korweta
+Kraków:::korweta
+Kusza:::korweta
+Lwów:::korweta
+Mińsk:::korweta
+Osa:::korweta
+Pegaz:::korweta
+Pelplin:::korweta
+Pińsk:::korweta
+Poznań:::korweta
+Rysy:::korweta
+Salamandra:::korweta
+Sambor:::korweta
+Sudety:::korweta
+Szabla:::korweta
+Szczecin:::korweta
 Szkwał:::korweta
+Tatry:::korweta
+Toruń:::korweta
 Tęcza:::korweta
+Wanda:::korweta
+Warszawa:::korweta
+Wega:::korweta
+Wigry:::korweta
+Wilga:::korweta
+Wilno:::korweta
+Wrocław:::korweta
+Wywerna:::korweta
 Zefir:::korweta
 Zmierzch:::korweta
 Zorza:::korweta
+Łysa Góra:::korweta
 Świt:::korweta
-Balista:::korweta
-Kusza:::korweta
-Wanda:::korweta
-Wega:::korweta
-Gdańsk:::korweta
-Gdynia:::korweta
-Grodno:::korweta
-Kraków:::korweta
-Lwów:::korweta
-Pińsk:::korweta
-Charitas:::korweta
-Poznań:::korweta
-Szczecin:::korweta
-Warszawa:::korweta
-Wilno:::korweta
-Wrocław:::korweta
+Święty Krzyż:::korweta
+Żmija:::korweta
 Żółty Lew:::korweta
-Biały Lew:::korweta
-Duch:::korweta
-Feniks:::korweta
-Bazyliszek:::korweta
-Gryf:::korweta
-Wywerna:::korweta
-Pegaz:::korweta
-Cerber:::korweta
-Kapitan Grudziński:::korweta
-Kapitan Krawczyk:::korweta
-Komandor Grochowski:::korweta
-Wrocław:::korweta
-Wigry:::korweta
-Zmora:::fregata
+Bartia:::fregata
 Bałtyk:::fregata
+Berestia:::fregata
 Bełt:::korweta
-Jaksa:::korweta
-Trebusz:::korweta
+Biała Dama:::fregata
 Biała Wrona:::fregata
+Calisia:::fregata
 Cedynia:::fregata
+Cracovia:::fregata
+Cuiavia:::fregata
+Czarna Madonna:::fregata
 Duma Lachów:::fregata
+Dziwożona:::fregata
+Feliks Koneczny:::fregata
+Galicia:::fregata
+Galindia:::fregata
+Gedanum:::fregata
+Generał Abraham:::fregata
+Generał Anders:::fregata
+Generał Bortnowski:::fregata
+Generał Bołtuć:::fregata
+Generał Czuma:::fregata
+Generał Dowbór-Muśnicki:::fregata
+Generał Fieldorf:::fregata
+Generał Haller:::fregata
+Generał Kleeberg:::fregata
+Generał Konarzewski:::fregata
+Generał Kowalski:::fregata
+Generał Kustroń:::fregata
+Generał Kutrzeba:::fregata
+Generał Maczek:::fregata
+Generał Orlik-Rückemann:::fregata
+Generał Piskor:::fregata
+Generał Prugar-Ketling:::fregata
+Generał Przeździecki:::fregata
+Generał Rozwadowski:::fregata
+Generał Sosabowski:::fregata
+Generał Sosnkowski:::fregata
+Generał Szylling:::fregata
+Generał Thommée:::fregata
+Generał Unrug:::fregata
+Generał Wlad:::fregata
+Generał Żeligowski:::fregata
 Gwiazda Zaranna:::fregata
 Husaria:::fregata
+Ignacy Jan Paderewski:::fregata
+Ignacy Łukasiewicz:::fregata
+Inka:::fregata
 Iskra:::fregata
+Jagiellonia:::fregata
+Jaksa:::korweta
+Kazimierz Funk:::fregata
+Kontradmirał Czernicki:::fregata
+Królowa Bona:::fregata
+Królowa Jadwiga:::fregata
+Królowa Kinga:::fregata
+Królowa Ludwika:::fregata
+Królowa Marysieńka:::fregata
+Lenkija:::fregata
+Leopolis:::fregata
+Lituania:::fregata
+Livonia:::fregata
+Lusatia:::fregata
+Major Skalski:::fregata
+Mara:::fregata
+Maria Curie:::fregata
+Masovia:::fregata
+Masuria:::fregata
+Miłasza:::fregata
 Morska Piana:::fregata
 Nadzieja:::fregata
 Nimfa:::fregata
-Rusałka:::fregata
-Dziwożona:::fregata
 Oliwa:::fregata
+Piast:::fregata
+Podlachia:::fregata
+Podolia:::fregata
+Podpułkownik Kotarba:::fregata
+Podpułkownik Langer:::fregata
+Pogezania:::fregata
+Polesia:::fregata
+Polonia Maior:::fregata
+Polonia Minor:::fregata
+Pomerania:::fregata
+Pomerelia:::fregata
+Pomezania:::fregata
+Posnania:::fregata
+Prussia:::fregata
+Pułkownik Bokszczanin:::fregata
+Pułkownik Dąbek:::fregata
+Roman Dmowski:::fregata
+Rusałka:::fregata
+Ruthenia Alba:::fregata
+Ruthenia Nigra:::fregata
+Ruthenia Rubra:::fregata
+Samogitia:::fregata
+Sedinum:::fregata
+Silesia Inferior:::fregata
+Silesia Superior:::fregata
+Srebrna Kula:::fregata
 Stara Wiara:::fregata
 Strzała:::fregata
 Swoboda:::fregata
 Syrena:::fregata
+Trebusz:::korweta
 Urocza:::fregata
 Ursa:::fregata
+Varmia:::fregata
+Varta:::fregata
+Viadrus:::fregata
+Victrix:::fregata
+Vilna:::fregata
+Vistula:::fregata
+Volhynia:::fregata
+Vratislavia:::fregata
 Warta:::fregata
 Wdzięczna:::fregata
+Widmo:::fregata
+Widziadło:::fregata
 Wiktoria Wiedeńska:::fregata
 Wilia:::fregata
 Wodna Panna:::fregata
 Zjawa:::fregata
-Widmo:::fregata
-Widziadło:::fregata
-Mara:::fregata
-Generał Anders:::fregata
-Major Skalski:::fregata
-Pułkownik Bokszczanin:::fregata
-Pułkownik Dąbek:::fregata
-Podpułkownik Langer:::fregata
-Podpułkownik Kotarba:::fregata
-Kontradmirał Czernicki:::fregata
-Generał Thommée:::fregata
-Generał Prugar-Ketling:::fregata
-Generał Unrug:::fregata
-Generał Bortnowski:::fregata
-Generał Szylling:::fregata
-Generał Kowalski:::fregata
-Generał Bołtuć:::fregata
-Generał Kustroń:::fregata
-Generał Abraham:::fregata
-Generał Piskor:::fregata
-Generał Czuma:::fregata
-Generał Przeździecki:::fregata
-Generał Orlik-Rückemann:::fregata
-Generał Żeligowski:::fregata
-Generał Maczek:::fregata
-Generał Kutrzeba:::fregata
-Generał Kleeberg:::fregata
-Generał Haller:::fregata
-Generał Sosabowski:::fregata
-Generał Rozwadowski:::fregata
-Generał Sosnkowski:::fregata
-Generał Fieldorf:::fregata
-Generał Wlad:::fregata
-Królowa Jadwiga:::fregata
-Królowa Kinga:::fregata
-Królowa Marysienka:::fregata
-Srebrna Kula:::fregata
-Biała Dama:::fregata
-Piast:::fregata
-Jagiellonia:::fregata
-Posnania:::fregata
-Pomerania:::fregata
-Pogezania:::fregata
-Pomezania:::fregata
-Galindia:::fregata
-Galicia:::fregata
-Samogitia:::fregata
-Pomerelia:::fregata
-Calisia:::fregata
-Cracovia:::fregata
-Berestia:::fregata
-Vratislavia:::fregata
-Sedinum:::fregata
-Gedanum:::fregata
-Vilna:::fregata
-Leopolis:::fregata
-Masovia:::fregata
-Masuria:::fregata
-Bartia:::fregata
-Podolia:::fregata
-Volhynia:::fregata
-Lituania:::fregata
-Ruthenia Rubra:::fregata
-Ruthenia Nigra:::fregata
-Ruthenia Alba:::fregata
-Silesia Superior:::fregata
-Silesia Inferior:::fregata
-Polonia Maior:::fregata
-Polonia Minor:::fregata
-Lusatia:::fregata
-Polesia:::fregata
-Livonia:::fregata
-Podlachia:::fregata
-Cuiavia:::fregata
-Varmia:::fregata
-Prussia:::fregata
-Vratislavia:::fregata
-Vistula:::fregata
-Viadrus:::fregata
-Varta:::fregata
-Miłasza:::fregata
-Inka:::fregata
+Zmora:::fregata
 Zoya:::fregata
-Spytko z Melsztyna:::niszczyciel
-Onufry Zagłoba:::niszczyciel
-Jan Skrzetuski:::niszczyciel
-Michał Wołodyjowski:::niszczyciel
+Święta Panienka:::fregata
 Andzej Kmicic:::niszczyciel
-Longinus Podbipięta:::niszczyciel
-Rotmistrz Pilecki:::niszczyciel
-Kapitan Raginis:::niszczyciel
-Porucznik Cybulski:::niszczyciel
-Błyskawica:::niszczyciel
-Burza:::niszczyciel
-Sztorm:::niszczyciel
-Jurand ze Spychowa:::niszczyciel
-Maćko z Bogdańca:::niszczyciel
-Zbyszko z Bogdańca:::niszczyciel
-Wicher:::niszczyciel
-Grom:::niszczyciel
-Orkan:::niszczyciel
-Huragan:::niszczyciel
-Gwiezdny Pył:::niszczyciel
-Piorun:::niszczyciel
-Halny:::niszczyciel
-Płomień:::niszczyciel
-Kircholm:::niszczyciel
-Ursus:::niszczyciel
-Zawisza Czarny:::niszczyciel
-Senator:::niszczyciel
-Wojewoda:::niszczyciel
-Kasztelan:::niszczyciel
+Anoda:::niszczyciel
 Beresteczko:::niszczyciel
-Kłuszyn:::niszczyciel
-Wigor:::niszczyciel
-Grzmot:::niszczyciel
+Białynia:::niszczyciel
+Bohun:::niszczyciel
+Bomba:::niszczyciel
+Bruzda:::niszczyciel
+Burza:::niszczyciel
+Błyskawica:::niszczyciel
 Chocim:::niszczyciel
+Dolina:::niszczyciel
+Druh:::niszczyciel
+Garda:::niszczyciel
+Glin:::niszczyciel
+Grom:::niszczyciel
 Grunwald:::niszczyciel
-Kanclerz Wielki:::niszczyciel
-Podkanclerzy:::niszczyciel
-Marszałek Wielki:::niszczyciel
-Marszałek Nadworny:::niszczyciel
-Podskarbi Wielki:::niszczyciel
-Podskarbi Nadworny:::niszczyciel
-Hetman Wielki:::niszczyciel
+Grzmot:::niszczyciel
+Gurt:::niszczyciel
+Gwiezdny Pył:::niszczyciel
+Gzyms:::niszczyciel
+Głóg:::niszczyciel
+Halny:::niszczyciel
+Harry:::niszczyciel
 Hetman Polny:::niszczyciel
+Hetman Wielki:::niszczyciel
+Hubal:::niszczyciel
+Huragan:::niszczyciel
+Huzar:::niszczyciel
+Igła:::niszczyciel
+Jan Skrzetuski:::niszczyciel
+Jur:::niszczyciel
+Jurand ze Spychowa:::niszczyciel
+Kanclerz Wielki:::niszczyciel
+Kapitan Raginis:::niszczyciel
+Kasztelan:::niszczyciel
+Kawa:::niszczyciel
+Kircholm:::niszczyciel
+Kobra:::niszczyciel
+Kord:::niszczyciel
+Kotwicz:::niszczyciel
+Kra:::niszczyciel
+Krybar:::niszczyciel
+Kryształ:::niszczyciel
+Krzewina:::niszczyciel
+Kłuszyn:::niszczyciel
+Laluś:::niszczyciel
 Lech:::niszczyciel
+Lengyel:::niszczyciel
+Longinus Podbipięta:::niszczyciel
 Lufa:::niszczyciel
+Makary:::niszczyciel
+Marszałek Nadworny:::niszczyciel
+Marszałek Wielki:::niszczyciel
+Maćko z Bogdańca:::niszczyciel
+Men:::niszczyciel
+Michał Wołodyjowski:::niszczyciel
+Miłosz:::niszczyciel
+Młot:::niszczyciel
+Mściciel:::niszczyciel
 Mścisław:::niszczyciel
+Nil:::niszczyciel
+Nurt:::niszczyciel
+Ogień:::niszczyciel
+Olech:::niszczyciel
+Onufry Zagłoba:::niszczyciel
+Orkan:::niszczyciel
+Orlik:::niszczyciel
+Parasol:::niszczyciel
+Piorun:::niszczyciel
+Pięść:::niszczyciel
+Podkanclerzy:::niszczyciel
+Podskarbi Nadworny:::niszczyciel
+Podskarbi Wielki:::niszczyciel
+Ponar:::niszczyciel
+Porucznik Cybulski:::niszczyciel
+Prymas Wyszyński:::niszczyciel
+Płomień:::niszczyciel
+Pług:::niszczyciel
+Radosław:::niszczyciel
+Ragner:::niszczyciel
+Rewera:::niszczyciel
+Rotmistrz Pilecki:::niszczyciel
+Ruczaj:::niszczyciel
+Róg:::niszczyciel
+Senator:::niszczyciel
+Siekiera:::niszczyciel
+Spytko z Melsztyna:::niszczyciel
+Starba:::niszczyciel
+Strzemię:::niszczyciel
+Szaniec:::niszczyciel
+Szprung:::niszczyciel
+Sztorm:::niszczyciel
+Sławbor:::niszczyciel
+Służa:::niszczyciel
+Teodor:::niszczyciel
+Trzaska:::niszczyciel
+Ursus:::niszczyciel
+Wicher:::niszczyciel
+Wierch:::niszczyciel
+Wigor:::niszczyciel
+Wojewoda:::niszczyciel
+Wołk:::niszczyciel
+Zapora:::niszczyciel
+Zawisza Czarny:::niszczyciel
+Zbyszko z Bogdańca:::niszczyciel
+Zośka:::niszczyciel
+Zuch:::niszczyciel
+Łuna:::niszczyciel
 Łupaszka:::niszczyciel
 Żelazny:::niszczyciel
-Krzewina:::niszczyciel
-Kotwicz:::niszczyciel
-Ragner:::niszczyciel
-Mściciel:::niszczyciel
-Men:::niszczyciel
-Olech:::niszczyciel
-Radosław:::niszczyciel
-Nil:::niszczyciel
-Pług:::niszczyciel
-Głóg:::niszczyciel
-Jur:::niszczyciel
-Teodor:::niszczyciel
-Druh:::niszczyciel
-Służa:::niszczyciel
-Młot:::niszczyciel
-Anoda:::niszczyciel
-Bruzda:::niszczyciel
-Hubal:::niszczyciel
-Białynia:::niszczyciel
-Orlik:::niszczyciel
-Zapora:::niszczyciel
-Huzar:::niszczyciel
-Laluś:::niszczyciel
-Ogień:::niszczyciel
-Parasol:::niszczyciel
-Bohun:::niszczyciel
-Zuch:::niszczyciel
-Starba:::niszczyciel
-Wołk:::niszczyciel
-Garda:::niszczyciel
-Kawa:::niszczyciel
-Igła:::niszczyciel
-Ponar:::niszczyciel
-Nurt:::niszczyciel
-Kra:::niszczyciel
-Gzyms:::niszczyciel
-Kord:::niszczyciel
-Łuna:::niszczyciel
-Bomba:::niszczyciel
-Strzemię:::niszczyciel
-Harry:::niszczyciel
-Trzaska:::niszczyciel
-Kobra:::niszczyciel
-Dolina:::niszczyciel
-Rewera:::niszczyciel
-Zośka:::niszczyciel
-Glin:::niszczyciel
-Szprung:::niszczyciel
-Makary:::niszczyciel
-Wierch:::niszczyciel
-Kryształ:::niszczyciel
-Pięść:::niszczyciel
-Gurt:::niszczyciel
-Krybar:::niszczyciel
-Miłosz:::niszczyciel
-Róg:::niszczyciel
-Siekiera:::niszczyciel
 Żniwiarz:::niszczyciel
-Ruczaj:::niszczyciel
-Sławbor:::niszczyciel
-Szaniec:::niszczyciel
-Hetman Potocki:::krążownik
-Hetman Ostrowski:::krążownik
-Hetman Tarnowski:::krążownik
-Hetman Koniecpolski:::krążownik
-Hetman Radziwiłł:::krążownik
-Hetman Zamojski:::krążownik
-Książe Jarema:::krążownik
-Hetman Chodkiewicz:::krążownik
-Hetman Żółkiewski:::krążownik
-Hetman Czarnecki:::krążownik
 Admirał Sierpinek:::krążownik
-Cichociemny:::krążownik
+Atrox:::krążownik
+Audax:::krążownik
+Beatus:::krążownik
+Bellatrix:::krążownik
+Bellicosus:::krążownik
+Bellus:::krążownik
+Biały Smok:::krążownik
+Bolesław I Chrobry:::krążownik
+Bolesław III Krzywousty:::krążownik
 Bystry:::krążownik
-Zuchwały:::krążownik
+Celsus:::krążownik
 Charakterny:::krążownik
-Uparty:::krążownik
-Zawzięty:::krążownik
-Wytrwały:::krążownik
-Dzielny:::krążownik
-Śmiały:::krążownik
-Odważny:::krążownik
-Dziarski:::krążownik
-Rączy:::krążownik
-Chyży:::krążownik
-Gracki:::krążownik
-Wartki:::krążownik
-Prężny:::krążownik
-Czujny:::krążownik
-Szczerbiec:::krążownik
-Pawąż:::krążownik
-Groźny:::krążownik
-Srogi:::krążownik
-Złowrogi:::krążownik
 Chmurny:::krążownik
-Ponury:::krążownik
-Posępny:::krążownik
-Niepokój:::krążownik
-Złowieszczy:::krążownik
-Niezłomny:::krążownik
-Wyklęty:::krążownik
+Chopin:::krążownik
+Chyży:::krążownik
+Cichociemny:::krążownik
+Crispus:::krążownik
+Czarny Smok:::krążownik
+Czujny:::krążownik
+Durus:::krążownik
+Dziarski:::krążownik
+Dzielny:::krążownik
+Dziki:::krążownik
+Efferus:::krążownik
+Elatus:::krążownik
+Ferox:::krążownik
+Ferreus:::krążownik
+Fortis:::krążownik
+Fortunatus:::krążownik
 Gniewny:::krążownik
+Gorliwy:::krążownik
+Gracki:::krążownik
+Groźny:::krążownik
+Hetman Chodkiewicz:::krążownik
+Hetman Czarniecki:::krążownik
+Hetman Koniecpolski:::krążownik
+Hetman Lubomirski:::krążownik
+Hetman Ostrowski:::krążownik
+Hetman Potocki:::krążownik
+Hetman Radziwiłł:::krążownik
+Hetman Tarnowski:::krążownik
+Hetman Zamoyski:::krążownik
+Hetman Żółkiewski:::krążownik
+Heweliusz:::krążownik
+Honor:::krążownik
+Horribilis:::krążownik
+Inturbidus:::krążownik
+Iustus:::krążownik
+Jan II Kazimierz Waza:::krążownik
+Jan III Sobieski:::krążownik
+Kanclerz Ossoliński:::krążownik
+Kanclerz Sapieha:::krążownik
+Kasztelan Firlej:::krążownik
+Kasztelan Tęczyński:::krążownik
+Kazimierz I Odnowiciel:::krążownik
+Kazimierz II Sprawiedliwy:::krążownik
+Kazimierz III Wielki:::krążownik
+Kazimierz IV Jagiellończyk:::krążownik
+Kopernik:::krążownik
+Książe Jarema:::krążownik
+Largus:::krążownik
+Lew Lehistanu:::krążownik
+Magnificus:::krążownik
+Malleus:::krążownik
+Marszałek Opaliński:::krążownik
+Niepokój:::krążownik
+Nieugięty:::krążownik
 Nieustraszony:::krążownik
 Nieustępliwy:::krążownik
-Nieugięty:::krążownik
 Niezachwiany:::krążownik
+Niezłomny:::krążownik
+Odważny:::krążownik
+Orzeł Biały:::krążownik
+Pawąż:::krążownik
+Pax:::krążownik
+Pogoń Litewska:::krążownik
+Ponury:::krążownik
+Posępny:::krążownik
+Potens:::krążownik
+Prudens:::krążownik
+Prężny:::krążownik
+Pulcher:::krążownik
+Rectus:::krążownik
+Robustus:::krążownik
+Rączy:::krążownik
+Salvator:::krążownik
+Sanguinarius:::krążownik
+Srogi:::krążownik
+Stefan Batory:::krążownik
+Szczerbiec:::krążownik
+Szczodry:::krążownik
+Terribilis:::krążownik
 Twardy:::krążownik
-Gorliwy:::krążownik
-Czarny Smok:::krążownik
-Biały Smok:::krążownik
+Uparty:::krążownik
+Wartki:::krążownik
+Wojowniczy:::krążownik
+Wybawiciel:::krążownik
+Wyklęty:::krążownik
+Wytrwały:::krążownik
+Władysław I Łokietek:::krążownik
+Władysław II Jagiełło:::krążownik
+Zawzięty:::krążownik
+Zuchwały:::krążownik
+Złowieszczy:::krążownik
+Złowrogi:::krążownik
+Śmiały:::krążownik
+Święty Jerzy:::krążownik
+Święty Kazimierz:::krążownik
 Święty Stanisław:::krążownik
 Święty Wojciech:::krążownik
-Święty Kazimierz:::krążownik
-Święty Jerzy:::krążownik
-Honor:::krążownik
-Stefan Batory:::krążownik
-Kazimierz III Wielki:::krążownik
-Jan III Sobieski:::krążownik
-Władysław I Łokietek:::krążownik
-Bolesław I Chrobry:::krążownik
-Jan II Kazimierz Waza:::krążownik
-Orzeł Biały:::krążownik
-Pogoń Litewska:::krążownik
-Lew Lehistanu:::krążownik
 Abdank:::pancernik
 Akszak:::pancernik
 Amadej:::pancernik
@@ -440,6 +538,7 @@ Dunin:::pancernik
 Działosza:::pancernik
 Dąbrowa:::pancernik
 Fulsztyn:::pancernik
+Gierałt:::pancernik
 Godziemba:::pancernik
 Gozdawa:::pancernik
 Gołobok:::pancernik
@@ -520,7 +619,7 @@ Topacz:::pancernik
 Topór:::pancernik
 Trzywdar:::pancernik
 Trąby:::pancernik
-Vulpis:::pancernik
+Wulpis:::pancernik
 Wczele:::pancernik
 Wieniawa:::pancernik
 Wieruszowa:::pancernik
@@ -535,3 +634,29 @@ Zerwikaptur:::pancernik
 Łodzia:::pancernik
 Ślepowron:::pancernik
 Śmiara:::pancernik
+Ciwun:::patrolowiec
+Balista:::korweta
+Bazyliszek:::korweta
+Beskidy:::korweta
+Biały Lew:::korweta
+Bieszczady:::korweta
+Bartia:::fregata
+Bałtyk:::fregata
+Berestia:::fregata
+Bełt:::korweta
+Biała Dama:::fregata
+Andzej Kmicic:::niszczyciel
+Anoda:::niszczyciel
+Beresteczko:::niszczyciel
+Białynia:::niszczyciel
+Bohun:::niszczyciel
+Admirał Sierpinek:::krążownik
+Atrox:::krążownik
+Audax:::krążownik
+Beatus:::krążownik
+Bellatrix:::krążownik
+Abdank:::pancernik
+Akszak:::pancernik
+Amadej:::pancernik
+Belina:::pancernik
+Beztrwogi:::pancernik
