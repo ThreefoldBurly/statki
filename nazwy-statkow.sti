@@ -3,22 +3,20 @@ Bocian Czarny:::kuter
 Borsuk:::kuter
 Bułanek:::kuter
 Bóbr:::kuter
-Budrys:::patrolowiec
-Buzdygan:::patrolowiec
-Chorąży:::patrolowiec
-Chwat:::patrolowiecBocian Biały:::kuter
-Bocian Czarny:::kuter
-Borsuk:::kuter
-Bułanek:::kuter
-Bóbr:::kuter
 Chart:::kuter
 Cietrzew:::kuter
+Bażant:::kuter
+Drop:::kuter
+Sójka:::kuter
+Myszołów:::kuter
+Mysikrólik:::kuter
 Czajka:::kuter
 Czapla:::kuter
 Delfin:::kuter
 Dzik:::kuter
 Foka:::kuter
 Gniadosz:::kuter
+Bielik:::kuter
 Jaskółka:::kuter
 Jastrząb:::kuter
 Karosz:::kuter
@@ -33,6 +31,7 @@ Mewa:::kuter
 Morświn:::kuter
 Niedźwiadek:::kuter
 Ogar:::kuter
+Osa:::kuter
 Pliszka:::kuter
 Rekin:::kuter
 Rosomak:::kuter
@@ -40,11 +39,14 @@ Rybitwa:::kuter
 Ryś:::kuter
 Skowronek:::kuter
 Sokół:::kuter
+Basior:::kuter
 Srokacz:::kuter
 Szakal:::kuter
 Szerszeń:::kuter
 Sęp:::kuter
 Słowik:::kuter
+Wadera:::kuter
+Kozica:::kuter
 Tarant:::kuter
 Trzmiel:::kuter
 Tur:::kuter
@@ -54,28 +56,53 @@ Wydra:::kuter
 Zaskroniec:::kuter
 Łabędź:::kuter
 Łasica:::kuter
+Husky:::kuter
 Łoś:::kuter
+Muflon:::kuter
+Tygrys:::kuter
+Tygrys:::kuter
 Żbik:::kuter
 Żeglarz:::kuter
 Żubr:::kuter
 Żuraw:::kuter
+Akinakes:::patrolowiec
+Assegal:::patrolowiec
+Atlati:::patrolowiec
+Basilard:::patrolowiec
+Berdysz:::patrolowiec
+Bełt:::patrolowiec
 Budrys:::patrolowiec
 Buzdygan:::patrolowiec
+Bułat:::patrolowiec
+Chopesz:::patrolowiec
 Chorąży:::patrolowiec
 Chwat:::patrolowiec
 Ciwun:::patrolowiec
+Czekan:::patrolowiec
+Kargul:::patrolowiec
 Cześnik:::patrolowiec
+Flamberg:::patrolowiec
+Floret:::patrolowiec
+Gladius:::patrolowiec
 Góral:::patrolowiec
+Handżar:::patrolowiec
 Harnaś:::patrolowiec
 Harpun:::patrolowiec
 Horodniczy:::patrolowiec
 Hucuł:::patrolowiec
+Jatagan:::patrolowiec
+Kastet:::patrolowiec
 Kaszub:::patrolowiec
+Kindżał:::patrolowiec
 Klif:::patrolowiec
+Koncerz:::patrolowiec
+Kord:::patrolowiec
+Kordelas:::patrolowiec
 Kozak:::patrolowiec
 Krakus:::patrolowiec
 Kresowiak:::patrolowiec
 Kujawiak:::patrolowiec
+Kunal:::patrolowiec
 Kurp:::patrolowiec
 Kusy:::patrolowiec
 Latawiec:::patrolowiec
@@ -84,9 +111,14 @@ Mazowszanin:::patrolowiec
 Mazur:::patrolowiec
 Małopolanin:::patrolowiec
 Mały Rycerz:::patrolowiec
+Miecz:::patrolowiec
 Miecznik:::patrolowiec
 Mnich:::patrolowiec
 Myśliwy:::patrolowiec
+Nadziak:::patrolowiec
+Oszczep:::patrolowiec
+Pałasz:::patrolowiec
+Pilum:::patrolowiec
 Podczaszy:::patrolowiec
 Podhalanin:::patrolowiec
 Podkomorzy:::patrolowiec
@@ -94,12 +126,19 @@ Podolanin:::patrolowiec
 Podstoli:::patrolowiec
 Pomorzanin:::patrolowiec
 Prus:::patrolowiec
+Puginał:::patrolowiec
+Rapier:::patrolowiec
+Rokosz:::patrolowiec
 Rusin:::patrolowiec
 Sas:::patrolowiec
+Sejmitar:::patrolowiec
 Starosta Grodowy:::patrolowiec
 Stolnik:::patrolowiec
+Szamszir:::patrolowiec
+Sztylet:::patrolowiec
 Szybki:::patrolowiec
 Tatarzyn:::patrolowiec
+Tulwar:::patrolowiec
 Wielkopolanin:::patrolowiec
 Wojski:::patrolowiec
 Wołyniak:::patrolowiec
@@ -109,43 +148,58 @@ Zwrotny:::patrolowiec
 Łowczy:::patrolowiec
 Łużyczanin:::patrolowiec
 Ślązak:::patrolowiec
+Żeleziec:::patrolowiec
 Żmudzin:::patrolowiec
+Augustówka:::korweta
 Balista:::korweta
 Bazyliszek:::korweta
+Bałta:::korweta
 Beskidy:::korweta
 Biały Lew:::korweta
 Bieszczady:::korweta
 Bryza:::korweta
 Brześć Litewski:::korweta
+Buława:::korweta
 Cerber:::korweta
 Charitas:::korweta
 Częstochowa:::korweta
 Duch:::korweta
+Dzida:::korweta
 Fala:::korweta
+Falcata:::korweta
 Feniks:::korweta
 Gdańsk:::korweta
 Gdynia:::korweta
 Giewont:::korweta
+Gizarma:::korweta
 Gniezno:::korweta
 Gorce:::korweta
 Grodno:::korweta
 Gryf:::korweta
+Halabarda:::korweta
 Hreczka:::korweta
 Jasna Góra:::korweta
 Jutrzenka:::korweta
 Kalwaria:::korweta
 Kapitan Grudziński:::korweta
 Kapitan Krawczyk:::korweta
+Karabela:::korweta
 Karkonosze:::korweta
 Kasztanka:::korweta
+Katana:::korweta
 Komandor Grochowski:::korweta
 Kraków:::korweta
+Kukri:::korweta
 Kusza:::korweta
+Lanca:::korweta
 Lwów:::korweta
+Maczeta:::korweta
+Maczeta:::korweta
+Maczuga:::korweta
 Mińsk:::korweta
-Osa:::korweta
 Pegaz:::korweta
 Pelplin:::korweta
+Pika:::korweta
 Pińsk:::korweta
 Poznań:::korweta
 Rysy:::korweta
@@ -155,6 +209,7 @@ Sudety:::korweta
 Szabla:::korweta
 Szczecin:::korweta
 Szkwał:::korweta
+Szpada:::korweta
 Tatry:::korweta
 Toruń:::korweta
 Tęcza:::korweta
@@ -166,6 +221,7 @@ Wilga:::korweta
 Wilno:::korweta
 Wrocław:::korweta
 Wywerna:::korweta
+Włócznia:::korweta
 Zefir:::korweta
 Zmierzch:::korweta
 Zorza:::korweta
@@ -177,7 +233,7 @@ Zorza:::korweta
 Bartia:::fregata
 Bałtyk:::fregata
 Berestia:::fregata
-Bełt:::korweta
+Glewia:::korweta
 Biała Dama:::fregata
 Biała Wrona:::fregata
 Calisia:::fregata
@@ -634,29 +690,3 @@ Zerwikaptur:::pancernik
 Łodzia:::pancernik
 Ślepowron:::pancernik
 Śmiara:::pancernik
-Ciwun:::patrolowiec
-Balista:::korweta
-Bazyliszek:::korweta
-Beskidy:::korweta
-Biały Lew:::korweta
-Bieszczady:::korweta
-Bartia:::fregata
-Bałtyk:::fregata
-Berestia:::fregata
-Bełt:::korweta
-Biała Dama:::fregata
-Andzej Kmicic:::niszczyciel
-Anoda:::niszczyciel
-Beresteczko:::niszczyciel
-Białynia:::niszczyciel
-Bohun:::niszczyciel
-Admirał Sierpinek:::krążownik
-Atrox:::krążownik
-Audax:::krążownik
-Beatus:::krążownik
-Bellatrix:::krążownik
-Abdank:::pancernik
-Akszak:::pancernik
-Amadej:::pancernik
-Belina:::pancernik
-Beztrwogi:::pancernik
