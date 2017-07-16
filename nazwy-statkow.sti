@@ -1,6 +1,5 @@
 Bocian:::kuter
 Borsuk:::kuter
-Bystry:::patrolowiec
 Bóbr:::kuter
 Cietrzew:::kuter
 Czajka:::kuter
@@ -34,12 +33,18 @@ Wilga:::kuter
 Wilk:::kuter
 Wilk:::kuter
 Wydra:::kuter
+Tur:::kuter
 Zaskroniec:::kuter
 Łasica:::kuter
 Łoś:::kuter
 Żbik:::kuter
 Żeglarz:::kuter
+Chwat:::kuter
 Żuraw:::kuter
+Żubr:::kuter
+Szerszeń:::kuter
+Kot Morski:::kuter
+Mały Rycerz:::patrolowiec
 Szybki:::patrolowiec
 Zręczny:::patrolowiec
 Zwinny:::patrolowiec
@@ -48,6 +53,7 @@ Harpun:::patrolowiec
 Latawiec:::patrolowiec
 Rekin:::patrolowiec
 Chorąży:::patrolowiec
+Harnaś:::patrolowiec
 Ciwun:::patrolowiec
 Cześnik:::patrolowiec
 Horodniczy:::patrolowiec
@@ -68,6 +74,7 @@ Kresowiak:::patrolowiec
 Kujawiak:::patrolowiec
 Kurp:::patrolowiec
 Litwin:::patrolowiec
+Hucuł:::patrolowiec
 Mazowszanin:::patrolowiec
 Mazur:::patrolowiec
 Podhalanin:::patrolowiec
@@ -80,6 +87,19 @@ Tatarzyn:::patrolowiec
 Wołyniak:::patrolowiec
 Ślązak:::patrolowiec
 Żmudzin:::patrolowiec
+Gniadosz:::patrolowiec
+Karosz:::patrolowiec
+Srokacz:::patrolowiec
+Bułanek:::patrolowiec
+Tarant:::patrolowiec
+Buzdygan:::patrolowiec
+Żmija:::korweta
+Wilga:::korweta
+Osa:::korweta
+Salamandra:::korweta
+Kasztanka:::korweta
+Hreczka:::korweta
+Szabla:::korweta
 Bryza:::korweta
 Fala:::korweta
 Jutrzenka:::korweta
@@ -91,120 +111,162 @@ Zorza:::korweta
 Świt:::korweta
 Balista:::korweta
 Kusza:::korweta
-Osa:::korweta
-Salamandra:::korweta
 Wanda:::korweta
 Wega:::korweta
-Wilga:::korweta
-Żmija:::korweta
 Gdańsk:::korweta
 Gdynia:::korweta
 Grodno:::korweta
 Kraków:::korweta
 Lwów:::korweta
 Pińsk:::korweta
+Charitas:::korweta
 Poznań:::korweta
 Szczecin:::korweta
 Warszawa:::korweta
 Wilno:::korweta
 Wrocław:::korweta
-Zmora:::korweta
-Bałtyk:::korweta
-Biała Wrona:::korweta
-Cedynia:::korweta
-Duma Lachów:::korweta
-Gwiazda Zaranna:::korweta
-Husaria:::korweta
-Iskra:::korweta
-Morska Piana:::korweta
-Nadzieja:::korweta
-Nimfa:::korweta
-Oliwa:::korweta
-Stara Wiara:::korweta
-Strzała:::korweta
-Swoboda:::korweta
-Syrena:::korweta
-Urocza:::korweta
-Ursa:::korweta
-Warta:::korweta
-Wdzięczna:::korweta
-Wiktoria Wiedeńska:::korweta
-Wilia:::korweta
-Wodna Panna:::korweta
-Zjawa:::korweta
-Belina:::fregata
-Bogoria:::fregata
-Bończa:::fregata
-Czewoja:::fregata
-Doliwa:::fregata
-Dołęga:::fregata
-Dryja:::fregata
-Drzewica:::fregata
-Działosza:::fregata
-Dąbrowa:::fregata
-Godziemba:::fregata
-Gozdawa:::fregata
-Gryzima:::fregata
-Janina:::fregata
-Junosza:::fregata
-Kierdeja:::fregata
-Kownia:::fregata
-Kościesza:::fregata
-Krzywda:::fregata
-Kuszaba:::fregata
-Larysza:::fregata
-Leliwa:::fregata
-Nieczuja:::fregata
-Niesobia:::fregata
-Nowina:::fregata
-Oksza:::fregata
-Orla:::fregata
-Ossoria:::fregata
-Ostoja:::fregata
-Paparona:::fregata
-Pilawa:::fregata
-Prosna:::fregata
-Przegonia:::fregata
-Przerowa:::fregata
-Rogala:::fregata
-Rola:::fregata
-Równia:::fregata
-Sulima:::fregata
-Syrokomla:::fregata
-Szreniawa:::fregata
-Sędowojna:::fregata
-Słubica:::fregata
-Tarnawa:::fregata
-Wieniawa:::fregata
-Wieruszowa:::fregata
-Wyszogota:::fregata
-Zabawa:::fregata
-Zadora:::fregata
-Zaremba:::fregata
-Łada:::fregata
-Łodzia:::fregata
-Śmiara:::fregata
+Żółty Lew:::korweta
+Biały Lew:::korweta
+Duch:::korweta
+Feniks:::korweta
+Bazyliszek:::korweta
+Gryf:::korweta
+Wywerna:::korweta
+Pegaz:::korweta
+Cerber:::korweta
+Kapitan Grudziński:::korweta
+Kapitan Krawczyk:::korweta
+Komandor Grochowski:::korweta
+Wrocław:::korweta
+Wigry:::korweta
+Zmora:::fregata
+Bałtyk:::fregata
+Bełt:::korweta
+Jaksa:::korweta
+Trebusz:::korweta
+Biała Wrona:::fregata
+Cedynia:::fregata
+Duma Lachów:::fregata
+Gwiazda Zaranna:::fregata
+Husaria:::fregata
+Iskra:::fregata
+Morska Piana:::fregata
+Nadzieja:::fregata
+Nimfa:::fregata
+Rusałka:::fregata
+Dziwożona:::fregata
+Oliwa:::fregata
+Stara Wiara:::fregata
+Strzała:::fregata
+Swoboda:::fregata
+Syrena:::fregata
+Urocza:::fregata
+Ursa:::fregata
+Warta:::fregata
+Wdzięczna:::fregata
+Wiktoria Wiedeńska:::fregata
+Wilia:::fregata
+Wodna Panna:::fregata
+Zjawa:::fregata
+Widmo:::fregata
+Widziadło:::fregata
+Mara:::fregata
 Generał Anders:::fregata
+Major Skalski:::fregata
+Pułkownik Bokszczanin:::fregata
+Pułkownik Dąbek:::fregata
+Podpułkownik Langer:::fregata
+Podpułkownik Kotarba:::fregata
+Kontradmirał Czernicki:::fregata
+Generał Thommée:::fregata
+Generał Prugar-Ketling:::fregata
+Generał Unrug:::fregata
+Generał Bortnowski:::fregata
+Generał Szylling:::fregata
+Generał Kowalski:::fregata
+Generał Bołtuć:::fregata
+Generał Kustroń:::fregata
+Generał Abraham:::fregata
+Generał Piskor:::fregata
+Generał Czuma:::fregata
+Generał Przeździecki:::fregata
+Generał Orlik-Rückemann:::fregata
+Generał Żeligowski:::fregata
+Generał Maczek:::fregata
+Generał Kutrzeba:::fregata
+Generał Kleeberg:::fregata
 Generał Haller:::fregata
 Generał Sosabowski:::fregata
+Generał Rozwadowski:::fregata
+Generał Sosnkowski:::fregata
+Generał Fieldorf:::fregata
+Generał Wlad:::fregata
 Królowa Jadwiga:::fregata
 Królowa Kinga:::fregata
 Królowa Marysienka:::fregata
+Srebrna Kula:::fregata
+Biała Dama:::fregata
+Piast:::fregata
+Jagiellonia:::fregata
+Posnania:::fregata
+Pomerania:::fregata
+Pogezania:::fregata
+Pomezania:::fregata
+Galindia:::fregata
+Galicia:::fregata
+Samogitia:::fregata
+Pomerelia:::fregata
+Calisia:::fregata
+Cracovia:::fregata
+Berestia:::fregata
+Vratislavia:::fregata
+Sedinum:::fregata
+Gedanum:::fregata
+Vilna:::fregata
+Leopolis:::fregata
+Masovia:::fregata
+Masuria:::fregata
+Bartia:::fregata
+Podolia:::fregata
+Volhynia:::fregata
+Lituania:::fregata
+Ruthenia Rubra:::fregata
+Ruthenia Nigra:::fregata
+Ruthenia Alba:::fregata
+Silesia Superior:::fregata
+Silesia Inferior:::fregata
+Polonia Maior:::fregata
+Polonia Minor:::fregata
+Lusatia:::fregata
+Polesia:::fregata
+Livonia:::fregata
+Podlachia:::fregata
+Cuiavia:::fregata
+Varmia:::fregata
+Prussia:::fregata
+Vratislavia:::fregata
+Vistula:::fregata
+Viadrus:::fregata
+Varta:::fregata
+Miłasza:::fregata
+Inka:::fregata
+Zoya:::fregata
+Spytko z Melsztyna:::niszczyciel
 Onufry Zagłoba:::niszczyciel
 Jan Skrzetuski:::niszczyciel
-Mały Rycerz:::niszczyciel
+Michał Wołodyjowski:::niszczyciel
+Andzej Kmicic:::niszczyciel
 Longinus Podbipięta:::niszczyciel
+Rotmistrz Pilecki:::niszczyciel
+Kapitan Raginis:::niszczyciel
+Porucznik Cybulski:::niszczyciel
 Błyskawica:::niszczyciel
 Burza:::niszczyciel
-Żubr:::niszczyciel
 Sztorm:::niszczyciel
-Jurand:::niszczyciel
+Jurand ze Spychowa:::niszczyciel
 Maćko z Bogdańca:::niszczyciel
-Jaksa:::niszczyciel
-Spytko:::niszczyciel
-Trebusz:::niszczyciel
+Zbyszko z Bogdańca:::niszczyciel
 Wicher:::niszczyciel
-Szerszeń:::niszczyciel
 Grom:::niszczyciel
 Orkan:::niszczyciel
 Huragan:::niszczyciel
@@ -214,14 +276,16 @@ Halny:::niszczyciel
 Płomień:::niszczyciel
 Kircholm:::niszczyciel
 Ursus:::niszczyciel
-Kot Morski:::niszczyciel
 Zawisza Czarny:::niszczyciel
 Senator:::niszczyciel
 Wojewoda:::niszczyciel
 Kasztelan:::niszczyciel
 Beresteczko:::niszczyciel
 Kłuszyn:::niszczyciel
+Wigor:::niszczyciel
+Grzmot:::niszczyciel
 Chocim:::niszczyciel
+Grunwald:::niszczyciel
 Kanclerz Wielki:::niszczyciel
 Podkanclerzy:::niszczyciel
 Marszałek Wielki:::niszczyciel
@@ -230,9 +294,72 @@ Podskarbi Wielki:::niszczyciel
 Podskarbi Nadworny:::niszczyciel
 Hetman Wielki:::niszczyciel
 Hetman Polny:::niszczyciel
-Żółty Lew:::niszczyciel
-Biały Lew:::niszczyciel
-Duch:::niszczyciel
+Lech:::niszczyciel
+Lufa:::niszczyciel
+Mścisław:::niszczyciel
+Łupaszka:::niszczyciel
+Żelazny:::niszczyciel
+Krzewina:::niszczyciel
+Kotwicz:::niszczyciel
+Ragner:::niszczyciel
+Mściciel:::niszczyciel
+Men:::niszczyciel
+Olech:::niszczyciel
+Radosław:::niszczyciel
+Nil:::niszczyciel
+Pług:::niszczyciel
+Głóg:::niszczyciel
+Jur:::niszczyciel
+Teodor:::niszczyciel
+Druh:::niszczyciel
+Służa:::niszczyciel
+Młot:::niszczyciel
+Anoda:::niszczyciel
+Bruzda:::niszczyciel
+Hubal:::niszczyciel
+Białynia:::niszczyciel
+Orlik:::niszczyciel
+Zapora:::niszczyciel
+Huzar:::niszczyciel
+Laluś:::niszczyciel
+Ogień:::niszczyciel
+Parasol:::niszczyciel
+Bohun:::niszczyciel
+Zuch:::niszczyciel
+Starba:::niszczyciel
+Wołk:::niszczyciel
+Garda:::niszczyciel
+Kawa:::niszczyciel
+Igła:::niszczyciel
+Ponar:::niszczyciel
+Nurt:::niszczyciel
+Kra:::niszczyciel
+Gzyms:::niszczyciel
+Kord:::niszczyciel
+Łuna:::niszczyciel
+Bomba:::niszczyciel
+Strzemię:::niszczyciel
+Harry:::niszczyciel
+Trzaska:::niszczyciel
+Kobra:::niszczyciel
+Dolina:::niszczyciel
+Rewera:::niszczyciel
+Zośka:::niszczyciel
+Glin:::niszczyciel
+Szprung:::niszczyciel
+Makary:::niszczyciel
+Wierch:::niszczyciel
+Kryształ:::niszczyciel
+Pięść:::niszczyciel
+Gurt:::niszczyciel
+Krybar:::niszczyciel
+Miłosz:::niszczyciel
+Róg:::niszczyciel
+Siekiera:::niszczyciel
+Żniwiarz:::niszczyciel
+Ruczaj:::niszczyciel
+Sławbor:::niszczyciel
+Szaniec:::niszczyciel
 Hetman Potocki:::krążownik
 Hetman Ostrowski:::krążownik
 Hetman Tarnowski:::krążownik
@@ -243,34 +370,43 @@ Książe Jarema:::krążownik
 Hetman Chodkiewicz:::krążownik
 Hetman Żółkiewski:::krążownik
 Hetman Czarnecki:::krążownik
-Feniks:::niszczyciel
-Bazyliszek:::niszczyciel
-Gryf:::niszczyciel
-Wywerna:::niszczyciel
-Pegaz:::niszczyciel
-Cerber:::niszczyciel
-Lech:::niszczyciel
-Charitas:::niszczyciel
 Admirał Sierpinek:::krążownik
+Cichociemny:::krążownik
+Bystry:::krążownik
 Zuchwały:::krążownik
+Charakterny:::krążownik
+Uparty:::krążownik
 Zawzięty:::krążownik
 Wytrwały:::krążownik
 Dzielny:::krążownik
-Tur:::krążownik
 Śmiały:::krążownik
 Odważny:::krążownik
 Dziarski:::krążownik
+Rączy:::krążownik
+Chyży:::krążownik
+Gracki:::krążownik
+Wartki:::krążownik
+Prężny:::krążownik
 Czujny:::krążownik
 Szczerbiec:::krążownik
 Pawąż:::krążownik
 Groźny:::krążownik
 Srogi:::krążownik
 Złowrogi:::krążownik
+Chmurny:::krążownik
+Ponury:::krążownik
+Posępny:::krążownik
+Niepokój:::krążownik
 Złowieszczy:::krążownik
 Niezłomny:::krążownik
 Wyklęty:::krążownik
 Gniewny:::krążownik
 Nieustraszony:::krążownik
+Nieustępliwy:::krążownik
+Nieugięty:::krążownik
+Niezachwiany:::krążownik
+Twardy:::krążownik
+Gorliwy:::krążownik
 Czarny Smok:::krążownik
 Biały Smok:::krążownik
 Święty Stanisław:::krążownik
@@ -290,16 +426,32 @@ Lew Lehistanu:::krążownik
 Abdank:::pancernik
 Akszak:::pancernik
 Amadej:::pancernik
+Belina:::pancernik
 Beztrwogi:::pancernik
+Bogoria:::pancernik
+Bończa:::pancernik
 Brodzic:::pancernik
+Czewoja:::pancernik
+Doliwa:::pancernik
+Dołęga:::pancernik
+Dryja:::pancernik
+Drzewica:::pancernik
 Dunin:::pancernik
+Działosza:::pancernik
+Dąbrowa:::pancernik
 Fulsztyn:::pancernik
+Godziemba:::pancernik
+Gozdawa:::pancernik
 Gołobok:::pancernik
+Gryzima:::pancernik
 Grzymała:::pancernik
 Herburt:::pancernik
+Janina:::pancernik
 Jasieńczyk:::pancernik
 Jastrzębiec:::pancernik
 Jelita:::pancernik
+Junosza:::pancernik
+Kierdeja:::pancernik
 Korab:::pancernik
 Korczak:::pancernik
 Korczbok:::pancernik
@@ -307,7 +459,13 @@ Kornicz:::pancernik
 Korullus:::pancernik
 Korwin:::pancernik
 Korybut:::pancernik
+Kownia:::pancernik
+Kościesza:::pancernik
 Krzywaśń:::pancernik
+Krzywda:::pancernik
+Kuszaba:::pancernik
+Larysza:::pancernik
+Leliwa:::pancernik
 Leszczyc:::pancernik
 Lewart:::pancernik
 Lubicz:::pancernik
@@ -315,26 +473,48 @@ Momot:::pancernik
 Nabram:::pancernik
 Nagody:::pancernik
 Nałęcz:::pancernik
+Nieczuja:::pancernik
+Niesobia:::pancernik
+Nowina:::pancernik
 Odrowąż:::pancernik
 Ogończyk:::pancernik
+Oksza:::pancernik
+Orla:::pancernik
 Osmoróg:::pancernik
+Ossoria:::pancernik
+Ostoja:::pancernik
+Paparona:::pancernik
+Pilawa:::pancernik
 Pirzchała:::pancernik
 Pobóg:::pancernik
 Pomian:::pancernik
 Poraj:::pancernik
 Prawdzic:::pancernik
+Prosna:::pancernik
+Przegonia:::pancernik
+Przerowa:::pancernik
 Półkozic:::pancernik
 Radwan:::pancernik
 Rastrum:::pancernik
 Rawicz:::pancernik
 Roch:::pancernik
+Rogala:::pancernik
+Rola:::pancernik
+Równia:::pancernik
 Saszor:::pancernik
 Sepulkrum:::pancernik
 Serpens:::pancernik
 Siekierz:::pancernik
 Starykoń:::pancernik
 Suchekomnaty:::pancernik
+Sulima:::pancernik
+Syrokomla:::pancernik
+Szaława:::pancernik
+Szreniawa:::pancernik
 Sztambark:::pancernik
+Sędowojna:::pancernik
+Słubica:::pancernik
+Tarnawa:::pancernik
 Taurus:::pancernik
 Topacz:::pancernik
 Topór:::pancernik
@@ -342,7 +522,16 @@ Trzywdar:::pancernik
 Trąby:::pancernik
 Vulpis:::pancernik
 Wczele:::pancernik
+Wieniawa:::pancernik
+Wieruszowa:::pancernik
 Wilczekosy:::pancernik
+Wyszogota:::pancernik
+Zabawa:::pancernik
+Zadora:::pancernik
+Zaremba:::pancernik
 Zawotuł:::pancernik
 Zerwikaptur:::pancernik
+Łada:::pancernik
+Łodzia:::pancernik
 Ślepowron:::pancernik
+Śmiara:::pancernik
