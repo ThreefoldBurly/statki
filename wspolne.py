@@ -20,7 +20,7 @@ KIERUNKI = ["prawo", "lewo", "gora", "dol"]
 
 def sparsujRangiStatkow():
     """
-    Parsuje z pliku tekstowego 'rangi-statkow.sti słownik rozmiarów i rang statków'
+    Parsuje z pliku tekstowego 'rangi-statkow.sti słownik rozmiarów i rang statków oraz listę nazw rang
     """
     rangi_statkow = []
     with codecs.open('rangi-statkow.sti', encoding='utf-8') as plik:
@@ -35,12 +35,65 @@ def sparsujRangiStatkow():
 
     rangi_statkow = dict(rangi_statkow)
 
-    assert len(rangi_statkow) > 0, u"Nieudane parsowanie rang statków. Brak pliku 'rangi-statkow.sti' lub plik nie zawiera danych w prawidłowym formacie"
+    assert len(rangi_statkow) > 0, "Nieudane parsowanie rang statkow. Brak pliku 'rangi-statkow.sti' lub plik nie zawiera danych w prawidlowym formacie"
 
-    return rangi_statkow
+    nazwy_rang = []
+    akt_nazwa_rangi = u""
+    for k, nazwa_rangi in rangi_statkow.iteritems():
+        if nazwa_rangi != akt_nazwa_rangi:
+            nazwy_rang.append(nazwa_rangi)
+        akt_nazwa_rangi = nazwa_rangi
+    return (rangi_statkow, nazwy_rang)
 
 
-RANGI_STATKOW = sparsujRangiStatkow()  # słownik
+RANGI_STATKOW, NAZWY_RANG = sparsujRangiStatkow()  # słownik, lista
+
+
+def sparsujNazwyStatkow():
+    """Parsuje z pliku tekstowego 'nazwy-statkow.sti' listę nazw dla każdej rangi statku (całość jako słownik)"""
+    nazwy_statkow = {}
+
+    def parsujWgRangi(linie, ranga):  # funkcja pomocnicza dla bloku poniżej
+        lista_nazw = []
+        for linia in linie:
+            if ranga in linia:
+                linia = linia.rstrip(u'\n')
+                lista_nazw.append(linia.split(u':::')[0])
+        return lista_nazw
+
+    linie = []
+    with codecs.open('nazwy-statkow.sti', encoding='utf-8') as plik:
+        for linia in plik:
+            linie.append(linia)
+
+    for ranga in NAZWY_RANG:
+        lista_nazw = parsujWgRangi(linie, ranga)
+        print "\nRanga: %s. Dodano [%d]" % (ranga, len(lista_nazw))  # test
+        nazwy_statkow[ranga] = lista_nazw
+
+    def czyNazwyOK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
+        czyOK = True
+        for ranga in nazwy_statkow:
+            if len(nazwy_statkow[ranga]) == 0:
+                czyOK = False
+        return czyOK
+
+    assert czyNazwyOK(), "Nieudane parsowanie nazw statkow. Brak pliku 'nazwy-statkow.sti' lub plik nie zawiera danych w prawidlowym formacie"
+
+    return nazwy_statkow
+
+
+NAZWY_STATKOW = sparsujNazwyStatkow()  # słownik
+
+
+def sklonujNazwyStatkow():
+    """
+    Klonuje słownik NAZWY_STATKOW, wykonując kopię każdej składowej listy
+    """
+    nazwy = {}
+    for klucz in NAZWY_STATKOW:
+        nazwy[klucz] = NAZWY_STATKOW[klucz][:]
+    return nazwy
 
 
 def podajIntZRozkladuGaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
