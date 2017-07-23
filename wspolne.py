@@ -9,12 +9,14 @@ import codecs
 from random import gauss
 
 
-ZNACZNIK_PUSTY = "0"
-ZNACZNIK_PUDLO = "x"
-ZNACZNIK_TRAFIONY = "T"
-ZNACZNIK_ZATOPIONY = "Z"
-ZNACZNIK_STATEK = "&"
-ZNACZNIK_OBWIEDNIA = "."
+ZNACZNIKI = {
+    "pusty": "0",
+    "pudlo": "x",
+    "trafiony": "T",
+    "zatopiony": "Z",
+    "statek": "&",
+    "obwiednia": "."
+}
 KIERUNKI = ["prawo", "lewo", "gora", "dol"]
 
 
