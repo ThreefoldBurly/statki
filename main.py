@@ -36,8 +36,9 @@ class KvPlansza(GridLayout):
 class KvPole(Button):
     """Pole planszy do gry w statki"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, pole, **kwargs):
         super(KvPole, self).__init__(**kwargs)
+        self.pole = pole
 
 
 class StatkiApp(App):

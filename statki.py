@@ -288,6 +288,7 @@ class Pole(object):
         self.znacznik = znacznik
 
     def podajWspolrzedne(self):
+        """Podaje krotkę współrzędnych pola na planszy"""
         return (self.kolumna, self.rzad)
 
 
