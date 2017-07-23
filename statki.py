@@ -323,10 +323,3 @@ class Gra(object):
     def __init__(self):
         super(Gra, self).__init__()
         self.plansza = None
-
-
-# testy
-plansza = Plansza(50, 50)
-plansza.rysujSie()
-plansza.wypelnijStatkami()
-plansza.rysujSie()
