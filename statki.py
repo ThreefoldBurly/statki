@@ -18,8 +18,19 @@ class Plansza(object):
         self.kolumny = kolumny  # max 69 ze względu na stout - ograniczenie nie zawarte w kodzie
         self.rzedy = rzedy  # max. 99 - ograniczenie nie zawarte w kodzie
         self.rozmiar = rzedy * kolumny
-        self.pola = [ZNACZNIK_PUSTY * kolumny for rzad in xrange(rzedy)]  # lista stringów odpowiadających rzędom pól planszy
+        self.pola = self.stworzPola()  # lista rzędów (list) pól
+        # self.pola = [ZNACZNIKI["pusty"] * kolumny for rzad in xrange(rzedy)]  # lista stringów odpowiadających rzędom pól planszy
         self.statki = []
+
+    def stworzPola(self):
+        """Tworzy pola planszy"""
+        pola = []
+        for y in xrange(1, self.rzedy + 1):
+            rzad = []
+            for x in xrange(1, self.kolumny + 1):
+                rzad.append(Pole(x, y))
+            pola.append(rzad)
+        return pola
 
     def rysujSie(self):
         """Rysuje planszę"""
@@ -35,18 +46,19 @@ class Plansza(object):
             else:
                 print str(i + 1) + " ",
             # właściwe pola planszy
-            print "  ".join(self.pola[i])
+            print "  ".join([pole.znacznik for pole in self.pola[i]])
+
+    def podajPole(self, kolumna, rzad):
+        """Podaje wskazane pole"""
+        return self.pola[rzad - 1][kolumna - 1]
 
     def oznaczPole(self, znacznik, kolumna, rzad):
         """Oznacza wskazane polę wskazanym znacznikiem"""
-        rzad_lista = list(self.pola[rzad - 1])
-        rzad_lista[kolumna - 1] = znacznik
-        nowy_rzad = "".join(rzad_lista)
-        self.pola[rzad - 1] = nowy_rzad
+        self.pola[rzad - 1][kolumna - 1].znacznik = znacznik
 
     def czyPolePuste(self, kolumna, rzad):
         """Sprawdza czy wskazane pole jest puste"""
-        if self.pola[rzad - 1][kolumna - 1] == ZNACZNIK_PUSTY:
+        if self.pola[rzad - 1][kolumna - 1].znacznik == ZNACZNIKI["pusty"]:
             return True
         else:
             return False
@@ -65,11 +77,11 @@ class Plansza(object):
         licznik_oznaczen = 0
         licznik_iteracji = 0
         sciezka = []
-        wspolrz_ozn_pol = []
+        ozn_pola = []
 
         while licznik_oznaczen < rozmiar:
 
-            if licznik_iteracji > rozmiar * 5:  # za dużo iteracji - nieudane umieszczenie
+            if licznik_iteracji > rozmiar * 5:  # za dużo iteracji - NIEUDANE UMIESZCZENIE
                 return None
             # do testów
             # print
@@ -78,11 +90,11 @@ class Plansza(object):
 
             if licznik_iteracji == 0:  # pole startowe
                 if self.czyPoleWPlanszy(kolumna, rzad) and self.czyPolePuste(kolumna, rzad):
-                    self.oznaczPole(ZNACZNIK_STATEK, kolumna, rzad)
+                    self.oznaczPole(ZNACZNIKI["statek"], kolumna, rzad)
                     licznik_oznaczen += 1
-                    wspolrz_ozn_pol.append((kolumna, rzad))
+                    ozn_pola.append(self.podajPole(kolumna, rzad))
                 else:
-                    return None
+                    return None  # NIEUDANE UMIESZCZENIE
             else:
                 oznaczono = False
                 kierunki = KIERUNKI[:]
@@ -95,34 +107,38 @@ class Plansza(object):
                             ostatni_kierunek = sciezka[len(sciezka) - 1]
                             if ostatni_kierunek == "prawo":
                                 kolumna -= 1
+                                sciezka.pop()
                                 # print "Cofam: '" + sciezka.pop() + "'"  # test
                             elif ostatni_kierunek == "lewo":
                                 kolumna += 1
+                                sciezka.pop()
                                 # print "Cofam: '" + sciezka.pop() + "'"  # test
                             elif ostatni_kierunek == "gora":
                                 rzad += 1
+                                sciezka.pop()
                                 # print "Cofam: '" + sciezka.pop() + "'"  # test
                             elif ostatni_kierunek == "dol":
                                 rzad -= 1
+                                sciezka.pop()
                                 # print "Cofam: '" + sciezka.pop() + "'"  # test
                             # print "Uciekam z zapetlenia"  # test
-
                             break
+
                         else:  # nie ma gdzie wracać, jesteśmy w punkcie startowym - NIEUDANE UMIESZCZENIE statku
-                            for wspolrzedne_pola in wspolrz_ozn_pol:  # czyszczenie planszy
-                                kolumna, rzad = wspolrzedne_pola
-                                self.oznaczPole(ZNACZNIK_PUSTY, kolumna, rzad)
+                            for pole in ozn_pola:  # czyszczenie planszy
+                                kolumna, rzad = pole.podajWspolrzedne()
+                                self.oznaczPole(ZNACZNIKI["pusty"], kolumna, rzad)
                             return None
 
                     kierunek = kierunki[randint(0, len(kierunki) - 1)]
                     if kierunek == "prawo":
                         kolumna += 1
                         if self.czyPoleWPlanszy(kolumna, rzad) and self.czyPolePuste(kolumna, rzad):
-                            self.oznaczPole(ZNACZNIK_STATEK, kolumna, rzad)
+                            self.oznaczPole(ZNACZNIKI["statek"], kolumna, rzad)
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
-                            wspolrz_ozn_pol.append((kolumna, rzad))
+                            ozn_pola.append(self.podajPole(kolumna, rzad))
                             # test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
@@ -131,11 +147,11 @@ class Plansza(object):
                     elif kierunek == "lewo":
                         kolumna -= 1
                         if self.czyPoleWPlanszy(kolumna, rzad) and self.czyPolePuste(kolumna, rzad):
-                            self.oznaczPole(ZNACZNIK_STATEK, kolumna, rzad)
+                            self.oznaczPole(ZNACZNIKI["statek"], kolumna, rzad)
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
-                            wspolrz_ozn_pol.append((kolumna, rzad))
+                            ozn_pola.append(self.podajPole(kolumna, rzad))
                             # test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
@@ -144,11 +160,11 @@ class Plansza(object):
                     elif kierunek == "gora":
                         rzad -= 1
                         if self.czyPoleWPlanszy(kolumna, rzad) and self.czyPolePuste(kolumna, rzad):
-                            self.oznaczPole(ZNACZNIK_STATEK, kolumna, rzad)
+                            self.oznaczPole(ZNACZNIKI["statek"], kolumna, rzad)
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
-                            wspolrz_ozn_pol.append((kolumna, rzad))
+                            ozn_pola.append(self.podajPole(kolumna, rzad))
                             # test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
@@ -157,11 +173,11 @@ class Plansza(object):
                     else:  # idziemy w dół
                         rzad += 1
                         if self.czyPoleWPlanszy(kolumna, rzad) and self.czyPolePuste(kolumna, rzad):
-                            self.oznaczPole(ZNACZNIK_STATEK, kolumna, rzad)
+                            self.oznaczPole(ZNACZNIKI["statek"], kolumna, rzad)
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
-                            wspolrz_ozn_pol.append((kolumna, rzad))
+                            ozn_pola.append(self.podajPole(kolumna, rzad))
                             # test
                             # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
                         else:
@@ -171,14 +187,14 @@ class Plansza(object):
             # self.rysujSie() #test
             licznik_iteracji += 1
 
-        return Statek(wspolrz_ozn_pol)
+        return Statek(ozn_pola)
 
     def umiescObwiednieStatku(self, statek):
         """Umieszcza na planszy obwiednię wskazanego statku"""
 
         # wystarczy zaznaczyć wszystkich 8 bezpośrednich sąsiadów danego punktu (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
-        for wspolrzedne_pola in statek.wspolrzedne_pol:
-            kolumna, rzad = wspolrzedne_pola
+        for pole in statek.pola:
+            kolumna, rzad = pole.podajWspolrzedne()
             a = 0  # współczynnik przesunięcia w pionie (x)
             b = 0  # współczynnik przesunięcia w poziomie (y)
 
@@ -197,13 +213,13 @@ class Plansza(object):
                 y = rzad + b
 
                 if i != 4 and self.czyPoleWPlanszy(x, y) and self.czyPolePuste(x, y):
-                    self.oznaczPole(ZNACZNIK_OBWIEDNIA, x, y)
+                    self.oznaczPole(ZNACZNIKI["obwiednia"], x, y)
 
     def zatopStatek(self, statek):
         """Oznacza pola wskazanego statku jako zatopione"""
-        for wspolrzedne_pola in statek.wspolrzedne_pol:
-            kolumna, rzad = wspolrzedne_pola
-            self.oznaczPole(ZNACZNIK_ZATOPIONY, kolumna, rzad)
+        for pole in statek.pola:
+            kolumna, rzad = pole.podajWspolrzedne()
+            self.oznaczPole(ZNACZNIKI["zatopiony"], kolumna, rzad)
 
     def wypelnijStatkami(self, zapelnienie=15, odch_st=9, prz_mediany=-7):
         """
@@ -262,16 +278,29 @@ class Plansza(object):
         print u"\nWszystkich umieszczonych statków: %d. Ich sumaryczny rozmiar: [%d]" % (len(self.statki), sum_rozmiar)
 
 
+class Pole(object):
+    """Abstrakcyjna reprezentacja pola planszy"""
+
+    def __init__(self, kolumna, rzad, znacznik=ZNACZNIKI["pusty"]):
+        super(Pole, self).__init__()
+        self.kolumna = kolumna
+        self.rzad = rzad
+        self.znacznik = znacznik
+
+    def podajWspolrzedne(self):
+        return (self.kolumna, self.rzad)
+
+
 class Statek(object):
     """Abstrakcyjna reprezentacja statku"""
 
     nazwy = sklonujNazwyStatkow()  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
     rzymskie = dict([[ranga, [u"II", u"III", u"IV", u"V", u"VI", u"VII", u"VIII", u"IX", u"X"]] for ranga in NAZWY_RANG])
 
-    def __init__(self, wspolrzedne_pol):
+    def __init__(self, pola):
         super(Statek, self).__init__()
-        self.wspolrzedne_pol = sorted(wspolrzedne_pol)  # lista krotek ze współrzędnymi (x, y) pól statku posortowana najpierw wg "x" potem wg "y"
-        self.rozmiar = len(wspolrzedne_pol)
+        self.pola = sorted(pola, key=lambda p: p.podajWspolrzedne())  # lista pól posortowana wg współrzędnych - najpierw wg "x" potem wg "y"
+        self.rozmiar = len(pola)
         self.ranga = RANGI_STATKOW[self.rozmiar]
         self.nazwa = self.losujNazwe(self.ranga)
 
@@ -307,9 +336,9 @@ class Statek(object):
     def czyZatopiony(self, plansza):
         """Sprawdza czy wszystkie pola statku zostały trafione na wskazanej planszy"""
         licznik_trafien = 0
-        for wspolrzedne_pola in self.wspolrzedne_pol:
-            kolumna, rzad = wspolrzedne_pola
-            if plansza.pola[rzad - 1][kolumna - 1] == ZNACZNIK_TRAFIONY:
+        for pole in self.pola:
+            kolumna, rzad = pole.podajWspolrzedne()
+            if plansza.pola[rzad - 1][kolumna - 1] == ZNACZNIKI["trafiony"]:
                 licznik_trafien += 1
         if licznik_trafien == self.rozmiar:
             return True
