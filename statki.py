@@ -19,7 +19,6 @@ class Plansza(object):
         self.rzedy = rzedy  # max. 99 - ograniczenie nie zawarte w kodzie
         self.rozmiar = rzedy * kolumny
         self.pola = self.stworzPola()  # lista rzędów (list) pól
-        # self.pola = [ZNACZNIKI["pusty"] * kolumny for rzad in xrange(rzedy)]  # lista stringów odpowiadających rzędom pól planszy
         self.statki = []
 
     def stworzPola(self):
@@ -225,19 +224,23 @@ class Plansza(object):
         """
         Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry metody
         """
-        # zapelnienie to wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych statków do rozmiaru planszy
+        # zapelnienie to wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych 
+        # statków do rozmiaru planszy
 
-        # odch_st to odchylenie standardowe w rozkładzie Gaussa, z którego losowany jest rozmiar statku
+        # odch_st to odchylenie standardowe w rozkładzie Gaussa, z którego losowany 
+        # jest rozmiar statku
         # czym wyższa wartość, tym większy rozrzut rozmiarów
 
-        # prz_mediany to przesunięcie mediany w rozkładzie Gaussa, z którego losowany jest rozmiar statku
+        # prz_mediany to przesunięcie mediany w rozkładzie Gaussa, z którego losowany 
+        # jest rozmiar statku
         # wartość ujemna spowoduje losowanie większej ilości małych statków
         # wartość dodatnia spowodują losowanie większej ilości dużych statków
         # zero (brak przesunięcia) powoduje losowanie wg standardowego rozkładu normalnego,
         # gdzie mediana jest średnią arytmetyczną przedziału losowania
 
         # wartości domyślne parametrów zostały ustalone po testach
-        # większa granulacja rozmiarów statków (z zapewnieniem sporadycznego występowania dużych statków) zapewnia ciekawszą grę
+        # większa granulacja rozmiarów statków (z zapewnieniem sporadycznego występowania dużych 
+        # statków) zapewnia ciekawszą grę
         min_rozmiar_statku = 1
         max_rozmiar_statku = 20
         mediana = (min_rozmiar_statku + max_rozmiar_statku) / 2.0  # 10.5
@@ -344,15 +347,6 @@ class Statek(object):
             return True
         else:
             return False
-
-
-class Gra(object):
-    """Abstrakcyjna reprezentacja interakcji pomiędzy graczem a planszą"""
-
-    def __init__(self):
-        super(Gra, self).__init__()
-        self.plansza = None
-
 
 # testy
 plansza = Plansza(50, 50)
