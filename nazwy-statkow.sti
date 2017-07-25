@@ -1,3 +1,6 @@
+Basior:::kuter
+Bażant:::kuter
+Bielik:::kuter
 Bocian Biały:::kuter
 Bocian Czarny:::kuter
 Borsuk:::kuter
@@ -5,30 +8,30 @@ Bułanek:::kuter
 Bóbr:::kuter
 Chart:::kuter
 Cietrzew:::kuter
-Bażant:::kuter
-Drop:::kuter
-Sójka:::kuter
-Myszołów:::kuter
-Mysikrólik:::kuter
 Czajka:::kuter
 Czapla:::kuter
 Delfin:::kuter
+Drop:::kuter
 Dzik:::kuter
 Foka:::kuter
 Gniadosz:::kuter
-Bielik:::kuter
+Husky:::kuter
 Jaskółka:::kuter
 Jastrząb:::kuter
 Karosz:::kuter
 Kondor:::kuter
 Kormoran:::kuter
 Kot Morski:::kuter
+Kozica:::kuter
 Krogulec:::kuter
 Kruk:::kuter
 Kuna:::kuter
 Lis:::kuter
 Mewa:::kuter
 Morświn:::kuter
+Muflon:::kuter
+Mysikrólik:::kuter
+Myszołów:::kuter
 Niedźwiadek:::kuter
 Ogar:::kuter
 Osa:::kuter
@@ -39,28 +42,24 @@ Rybitwa:::kuter
 Ryś:::kuter
 Skowronek:::kuter
 Sokół:::kuter
-Basior:::kuter
 Srokacz:::kuter
 Szakal:::kuter
 Szerszeń:::kuter
+Sójka:::kuter
 Sęp:::kuter
 Słowik:::kuter
-Wadera:::kuter
-Kozica:::kuter
 Tarant:::kuter
 Trzmiel:::kuter
 Tur:::kuter
+Tygrys:::kuter
+Wadera:::kuter
 Wilga:::kuter
 Wilk:::kuter
 Wydra:::kuter
 Zaskroniec:::kuter
 Łabędź:::kuter
 Łasica:::kuter
-Husky:::kuter
 Łoś:::kuter
-Muflon:::kuter
-Tygrys:::kuter
-Tygrys:::kuter
 Żbik:::kuter
 Żeglarz:::kuter
 Żubr:::kuter
@@ -79,7 +78,6 @@ Chorąży:::patrolowiec
 Chwat:::patrolowiec
 Ciwun:::patrolowiec
 Czekan:::patrolowiec
-Kargul:::patrolowiec
 Cześnik:::patrolowiec
 Flamberg:::patrolowiec
 Floret:::patrolowiec
@@ -91,6 +89,7 @@ Harpun:::patrolowiec
 Horodniczy:::patrolowiec
 Hucuł:::patrolowiec
 Jatagan:::patrolowiec
+Kargul:::patrolowiec
 Kastet:::patrolowiec
 Kaszub:::patrolowiec
 Kindżał:::patrolowiec
@@ -194,7 +193,6 @@ Kusza:::korweta
 Lanca:::korweta
 Lwów:::korweta
 Maczeta:::korweta
-Maczeta:::korweta
 Maczuga:::korweta
 Mińsk:::korweta
 Pegaz:::korweta
@@ -233,7 +231,6 @@ Zorza:::korweta
 Bartia:::fregata
 Bałtyk:::fregata
 Berestia:::fregata
-Glewia:::korweta
 Biała Dama:::fregata
 Biała Wrona:::fregata
 Calisia:::fregata
@@ -273,6 +270,7 @@ Generał Thommée:::fregata
 Generał Unrug:::fregata
 Generał Wlad:::fregata
 Generał Żeligowski:::fregata
+Glewia:::korweta
 Gwiazda Zaranna:::fregata
 Husaria:::fregata
 Ignacy Jan Paderewski:::fregata
@@ -675,11 +673,11 @@ Topacz:::pancernik
 Topór:::pancernik
 Trzywdar:::pancernik
 Trąby:::pancernik
-Wulpis:::pancernik
 Wczele:::pancernik
 Wieniawa:::pancernik
 Wieruszowa:::pancernik
 Wilczekosy:::pancernik
+Wulpis:::pancernik
 Wyszogota:::pancernik
 Zabawa:::pancernik
 Zadora:::pancernik

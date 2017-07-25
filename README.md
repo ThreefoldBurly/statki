@@ -12,7 +12,7 @@ Statki mają rangi:
 - krążownik (13-16 pól)
 - pancernik (17-20 pól)
 
-Każdy statek ma nazwę. Nazwa to taki detal, który robi klimat. Nawet w tak prostej grze jak statki. Dlatego poświęciłem trochę czasu, żeby program miał z czego wybierać. Jak na razie plik 'nazwy-statkow.sti' zawiera 692 wymyślonych przeze mnie nazw. Trochę nad tym posiedziałem i myślę, że każdy, kto pracuje nad polską grą ze statkami (w jakiejkolwiek postaci - dajmy na to SF), mógłby na tym skorzystać. 
+Każdy statek ma nazwę. Nazwa to taki detal, który robi klimat. Nawet w tak prostej grze jak statki. Dlatego poświęciłem trochę czasu, żeby program miał z czego wybierać. Jak na razie plik 'nazwy-statkow.sti' zawiera 690 wymyślonych przeze mnie nazw. Trochę nad tym posiedziałem i myślę, że każdy, kto pracuje nad polską grą ze statkami (w jakiejkolwiek postaci - dajmy na to SF), mógłby na tym skorzystać. 
 
 Statki mają dowolne kształty. Algorytm umieszcza je na planszy pole po polu, losując kierunek: prawo, lewo, góra, dół.
 
