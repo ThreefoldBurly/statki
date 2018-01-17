@@ -5,9 +5,9 @@ from wspolne import *
 
 lista = []
 for i in range(200):
-    lista.append(podajIntZRozkladuGaussa(10.5, 3, 1, 20, -2))
+    lista.append(podaj_int_z_rozkladu_Gaussa(10.5, 3, 1, 20, -2))
 
-print
+print()
 nowa_lista = []
 sek = []
 ostatni = 0
@@ -29,6 +29,6 @@ for i, element in enumerate(sorted(lista)):
     ostatni = element
 
 for element in nowa_lista:
-    print element
+    print(element)
 
 # https://en.wikipedia.org/wiki/List_of_naval_ship_classes_in_service
