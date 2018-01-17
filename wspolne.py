@@ -39,16 +39,10 @@ def sparsuj_rangi_statkow():
 
     assert len(rangi_statkow) > 0, "Nieudane parsowanie rang statków. Brak pliku 'rangi-statkow.sti' lub plik nie zawiera danych w prawidłowym formacie"
 
-    nazwy_rang = []  # TODO: to trzeba zamienić na wyciągnięcie wartości ze słownika i zostawienie unikatowych funkcją set()
-    akt_nazwa_rangi = ""
-    for k, nazwa_rangi in rangi_statkow.items():
-        if nazwa_rangi != akt_nazwa_rangi:
-            nazwy_rang.append(nazwa_rangi)
-        akt_nazwa_rangi = nazwa_rangi
-    return (rangi_statkow, nazwy_rang)
+    return (rangi_statkow, set(rangi_statkow.values()))
 
 
-RANGI_STATKOW, NAZWY_RANG = sparsuj_rangi_statkow()  # słownik w formacie {rozmiar: ranga}, lista [kuter, patrolowiec, korweta, fregata, niszczyciel, krążownik, pancernik] (niekoniecznie w tej kolejności!)
+RANGI_STATKOW, NAZWY_RANG = sparsuj_rangi_statkow()  # słownik w formacie {rozmiar: ranga}, zbiór {kuter, patrolowiec, korweta, fregata, niszczyciel, krążownik, pancernik} (niekoniecznie w tej kolejności!)
 
 
 def sparsuj_nazwy_statkow():
