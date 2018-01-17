@@ -11,6 +11,8 @@ from wspolne import *
 
 class Plansza:
     """Abstrakcyjna reprezentacja planszy do gry w statki"""
+    MIN_ROZMIAR_STATKU = 1
+    MAX_ROZMIAR_STATKU = 20
 
     def __init__(self, kolumny, rzedy):
         self.kolumny = kolumny  # max 69 ze względu na stout - ograniczenie nie zawarte w kodzie
@@ -195,7 +197,7 @@ class Plansza:
             a = 0  # współczynnik przesunięcia w pionie (x)
             b = 0  # współczynnik przesunięcia w poziomie (y)
 
-            for i in range(9):  # TODO: zamienić to na LC bez czwórki
+            for i in [j for j in range(9) if j != 4]:
                 if i in range(3):  # 1szy rząd sąsiadów
                     a = -1
                     b = i - 1
@@ -209,7 +211,7 @@ class Plansza:
                 x = kolumna + a
                 y = rzad + b
 
-                if i != 4 and self.czy_pole_w_planszy(x, y) and self.czy_pole_puste(x, y):
+                if self.czy_pole_w_planszy(x, y) and self.czy_pole_puste(x, y):
                     self.oznacz_pole(ZNACZNIKI["obwiednia"], x, y)
 
     def zatop_statek(self, statek):
@@ -239,16 +241,14 @@ class Plansza:
         # wartości domyślne parametrów zostały ustalone po testach
         # większa granulacja rozmiarów statków (z zapewnieniem sporadycznego występowania dużych
         # statków) zapewnia ciekawszą grę
-        min_rozmiar_statku = 1  # TODO: przenieść do pola klasy
-        max_rozmiar_statku = 20  # TODO: przenieść do pola klasy
-        mediana = (min_rozmiar_statku + max_rozmiar_statku) / 2.0  # 10.5
+        mediana = (self.MIN_ROZMIAR_STATKU + self.MAX_ROZMIAR_STATKU) / 2.0  # 10.5
 
         licznik_iteracji = 0
         sum_rozmiar_statkow = int(self.rozmiar * zapelnienie / 100)
         akt_rozmiar_statkow = sum_rozmiar_statkow
 
         while akt_rozmiar_statkow > 0:
-            rozmiar_statku = podaj_int_z_rozkladu_Gaussa(mediana, odch_st, min_rozmiar_statku, max_rozmiar_statku, prz_mediany)
+            rozmiar_statku = podaj_int_z_rozkladu_Gaussa(mediana, odch_st, self.MIN_ROZMIAR_STATKU, self.MAX_ROZMIAR_STATKU, prz_mediany)
             if rozmiar_statku > akt_rozmiar_statkow:
                 continue
             pole_startowe_x = randint(1, self.kolumny)
