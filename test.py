@@ -30,3 +30,5 @@ for i, element in enumerate(sorted(lista)):
 
 for element in nowa_lista:
     print element
+
+# https://en.wikipedia.org/wiki/List_of_naval_ship_classes_in_service

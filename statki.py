@@ -224,14 +224,14 @@ class Plansza(object):
         """
         Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry metody
         """
-        # zapelnienie to wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych 
+        # zapelnienie to wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych
         # statków do rozmiaru planszy
 
-        # odch_st to odchylenie standardowe w rozkładzie Gaussa, z którego losowany 
+        # odch_st to odchylenie standardowe w rozkładzie Gaussa, z którego losowany
         # jest rozmiar statku
         # czym wyższa wartość, tym większy rozrzut rozmiarów
 
-        # prz_mediany to przesunięcie mediany w rozkładzie Gaussa, z którego losowany 
+        # prz_mediany to przesunięcie mediany w rozkładzie Gaussa, z którego losowany
         # jest rozmiar statku
         # wartość ujemna spowoduje losowanie większej ilości małych statków
         # wartość dodatnia spowodują losowanie większej ilości dużych statków
@@ -239,7 +239,7 @@ class Plansza(object):
         # gdzie mediana jest średnią arytmetyczną przedziału losowania
 
         # wartości domyślne parametrów zostały ustalone po testach
-        # większa granulacja rozmiarów statków (z zapewnieniem sporadycznego występowania dużych 
+        # większa granulacja rozmiarów statków (z zapewnieniem sporadycznego występowania dużych
         # statków) zapewnia ciekawszą grę
         min_rozmiar_statku = 1
         max_rozmiar_statku = 20
@@ -348,8 +348,9 @@ class Statek(object):
         else:
             return False
 
+
 # testy
-plansza = Plansza(50, 50)
+plansza = Plansza(20, 20)
 plansza.rysujSie()
 plansza.wypelnijStatkami()
 plansza.rysujSie()
