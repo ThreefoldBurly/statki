@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 """
-Gra w statki na planszy o arbitralnym rozmiarze.
+Gra w statki na planszy o arbitralnym rozmiarze
 """
 
 from random import randint, choice
@@ -10,11 +9,10 @@ from random import randint, choice
 from wspolne import *
 
 
-class Plansza(object):
+class Plansza:
     """Abstrakcyjna reprezentacja planszy do gry w statki"""
 
     def __init__(self, kolumny, rzedy):
-        super(Plansza, self).__init__()
         self.kolumny = kolumny  # max 69 ze względu na stout - ograniczenie nie zawarte w kodzie
         self.rzedy = rzedy  # max. 99 - ograniczenie nie zawarte w kodzie
         self.rozmiar = rzedy * kolumny
@@ -281,11 +279,10 @@ class Plansza(object):
         print u"\nWszystkich umieszczonych statków: %d. Ich sumaryczny rozmiar: [%d]" % (len(self.statki), sum_rozmiar)
 
 
-class Pole(object):
+class Pole:
     """Abstrakcyjna reprezentacja pola planszy"""
 
     def __init__(self, kolumna, rzad, znacznik=ZNACZNIKI["pusty"]):
-        super(Pole, self).__init__()
         self.kolumna = kolumna
         self.rzad = rzad
         self.znacznik = znacznik
@@ -294,14 +291,13 @@ class Pole(object):
         return (self.kolumna, self.rzad)
 
 
-class Statek(object):
+class Statek:
     """Abstrakcyjna reprezentacja statku"""
 
     nazwy = sklonujNazwyStatkow()  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
     rzymskie = dict([[ranga, [u"II", u"III", u"IV", u"V", u"VI", u"VII", u"VIII", u"IX", u"X"]] for ranga in NAZWY_RANG])
 
     def __init__(self, pola):
-        super(Statek, self).__init__()
         self.pola = sorted(pola, key=lambda p: p.podajWspolrzedne())  # lista pól posortowana wg współrzędnych - najpierw wg "x" potem wg "y"
         self.rozmiar = len(pola)
         self.ranga = RANGI_STATKOW[self.rozmiar]
