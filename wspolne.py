@@ -27,28 +27,28 @@ def sparsuj_rangi_statkow():
     rangi_statkow = []
     with codecs.open('rangi-statkow.sti', encoding='utf-8') as plik:
         for linia in plik:
-            if u"#" in linia:
+            if "#" in linia:
                 continue
-            linia = linia.strip(u' \n')
-            spars_linia = linia.split(u':::')
+            linia = linia.strip(' \n')
+            spars_linia = linia.split(':::')
             rozmiar_statku = int(spars_linia[0])
             ranga_statku = spars_linia[1]
             rangi_statkow.append([rozmiar_statku, ranga_statku])
 
     rangi_statkow = dict(rangi_statkow)
 
-    assert len(rangi_statkow) > 0, "Nieudane parsowanie rang statkow. Brak pliku 'rangi-statkow.sti' lub plik nie zawiera danych w prawidlowym formacie"
+    assert len(rangi_statkow) > 0, "Nieudane parsowanie rang statków. Brak pliku 'rangi-statkow.sti' lub plik nie zawiera danych w prawidłowym formacie"
 
-    nazwy_rang = []
-    akt_nazwa_rangi = u""
-    for k, nazwa_rangi in rangi_statkow.iteritems():
+    nazwy_rang = []  # TODO: to trzeba zamienić na wyciągnięcie wartości ze słownika i zostawienie unikatowych funkcją set()
+    akt_nazwa_rangi = ""
+    for k, nazwa_rangi in rangi_statkow.items():
         if nazwa_rangi != akt_nazwa_rangi:
             nazwy_rang.append(nazwa_rangi)
         akt_nazwa_rangi = nazwa_rangi
     return (rangi_statkow, nazwy_rang)
 
 
-RANGI_STATKOW, NAZWY_RANG = sparsuj_rangi_statkow()  # słownik, lista
+RANGI_STATKOW, NAZWY_RANG = sparsuj_rangi_statkow()  # słownik w formacie {rozmiar: ranga}, lista [kuter, patrolowiec, korweta, fregata, niszczyciel, krążownik, pancernik] (niekoniecznie w tej kolejności!)
 
 
 def sparsuj_nazwy_statkow():
@@ -59,8 +59,8 @@ def sparsuj_nazwy_statkow():
         lista_nazw = []
         for linia in linie:
             if ranga in linia:
-                linia = linia.rstrip(u'\n')
-                lista_nazw.append(linia.split(u':::')[0])
+                linia = linia.rstrip('\n')
+                lista_nazw.append(linia.split(':::')[0])
         return lista_nazw
 
     linie = []
@@ -70,22 +70,22 @@ def sparsuj_nazwy_statkow():
 
     for ranga in NAZWY_RANG:
         lista_nazw = parsuj_wg_rangi(linie, ranga)
-        print "\nRanga: %s. Dodano [%d]" % (ranga, len(lista_nazw))  # test
+        print("\nRanga: {}. Dodano nazw: [{}]".format(ranga, len(lista_nazw)))  # test
         nazwy_statkow[ranga] = lista_nazw
 
     def czy_nazwy_OK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
-        czyOK = True
+        czy_OK = True
         for ranga in nazwy_statkow:
             if len(nazwy_statkow[ranga]) == 0:
-                czyOK = False
-        return czyOK
+                czy_OK = False
+        return czy_OK
 
-    assert czy_nazwy_OK(), "Nieudane parsowanie nazw statkow. Brak pliku 'nazwy-statkow.sti' lub plik nie zawiera danych w prawidlowym formacie"
+    assert czy_nazwy_OK(), "Nieudane parsowanie nazw statków. Brak pliku 'nazwy-statkow.sti' lub plik nie zawiera danych w prawidłowym formacie"
 
     return nazwy_statkow
 
 
-NAZWY_STATKOW = sparsuj_nazwy_statkow()  # słownik
+NAZWY_STATKOW = sparsuj_nazwy_statkow()  # słownik w formacie {ranga: [lista nazw]}
 
 
 def sklonuj_nazwy_statkow():
@@ -105,10 +105,10 @@ def podaj_int_z_rozkladu_Gaussa(mediana, odch_st, minimum, maximum, prz_mediany=
     i = int(round(gauss(mediana + prz_mediany, odch_st)))
     if i < minimum:
         i = minimum - i
-        if i > maximum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite minimum-, miałoby wyjść poza zadany przedział, jest przycinane do maximum bez odbicia)
+        if i > maximum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite minimum- miałoby wyjść poza zadany przedział, jest przycinane do maximum bez odbicia)
             i = maximum
     if i > maximum:
         i = maximum - (i - maximum) + 1
-        if i < minimum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite maximum+, miałoby wyjść poza zadany przedział, jest przycinane do minimum bez odbicia)
+        if i < minimum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite maximum+ miałoby wyjść poza zadany przedział, jest przycinane do minimum bez odbicia)
             i = minimum
     return i

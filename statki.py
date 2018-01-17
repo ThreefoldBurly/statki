@@ -22,9 +22,9 @@ class Plansza:
     def stworz_pola(self):
         """Tworzy pola planszy"""
         pola = []
-        for y in xrange(1, self.rzedy + 1):
+        for y in range(1, self.rzedy + 1):
             rzad = []
-            for x in xrange(1, self.kolumny + 1):
+            for x in range(1, self.kolumny + 1):
                 rzad.append(Pole(x, y))
             pola.append(rzad)
         return pola
@@ -33,17 +33,17 @@ class Plansza:
         """Rysuje planszę"""
 
         # numeracja kolumn
-        print
-        print "    " + "  ".join([str(liczba) for liczba in xrange(1, self.kolumny + 1) if liczba < 10]) + " " + " ".join([str(liczba) for liczba in xrange(1, self.kolumny + 1) if liczba >= 10])
-        print
-        for i in xrange(len(self.pola)):
+        print()
+        print("    " + "  ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba < 10]) + " " + " ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba >= 10]))
+        print()
+        for i in range(len(self.pola)):
             # numeracja rzędów
             if i + 1 < 10:
-                print str(i + 1) + "  ",
+                print(str(i + 1) + "  ", end=" ")
             else:
-                print str(i + 1) + " ",
+                print(str(i + 1) + " ", end=" ")
             # właściwe pola planszy
-            print "  ".join([pole.znacznik for pole in self.pola[i]])
+            print("  ".join([pole.znacznik for pole in self.pola[i]]))
 
     def podaj_pole(self, kolumna, rzad):
         """Podaje wskazane pole"""
@@ -81,9 +81,9 @@ class Plansza:
             if licznik_iteracji > rozmiar * 5:  # za dużo iteracji - NIEUDANE UMIESZCZENIE
                 return None
             # do testów
-            # print
+            # print()
             # komunikat = "ITERACJA " + str(licznik_iteracji + 1)
-            # print komunikat.center(3 * self.kolumny)
+            # print(komunikat.center(3 * self.kolumny))
 
             if licznik_iteracji == 0:  # pole startowe
                 if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
@@ -105,19 +105,19 @@ class Plansza:
                             if ostatni_kierunek == "prawo":
                                 kolumna -= 1
                                 sciezka.pop()
-                                # print "Cofam: '" + sciezka.pop() + "'"  # test
+                                # print("Cofam: '" + sciezka.pop() + "'")  # test
                             elif ostatni_kierunek == "lewo":
                                 kolumna += 1
                                 sciezka.pop()
-                                # print "Cofam: '" + sciezka.pop() + "'"  # test
+                                # print("Cofam: '" + sciezka.pop() + "'")  # test
                             elif ostatni_kierunek == "gora":
                                 rzad += 1
                                 sciezka.pop()
-                                # print "Cofam: '" + sciezka.pop() + "'"  # test
+                                # print("Cofam: '" + sciezka.pop() + "'")  # test
                             elif ostatni_kierunek == "dol":
                                 rzad -= 1
                                 sciezka.pop()
-                                # print "Cofam: '" + sciezka.pop() + "'"  # test
+                                # print("Cofam: '" + sciezka.pop() + "'")  # test
                             # print "Uciekam z zapetlenia"  # test
                             break
 
@@ -137,7 +137,7 @@ class Plansza:
                             sciezka.append(kierunek)
                             ozn_pola.append(self.podaj_pole(kolumna, rzad))
                             # test
-                            # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
+                            # print(kierunek.center(3 * self.kolumny), str(rzad), str(kolumna))
                         else:
                             kolumna -= 1
                             kierunki.remove(kierunek)
@@ -150,7 +150,7 @@ class Plansza:
                             sciezka.append(kierunek)
                             ozn_pola.append(self.podaj_pole(kolumna, rzad))
                             # test
-                            # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
+                            # print(kierunek.center(3 * self.kolumny), str(rzad), str(kolumna))
                         else:
                             kolumna += 1
                             kierunki.remove(kierunek)
@@ -163,7 +163,7 @@ class Plansza:
                             sciezka.append(kierunek)
                             ozn_pola.append(self.podaj_pole(kolumna, rzad))
                             # test
-                            # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
+                            # print(kierunek.center(3 * self.kolumny), str(rzad), str(kolumna))
                         else:
                             rzad += 1
                             kierunki.remove(kierunek)
@@ -176,7 +176,7 @@ class Plansza:
                             sciezka.append(kierunek)
                             ozn_pola.append(self.podaj_pole(kolumna, rzad))
                             # test
-                            # print kierunek.center(3 * self.kolumny), str(rzad), str(kolumna)
+                            # print(kierunek.center(3 * self.kolumny), str(rzad), str(kolumna))
                         else:
                             rzad -= 1
                             kierunki.remove(kierunek)
@@ -195,11 +195,11 @@ class Plansza:
             a = 0  # współczynnik przesunięcia w pionie (x)
             b = 0  # współczynnik przesunięcia w poziomie (y)
 
-            for i in xrange(9):
-                if i in xrange(3):  # 1szy rząd sąsiadów
+            for i in range(9):  # TODO: zamienić to na LC bez czwórki
+                if i in range(3):  # 1szy rząd sąsiadów
                     a = -1
                     b = i - 1
-                elif i in xrange(3, 6):  # 2gi rząd sąsiadów
+                elif i in range(3, 6):  # 2gi rząd sąsiadów
                     a = 0
                     b = i - 4
                 else:  # 3ci rząd sąsiadów
@@ -239,8 +239,8 @@ class Plansza:
         # wartości domyślne parametrów zostały ustalone po testach
         # większa granulacja rozmiarów statków (z zapewnieniem sporadycznego występowania dużych
         # statków) zapewnia ciekawszą grę
-        min_rozmiar_statku = 1
-        max_rozmiar_statku = 20
+        min_rozmiar_statku = 1  # TODO: przenieść do pola klasy
+        max_rozmiar_statku = 20  # TODO: przenieść do pola klasy
         mediana = (min_rozmiar_statku + max_rozmiar_statku) / 2.0  # 10.5
 
         licznik_iteracji = 0
@@ -259,12 +259,12 @@ class Plansza:
             if umieszczony_statek is not None:
                 self.umiesc_obwiednie_statku(umieszczony_statek)
                 self.statki.append(umieszczony_statek)
-                # print "\nUmieszczony statek: %s [%d]" % (umieszczony_statek.ranga, umieszczony_statek.rozmiar)  # test
+                # print("\nUmieszczony statek: {} {}".format(umieszczony_statek.ranga, umieszczony_statek.rozmiar)  # test
                 akt_rozmiar_statkow -= rozmiar_statku
 
             # obsługa wyjścia
             if licznik_iteracji > sum_rozmiar_statkow * 10:  # wielkość do przetestowania
-                print u"Ilość iteracji pętli zapełniającej planszę statkami większa od oczekiwanej. Nastąpiło przedwczesne przerwanie petli. Umieszczono mniej statków"  # test
+                print("Ilość iteracji pętli zapełniającej planszę statkami większa od oczekiwanej. Nastąpiło przedwczesne przerwanie petli. Umieszczono mniej statków")  # test
                 break
 
             licznik_iteracji += 1
@@ -275,8 +275,8 @@ class Plansza:
         sum_rozmiar = 0
         for statek in self.statki:
             sum_rozmiar += statek.rozmiar
-            print '\nUmieszczony statek: %s "%s" [%d]' % (statek.ranga, statek.nazwa, statek.rozmiar)
-        print u"\nWszystkich umieszczonych statków: %d. Ich sumaryczny rozmiar: [%d]" % (len(self.statki), sum_rozmiar)
+            print('\nUmieszczony statek: {} "{}" [{}]'.format(statek.ranga, statek.nazwa, statek.rozmiar))
+        print("\nWszystkich umieszczonych statków: {}. Ich sumaryczny rozmiar: [{}]".format(len(self.statki), sum_rozmiar))
 
 
 class Pole:
@@ -295,7 +295,7 @@ class Statek:
     """Abstrakcyjna reprezentacja statku"""
 
     nazwy = sklonuj_nazwy_statkow()  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
-    rzymskie = dict([[ranga, [u"II", u"III", u"IV", u"V", u"VI", u"VII", u"VIII", u"IX", u"X"]] for ranga in NAZWY_RANG])
+    rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in NAZWY_RANG])
 
     def __init__(self, pola):
         self.pola = sorted(pola, key=lambda p: p.podaj_wspolrzedne())  # lista pól posortowana wg współrzędnych - najpierw wg "x" potem wg "y"
@@ -308,7 +308,7 @@ class Statek:
         """
         Resetuje wyczerpaną listę nazw dostępnych dla instancji klasy, pobierając ze stałej modułu wspolne.py pełną listę nazw, dodając do każdej nazwy kolejny liczebnik rzymski i zwracając tak zmienioną listę
         """
-        assert len(cls.rzymskie[ranga]) > 0, "Wyczerpano liczbe mozliwych nazw dla statkow"
+        assert len(cls.rzymskie[ranga]) > 0, "Wyczerpano liczbę możliwych nazw dla statków"
         rzymska = cls.rzymskie[ranga][0]
 
         nowa_lista = []
@@ -320,7 +320,7 @@ class Statek:
 
     def losuj_nazwe(self, ranga):
         """
-        Losuje nazwę dla statku o określonej randze z listy w atrybucie klasy. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z listy
+        Losuje nazwę dla statku o określonej randze z listy w polu klasy. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z listy
         """
         lista_nazw = Statek.nazwy[ranga]
         if len(lista_nazw) > 0:
