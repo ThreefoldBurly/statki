@@ -5,7 +5,7 @@ from wspolne import *
 
 lista = []
 for i in range(200):
-    lista.append(podajIntZRozkladuGaussa(10.5, 3, 1, 20, -2))
+    lista.append(podaj_int_z_rozkladu_Gaussa(10.5, 3, 1, 20, -2))
 
 print
 nowa_lista = []

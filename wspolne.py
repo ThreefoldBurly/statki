@@ -20,7 +20,7 @@ ZNACZNIKI = {
 KIERUNKI = ["prawo", "lewo", "gora", "dol"]
 
 
-def sparsujRangiStatkow():
+def sparsuj_rangi_statkow():
     """
     Parsuje z pliku tekstowego 'rangi-statkow.sti słownik rozmiarów i rang statków oraz listę nazw rang
     """
@@ -48,14 +48,14 @@ def sparsujRangiStatkow():
     return (rangi_statkow, nazwy_rang)
 
 
-RANGI_STATKOW, NAZWY_RANG = sparsujRangiStatkow()  # słownik, lista
+RANGI_STATKOW, NAZWY_RANG = sparsuj_rangi_statkow()  # słownik, lista
 
 
-def sparsujNazwyStatkow():
+def sparsuj_nazwy_statkow():
     """Parsuje z pliku tekstowego 'nazwy-statkow.sti' listę nazw dla każdej rangi statku (całość jako słownik)"""
     nazwy_statkow = {}
 
-    def parsujWgRangi(linie, ranga):  # funkcja pomocnicza dla bloku poniżej
+    def parsuj_wg_rangi(linie, ranga):  # funkcja pomocnicza dla bloku poniżej
         lista_nazw = []
         for linia in linie:
             if ranga in linia:
@@ -69,26 +69,26 @@ def sparsujNazwyStatkow():
             linie.append(linia)
 
     for ranga in NAZWY_RANG:
-        lista_nazw = parsujWgRangi(linie, ranga)
+        lista_nazw = parsuj_wg_rangi(linie, ranga)
         print "\nRanga: %s. Dodano [%d]" % (ranga, len(lista_nazw))  # test
         nazwy_statkow[ranga] = lista_nazw
 
-    def czyNazwyOK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
+    def czy_nazwy_OK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
         czyOK = True
         for ranga in nazwy_statkow:
             if len(nazwy_statkow[ranga]) == 0:
                 czyOK = False
         return czyOK
 
-    assert czyNazwyOK(), "Nieudane parsowanie nazw statkow. Brak pliku 'nazwy-statkow.sti' lub plik nie zawiera danych w prawidlowym formacie"
+    assert czy_nazwy_OK(), "Nieudane parsowanie nazw statkow. Brak pliku 'nazwy-statkow.sti' lub plik nie zawiera danych w prawidlowym formacie"
 
     return nazwy_statkow
 
 
-NAZWY_STATKOW = sparsujNazwyStatkow()  # słownik
+NAZWY_STATKOW = sparsuj_nazwy_statkow()  # słownik
 
 
-def sklonujNazwyStatkow():
+def sklonuj_nazwy_statkow():
     """
     Klonuje słownik NAZWY_STATKOW, wykonując kopię każdej składowej listy
     """
@@ -98,7 +98,7 @@ def sklonujNazwyStatkow():
     return nazwy
 
 
-def podajIntZRozkladuGaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
+def podaj_int_z_rozkladu_Gaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
     """
     Podaje losowy int wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany. Liczby spoza zadanego przedziału zwracane przez random.gauss() są odbijane proporcjonalnie do wewnątrz przedziału. PRZYKŁAD: dla przedziału <1, 20>, jeśli random.gauss() zwraca -2, to zwróconą liczbą będzie 3, jeśli -5, to 6 jeśli random.gauss() zwraca 22, to zwróconą liczbą, będzie 19, jeśli 27, to 14.
     """
