@@ -31,8 +31,8 @@ class Plansza:
             pola.append(rzad)
         return pola
 
-    def rysuj_sie(self):
-        """Rysuje planszę"""
+    def drukuj_sie(self):
+        """Drukuje planszę w standard output"""
 
         # numeracja kolumn
         print()
@@ -183,7 +183,7 @@ class Plansza:
                             rzad -= 1
                             kierunki.remove(kierunek)
 
-            # self.rysuj_sie() #test
+            # self.drukuj_sie() #test
             licznik_iteracji += 1
 
         return Statek(ozn_pola)
@@ -343,10 +343,3 @@ class Statek:
             return True
         else:
             return False
-
-
-# testy
-plansza = Plansza(20, 20)
-plansza.rysuj_sie()
-plansza.wypelnij_statkami()
-plansza.rysuj_sie()
