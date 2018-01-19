@@ -16,8 +16,7 @@ class PlanszaGUI:
     def __init__(self, root, plansza):
         super(PlanszaGUI, self).__init__()
         self.plansza = plansza
-        # matryca wszystkich pól (ttk.Button)
-        self.matryca = [[0 for kolumna in range(self.plansza.kolumny)] for rzad in range(self.plansza.rzedy)]
+        self.matryca_pol = [[0 for kolumna in range(self.plansza.kolumny)] for rzad in range(self.plansza.rzedy)]
         # GUI
         self.zawartosc = ttk.Frame(root, padding=10)
         self.zawartosc.grid(column=0, row=0)
@@ -25,7 +24,7 @@ class PlanszaGUI:
     def buduj_sie(self):
         for i in range(self.plansza.kolumny):
             for j in range(self.plansza.rzedy):
-                self.matryca[j][i] = ttk.Button(self.zawartosc, text="").grid(column=i, row=j, sticky=W, pady=2, padx=2)
+                self.matryca_pol[j][i] = ttk.Button(self.zawartosc, text="S", width=2).grid(column=i, row=j, sticky=W, pady=2, padx=2)
 
 
 def main():
@@ -33,7 +32,7 @@ def main():
     Uruchamia skrypt
     """
     # przygotowanie planszy
-    plansza = Plansza(3, 20)
+    plansza = Plansza(20, 20)
     plansza.drukuj_sie()
     plansza.wypelnij_statkami()
     plansza.drukuj_sie()
