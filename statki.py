@@ -15,8 +15,8 @@ class Plansza:
     MAX_ROZMIAR_STATKU = 20
 
     def __init__(self, kolumny, rzedy):
-        self.kolumny = kolumny  # max 69 ze względu na stout - ograniczenie nie zawarte w kodzie
-        self.rzedy = rzedy  # max. 99 - ograniczenie nie zawarte w kodzie
+        self.kolumny = kolumny
+        self.rzedy = rzedy
         self.rozmiar = rzedy * kolumny
         self.pola = self.stworz_pola()  # lista rzędów (list) pól
         self.statki = []
@@ -296,6 +296,7 @@ class Statek:
 
     nazwy = sklonuj_nazwy_statkow()  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
     rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in NAZWY_RANG])
+    print("Rzymskie", rzymskie)
 
     def __init__(self, pola):
         self.pola = sorted(pola, key=lambda p: p.podaj_wspolrzedne())  # lista pól posortowana wg współrzędnych - najpierw wg "x" potem wg "y"
