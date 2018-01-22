@@ -194,7 +194,20 @@ class Plansza:
             # self.drukuj_sie() #test
             licznik_iteracji += 1
 
-        return Statek(ozn_pola)
+        if rozmiar == 1:
+            return Kuter(ozn_pola)
+        elif rozmiar in range(2, 4):
+            return Patrolowiec(ozn_pola)
+        elif rozmiar in range(4, 7):
+            return Korweta(ozn_pola)
+        elif rozmiar in range(7, 10):
+            return Fregata(ozn_pola)
+        elif rozmiar in range(10, 13):
+            return Niszczyciel(ozn_pola)
+        elif rozmiar in range(13, 17):
+            return Krazownik(ozn_pola)
+        elif rozmiar in range(17, 21):
+            return Pancernik(ozn_pola)
 
     def umiesc_obwiednie_statku(self, statek):
         """Umieszcza na planszy obwiednię wskazanego statku"""
@@ -316,29 +329,7 @@ class Pole:
 
 
 class Parser:
-    """Parsuje rangi i nazwy statki z plików tekstowych katalogu dane"""
-
-    @staticmethod
-    def sparsuj_rangi():
-        """
-        Parsuje z pliku tekstowego 'dane/rangi.sti słownik rozmiarów i rang statków oraz listę nazw rang
-        """
-        rangi = []
-        with codecs.open('dane/rangi.sti', encoding='utf-8') as plik:
-            for linia in plik:
-                if "#" in linia:
-                    continue
-                linia = linia.strip(' \n')
-                spars_linia = linia.split(':::')
-                rozmiar_statku = int(spars_linia[0])
-                ranga_statku = spars_linia[1]
-                rangi.append([rozmiar_statku, ranga_statku])
-
-        rangi = dict(rangi)
-
-        assert len(rangi) > 0, "Nieudane parsowanie rang statków. Brak pliku 'dane/rangi.sti' lub plik nie zawiera danych w prawidłowym formacie"
-
-        return (rangi, set(rangi.values()))
+    """Parsuje nazwy statków z 'dane/nazwy.sti'"""
 
     @staticmethod
     def sparsuj_nazwy(rangi):
@@ -388,7 +379,7 @@ class Parser:
 class Statek:
     """Abstrakcyjna reprezentacja statku"""
 
-    RANGI_WG_ROZMIARU, RANGI = Parser.sparsuj_rangi()  # słownik w formacie {rozmiar: ranga}, zbiór {kuter, patrolowiec, korweta, fregata, niszczyciel, krążownik, pancernik} (niekoniecznie w tej kolejności!)
+    RANGI = ["kuter", "patrolowiec", "korweta", "fregata", "niszczyciel", "krążownik", "pancernik"]
     NAZWY_WG_RANGI = Parser.sparsuj_nazwy(RANGI)  # słownik w formacie {ranga: [lista nazw]}
     pula_nazw = Parser.sklonuj_nazwy(NAZWY_WG_RANGI)  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
     rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])
@@ -396,8 +387,10 @@ class Statek:
     def __init__(self, pola):
         self.pola = sorted(pola, key=lambda p: p.podaj_wspolrzedne())  # lista pól posortowana wg współrzędnych - najpierw wg "x" potem wg "y"
         self.rozmiar = len(pola)
-        self.ranga = self.RANGI_WG_ROZMIARU[self.rozmiar]
-        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.trafienia = 0
+        self.ranga = None  # implementacja w klasach potomnych
+        self.nazwa = None  # implementacja w klasach potomnych
+        self.salwy = None  # implementacja w klasach potomnych
 
     @classmethod
     def zresetuj_nazwy(cls, ranga):
@@ -414,7 +407,8 @@ class Statek:
         cls.rzymskie[ranga].remove(rzymska)
         return nowa_lista
 
-    def losuj_nazwe(self, ranga):
+    @classmethod
+    def losuj_nazwe(cls, ranga):
         """
         Losuje nazwę dla statku o określonej randze z listy w polu klasy. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z listy
         """
@@ -422,7 +416,7 @@ class Statek:
         if len(lista_nazw) > 0:
             nazwa = choice(lista_nazw)
         else:  # obsługa wyczerpania dostępnych nazw dla danej rangi
-            lista_nazw = Statek.pula_nazw[ranga] = self.zresetuj_nazwy(ranga)
+            lista_nazw = Statek.pula_nazw[ranga] = cls.zresetuj_nazwy(ranga)
             nazwa = choice(lista_nazw)
 
         lista_nazw.remove(nazwa)
@@ -439,3 +433,94 @@ class Statek:
             return True
         else:
             return False
+
+
+class Kuter(Statek):
+    """Statek o rozmiarze 1 pola"""
+
+    RANGA = Statek.RANGI[0]
+    SALWY = [1]
+
+    def __init__(self, pola):
+        super(Kuter, self).__init__(pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Patrolowiec(Statek):
+    """Statek o rozmiarze 2-3 pola"""
+
+    RANGA = Statek.RANGI[1]
+    SALWY = [2]
+
+    def __init__(self, pola):
+        super(Patrolowiec, self).__init__(pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Korweta(Statek):
+    """Statek o rozmiarze 4-6 pól"""
+
+    RANGA = Statek.RANGI[2]
+    SALWY = [3]
+
+    def __init__(self, pola):
+        super(Korweta, self).__init__(pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Fregata(Statek):
+    """Statek o rozmiarze 7-9 pól"""
+
+    RANGA = Statek.RANGI[3]
+    SALWY = [2, 2]
+
+    def __init__(self, pola):
+        super(Fregata, self).__init__(pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Niszczyciel(Statek):
+    """Statek o rozmiarze 10-12 pól"""
+
+    RANGA = Statek.RANGI[4]
+    SALWY = [3, 2]
+
+    def __init__(self, pola):
+        super(Niszczyciel, self).__init__(pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Krazownik(Statek):
+    """Statek o rozmiarze 13-16 pól"""
+
+    RANGA = Statek.RANGI[5]
+    SALWY = [3, 3]
+
+    def __init__(self, pola):
+        super(Krazownik, self).__init__(pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Pancernik(Statek):
+    """Statek o rozmiarze 17-20 pól"""
+
+    RANGA = Statek.RANGI[6]
+    SALWY = [3, 2, 2]
+
+    def __init__(self, pola):
+        super(Pancernik, self).__init__(pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej

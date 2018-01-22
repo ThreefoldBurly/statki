@@ -102,7 +102,7 @@ def main():
     Uruchamia skrypt
     """
     # przygotowanie planszy
-    plansza = Plansza(5, 5)  # sensowne wymiary planszy to od 5x5 do 50x30 ==> TODO: zaimplementować w GUI
+    plansza = Plansza(18, 18)  # sensowne wymiary planszy to od 5x5 do 50x30 ==> TODO: zaimplementować w GUI
     plansza.drukuj_sie()
     plansza.wypelnij_statkami()
     plansza.drukuj_sie()
