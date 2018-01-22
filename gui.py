@@ -4,8 +4,8 @@
 Graficzny interfejs użytkownika
 """
 
-from tkinter import *
-from tkinter import ttk
+import tkinter as tk
+import tkinter.ttk as ttk
 
 from statki import Plansza
 
@@ -60,11 +60,11 @@ class PlanszaGUI:
             ttk.Label(
                 self.ramka_pol,
                 text=str(kolumna + 1),
-                anchor=CENTER
+                anchor=tk.CENTER
             ).grid(
                 row=0,
                 column=kolumna + 1,
-                sticky=W + E,
+                sticky=tk.W + tk.E,
                 pady=(0, 3)
             )
         for rzad in range(self.plansza.rzedy):
@@ -74,27 +74,39 @@ class PlanszaGUI:
             ).grid(
                 column=0,
                 row=rzad + 1,
-                sticky=E,
+                sticky=tk.E,
                 padx=(0, 6)
             )
         # pola
         for i in range(self.plansza.kolumny):
             for j in range(self.plansza.rzedy):
-                self.matryca_pol[j][i] = ttk.Button(
+                pole = ttk.Button(
                     self.ramka_pol,
                     text="",
                     width=2,
                     command=lambda x=i + 1, y=j + 1: self.sprawdz_pole(x, y)  # lambda bez własnych argumentów (w formie: lambda: self.sprawdz_pole(i+1, j+1) nie zadziała prawidłowo w tym przypadku - zmienne przekazywane do każdej funkcji (anonimowej czy nie - bez różnicy) są zawsze ewaluowane dopiero w momencie wywołania tej funkcji, tak więc w tym przypadku w danej iteracji pętli zostają przekazane zmienne "i" i "j" (nazwy) a nie ich wartości - wartości zostaną ewaluowane dopiero w momencie wywołania callbacka (czyli naciśnięcia przycisku) i będzie to wartość z ostatniej iteracji dla wszystkich przycisków, więcej tutaj: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126)
-                ).grid(
+                )
+                pole.grid(
                     column=i + 1,
                     row=j + 1,
-                    sticky=W,
+                    sticky=tk.W,
                     pady=2,
                     padx=2
                 )
+                self.matryca_pol[j][i] = pole
+
+    def podaj_pole(self, kolumna, rzad):
+        """Podaje wskazane pole (przycisk)"""
+        return self.matryca_pol[rzad - 1][kolumna - 1]
 
     def sprawdz_pole(self, kolumna, rzad):
         print("Kliknięcie w polu: ({}{})".format(self.ALFABET[rzad], kolumna))
+        if self.plansza.podaj_pole(kolumna, rzad).znacznik in (Plansza.ZNACZNIKI["pusty"], Plansza.ZNACZNIKI["obwiednia"]):
+            self.podaj_pole(kolumna, rzad).state(['disabled'])
+            print("pudło")
+        else:
+            self.podaj_pole(kolumna, rzad).configure(text="&")
+            print("TRAFIONY!")
 
 
 def main():
@@ -102,13 +114,13 @@ def main():
     Uruchamia skrypt
     """
     # przygotowanie planszy
-    plansza = Plansza(18, 18)  # sensowne wymiary planszy to od 5x5 do 50x30 ==> TODO: zaimplementować w GUI
+    plansza = Plansza(17, 17)  # sensowne wymiary planszy to od 5x5 do 50x30 ==> TODO: zaimplementować w GUI
     plansza.drukuj_sie()
     plansza.wypelnij_statkami()
     plansza.drukuj_sie()
 
     # GUI
-    root = Tk()
+    root = tk.Tk()
     root.title("Statki")
     gui = PlanszaGUI(root, plansza)
     gui.buduj_sie()
