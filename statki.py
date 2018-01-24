@@ -442,7 +442,7 @@ class Kuter(Statek):
     SALWY = [1]
 
     def __init__(self, pola):
-        super(Kuter, self).__init__(pola)
+        super().__init__(pola)
         self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
@@ -455,7 +455,7 @@ class Patrolowiec(Statek):
     SALWY = [2]
 
     def __init__(self, pola):
-        super(Patrolowiec, self).__init__(pola)
+        super().__init__(pola)
         self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
@@ -468,7 +468,7 @@ class Korweta(Statek):
     SALWY = [3]
 
     def __init__(self, pola):
-        super(Korweta, self).__init__(pola)
+        super().__init__(pola)
         self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
@@ -481,7 +481,7 @@ class Fregata(Statek):
     SALWY = [2, 2]
 
     def __init__(self, pola):
-        super(Fregata, self).__init__(pola)
+        super().__init__(pola)
         self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
@@ -494,7 +494,7 @@ class Niszczyciel(Statek):
     SALWY = [3, 2]
 
     def __init__(self, pola):
-        super(Niszczyciel, self).__init__(pola)
+        super().__init__(pola)
         self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
@@ -507,7 +507,7 @@ class Krazownik(Statek):
     SALWY = [3, 3]
 
     def __init__(self, pola):
-        super(Krazownik, self).__init__(pola)
+        super().__init__(pola)
         self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
@@ -520,7 +520,7 @@ class Pancernik(Statek):
     SALWY = [3, 2, 2]
 
     def __init__(self, pola):
-        super(Pancernik, self).__init__(pola)
+        super().__init__(pola)
         self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
