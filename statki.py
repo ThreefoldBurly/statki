@@ -489,6 +489,7 @@ class Kuter(Statek):
 
     RANGA = Statek.RANGI[0]
     SALWY = [1]
+    SYMBOL = "T"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
@@ -502,6 +503,7 @@ class Patrolowiec(Statek):
 
     RANGA = Statek.RANGI[1]
     SALWY = [2]
+    SYMBOL = "L"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
@@ -515,6 +517,7 @@ class Korweta(Statek):
 
     RANGA = Statek.RANGI[2]
     SALWY = [3]
+    SYMBOL = "W"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
@@ -528,6 +531,7 @@ class Fregata(Statek):
 
     RANGA = Statek.RANGI[3]
     SALWY = [2, 2]
+    SYMBOL = "F"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
@@ -541,6 +545,7 @@ class Niszczyciel(Statek):
 
     RANGA = Statek.RANGI[4]
     SALWY = [3, 2]
+    SYMBOL = "N"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
@@ -554,6 +559,7 @@ class Krazownik(Statek):
 
     RANGA = Statek.RANGI[5]
     SALWY = [3, 3]
+    SYMBOL = "K"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
@@ -567,6 +573,7 @@ class Pancernik(Statek):
 
     RANGA = Statek.RANGI[6]
     SALWY = [3, 2, 2]
+    SYMBOL = "P"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)

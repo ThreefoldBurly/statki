@@ -10,8 +10,8 @@ from tkinter import ttk
 from statki import Plansza
 
 
-class PlanszaGUI:
-    """GUI dla planszy"""
+class PlanszaGUI(ttk.Frame):
+    """GUI dla planszy - szczegółowa implementacja w klasach potomnych"""
 
     ALFABET = {
         1: "A",
@@ -46,29 +46,28 @@ class PlanszaGUI:
         30: "AD"
     }
 
-    def __init__(self, root, kolumny, rzedy):
+    def __init__(self, rodzic, kolumny, rzedy, tytul):
+        super().__init__(rodzic, padding=10)
+        self.tytul = tytul
         self.plansza = Plansza(kolumny, rzedy)
         self.matryca_pol = [[0 for kolumna in range(self.plansza.kolumny)] for rzad in range(self.plansza.rzedy)]
         # GUI
-        self.ramka_glowna = ttk.Frame(root, padding=10)
-        self.ramka_glowna.grid()
-        self.ramka_pol = ttk.LabelFrame(self.ramka_glowna, text="Gracz #1", padding=10)
+        self.grid()
+        self.styl = ttk.Style()
+        self.ramka_pol = ttk.LabelFrame(self, text=self.tytul, padding=10)
         self.ramka_pol.grid()
         self.ustaw_style()
         self.buduj_etykiety()
         self.buduj_pola()
 
-    # TODO: rozdzielić na osobne metody (style, etykiety, pola)
-    @staticmethod
-    def ustaw_style():
+    def ustaw_style(self):
         """Definiuje style dla pól"""
-        styl = ttk.Style()
-        styl.configure(
+        self.styl.configure(
             "Puste.TButton",
             relief="sunken",
             background="powder blue"
         )
-        styl.map(
+        self.styl.map(
             "Puste.TButton",
             relief=[('active', 'sunken'), ('disabled', 'sunken')],
             background=[('active', 'sky blue'), ('active', 'light blue')],
@@ -105,15 +104,14 @@ class PlanszaGUI:
                 pole = ttk.Button(
                     self.ramka_pol,
                     text="",
-                    width=2,
-                    command=lambda x=i + 1, y=j + 1: self.sprawdz_pole(x, y)  # lambda bez własnych argumentów (w formie: lambda: self.sprawdz_pole(i+1, j+1) nie zadziała prawidłowo w tym przypadku - zmienne przekazywane do każdej funkcji (anonimowej czy nie - bez różnicy) są zawsze ewaluowane dopiero w momencie wywołania tej funkcji, tak więc w tym przypadku w danej iteracji pętli zostają przekazane zmienne "i" i "j" (nazwy) a nie ich wartości - wartości zostaną ewaluowane dopiero w momencie wywołania callbacka (czyli naciśnięcia przycisku) i będzie to wartość z ostatniej iteracji dla wszystkich przycisków, więcej tutaj: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126)
+                    width=2
                 )
                 pole.grid(
                     column=i + 1,
                     row=j + 1,
-                    sticky=tk.W,
-                    pady=2,
-                    padx=2
+                    sticky=tk.W
+                    # pady=1,
+                    # padx=1
                 )
                 self.matryca_pol[j][i] = pole
 
@@ -121,7 +119,41 @@ class PlanszaGUI:
         """Podaje wskazane pole (przycisk)"""
         return self.matryca_pol[rzad - 1][kolumna - 1]
 
-    def sprawdz_pole(self, kolumna, rzad):
+
+class PlanszaGospodarza(PlanszaGUI):
+    """GUI dla planszy gospodarza"""
+
+    def __init__(self, rodzic, kolumny, rzedy, tytul="Gracz"):
+        super().__init__(rodzic, kolumny, rzedy, tytul)
+        self.odkryj_pola()
+
+    def odkryj_pola(self):
+        for i in range(self.plansza.kolumny):
+            for j in range(self.plansza.rzedy):
+                kolumna, rzad = i + 1, j + 1
+                pole_gui = self.podaj_pole(kolumna, rzad)
+                pole_planszy = self.plansza.podaj_pole(kolumna, rzad)
+                statek = self.plansza.podaj_statek(pole_planszy)
+                if pole_planszy.znacznik in (Plansza.ZNACZNIKI["pusty"], Plansza.ZNACZNIKI["obwiednia"]):
+                    pole_gui.configure(style="Puste.TButton")
+                else:
+                    pole_gui.configure(text=statek.SYMBOL)
+
+
+class PlanszaGoscia(PlanszaGUI):
+    """GUI dla planszy gościa"""
+
+    def __init__(self, rodzic, kolumny, rzedy, tytul="Gracz"):
+        super().__init__(rodzic, kolumny, rzedy, tytul)
+        self.rejestruj_callback()
+
+    def rejestruj_callback(self):
+        for i in range(self.plansza.kolumny):
+            for j in range(self.plansza.rzedy):
+                kolumna, rzad = i + 1, j + 1
+                self.podaj_pole(kolumna, rzad).configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))  # lambda bez własnych argumentów (w formie: lambda: self.na_klikniecie(i+1, j+1) nie zadziała prawidłowo w tym przypadku - zmienne przekazywane do każdej funkcji (anonimowej czy nie - bez różnicy) są zawsze ewaluowane dopiero w momencie wywołania tej funkcji, tak więc w tym przypadku w danej iteracji pętli zostają przekazane zmienne "i" i "j" (nazwy) a nie ich wartości - wartości zostaną ewaluowane dopiero w momencie wywołania callbacka (czyli naciśnięcia przycisku) i będzie to wartość z ostatniej iteracji dla wszystkich przycisków, więcej tutaj: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126))
+
+    def na_klikniecie(self, kolumna, rzad):
         """Callback każdego pola uruchamiany po naciśnięciu"""
         print("Kliknięcie w polu: ({}{})".format(self.ALFABET[rzad], kolumna))
         pole = self.podaj_pole(kolumna, rzad)
@@ -138,7 +170,9 @@ def main():
     """Uruchamia skrypt"""
     root = tk.Tk()
     root.title("Statki")
-    gui = PlanszaGUI(root, 25, 30)  # przy ekranie 1920x1200 sensowne wymiary (jednej) planszy to od 5x5 do 50x30, przy dwóch planszach (gracz+przeciwnik) to 5x5 do 25x30 ==> TODO: zaimplementować w GUI
+    # przy ekranie 1920x1200 sensowne wymiary (jednej) planszy to od 5x5 do 50x30, przy dwóch planszach (gracz+przeciwnik) to 5x5 do 25x30 ==> TODO: zaimplementować w GUI
+    PlanszaGospodarza(root, 25, 30)
+    # PlanszaGoscia(root, 25, 30)
     root.resizable(False, False)
     root.mainloop()
 
