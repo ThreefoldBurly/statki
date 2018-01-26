@@ -45,7 +45,6 @@ class Plansza:
 
     def drukuj_sie(self):
         """Drukuje planszę w standard output"""
-
         # numeracja kolumn
         print()
         print("    " + "  ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba < 10]) + " " + " ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba >= 10]))
@@ -340,13 +339,13 @@ class Pole:
         """Zwraca informację o polu w formacie: (kolumna,rzad)"""
         return "({},{})".format(self.kolumna, self.rzad)
 
-    # przesładowanie operatora "=="
+    # przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes)
     def __eq__(self, other):
         if isinstance(self, other.__class__):
             return self.__dict__ == other.__dict__
         return NotImplemented
 
-    # przesładowanie operatora "=="
+    # przeładowanie operatora "=="
     def __hash__(self):
         return hash(tuple(sorted(self.__dict__.items())))
 
@@ -428,7 +427,7 @@ class Statek:
         ranga "nazwa" (4,5) [10/17] **
 
         gdzie:
-        - (4,5) to położenie w postaci koordynatów pola najbardziej wysuniętego na NW
+        - (4,5) to położenie pola najbardziej wysuniętego na NW (self.polozenie)
         - [10/17] to pola nietrafione/wszystkie pola
         - ** - tyle gwiazdek ile dodatkowych salw za zatopienie przeciwnika
         """

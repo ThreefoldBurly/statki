@@ -54,11 +54,14 @@ class PlanszaGUI:
         self.ramka_glowna.grid()
         self.ramka_pol = ttk.LabelFrame(self.ramka_glowna, text="Gracz #1", padding=10)
         self.ramka_pol.grid()
-        self.buduj_sie()
+        self.ustaw_style()
+        self.buduj_etykiety()
+        self.buduj_pola()
 
     # TODO: rozdzielić na osobne metody (style, etykiety, pola)
-    def buduj_sie(self):
-        # style
+    @staticmethod
+    def ustaw_style():
+        """Definiuje style dla pól"""
         styl = ttk.Style()
         styl.configure(
             "Puste.TButton",
@@ -71,7 +74,8 @@ class PlanszaGUI:
             background=[('active', 'sky blue'), ('active', 'light blue')],
         )
 
-        # etykiety kolumn i rzędów
+    def buduj_etykiety(self):
+        """Buduje etykiety kolumn i rzędów"""
         for kolumna in range(self.plansza.kolumny):
             ttk.Label(
                 self.ramka_pol,
@@ -93,7 +97,9 @@ class PlanszaGUI:
                 sticky=tk.E,
                 padx=(0, 6)
             )
-        # pola
+
+    def buduj_pola(self):
+        """Buduje pola planszy"""
         for i in range(self.plansza.kolumny):
             for j in range(self.plansza.rzedy):
                 pole = ttk.Button(
@@ -115,8 +121,8 @@ class PlanszaGUI:
         """Podaje wskazane pole (przycisk)"""
         return self.matryca_pol[rzad - 1][kolumna - 1]
 
-    # callback - WIP
     def sprawdz_pole(self, kolumna, rzad):
+        """Callback każdego pola uruchamiany po naciśnięciu"""
         print("Kliknięcie w polu: ({}{})".format(self.ALFABET[rzad], kolumna))
         pole = self.podaj_pole(kolumna, rzad)
         if self.plansza.podaj_pole(kolumna, rzad).znacznik in (Plansza.ZNACZNIKI["pusty"], Plansza.ZNACZNIKI["obwiednia"]):
