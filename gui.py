@@ -7,11 +7,20 @@ Graficzny interfejs użytkownika
 import tkinter as tk
 from tkinter import ttk
 
-from statki import Plansza
+from statki import Plansza, Pole
 
 
 class PoleGUI(ttk.Button):
-    """Przycisk posiadający obiekt klasy statki.Pole"""
+    """Pole planszy GUI jako przycisk posiadający pole planszy właściwej"""
+
+    KOLORY = {
+        "puste": "powder blue",
+        "puste-active": "light cyan",
+        "pudło": "DeepSkyBlue3",
+        "pudło-active": "deep sky blue",
+        "trafione": "light coral",
+        "trafione-active": "light pink",
+    }
 
     def __init__(self, pole, rodzic, *args, **kwargs):
         super().__init__(rodzic, *args, **kwargs)
@@ -58,7 +67,7 @@ class PlanszaGUI(ttk.Frame):
         super().__init__(rodzic, padding=10)
         self.tytul = tytul
         self.plansza = Plansza(kolumny, rzedy)
-        self.matryca_pol = [[0 for kolumna in range(self.plansza.kolumny)] for rzad in range(self.plansza.rzedy)]
+        self.pola_gui = [[0 for kolumna in range(self.plansza.kolumny)] for rzad in range(self.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
         # GUI
         self.grid()
         self.styl = ttk.Style()
@@ -74,23 +83,34 @@ class PlanszaGUI(ttk.Frame):
         self.styl.configure(
             "Puste.TButton",
             relief="sunken",
-            background="powder blue"
+            background=PoleGUI.KOLORY["puste"]
         )
         self.styl.map(
             "Puste.TButton",
             relief=[('active', 'sunken'), ('disabled', 'sunken')],
-            background=[('active', 'sky blue'), ('disabled', 'light blue')],
+            background=[('active', PoleGUI.KOLORY["puste-active"]), ('disabled', "gray")]
         )
-        # pudło TODO: zmienić kolory na jasnoczerwone(przetestować)
+        # pudło
         self.styl.configure(
             "Pudło.TButton",
             relief="sunken",
-            background="light pink"
+            background=PoleGUI.KOLORY["pudło"]
         )
         self.styl.map(
             "Pudło.TButton",
             relief=[('active', 'sunken'), ('disabled', 'sunken')],
-            background=[('active', 'light coral'), ('disabled', 'pink')],
+            background=[('active', PoleGUI.KOLORY["pudło-active"]), ('disabled', "gray")]
+        )
+        # trafione
+        self.styl.configure(
+            "Trafione.TButton",
+            # relief="sunken",
+            background=PoleGUI.KOLORY["trafione"]
+        )
+        self.styl.map(
+            "Trafione.TButton",
+            # relief=[('active', 'sunken'), ('disabled', 'sunken')],
+            background=[('active', PoleGUI.KOLORY["trafione-active"]), ('disabled', "gray")]
         )
 
     def buduj_etykiety(self):
@@ -135,19 +155,23 @@ class PlanszaGUI(ttk.Frame):
                     # pady=1,
                     # padx=1
                 )
-                self.matryca_pol[j][i] = pole_gui
+                self.pola_gui[j][i] = pole_gui
 
     def podaj_pole_gui(self, kolumna, rzad):
         """Podaje wskazane pole (przycisk)"""
-        return self.matryca_pol[rzad - 1][kolumna - 1]
+        return self.pola_gui[rzad - 1][kolumna - 1]
 
 
 class PlanszaGospodarza(PlanszaGUI):
     """GUI dla planszy gospodarza"""
 
-    def __init__(self, rodzic, kolumny, rzedy, tytul="Gracz"):
+    def __init__(self, rodzic, kolumny, rzedy, tytul="Gospodarz"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
         self.odkryj_pola()
+        # testy
+        self.oznacz_pudlo(self.podaj_pole_gui(5, 5))
+        statek = self.plansza.statki[0]
+        self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
 
     def odkryj_pola(self):
         """Odkrywa wszystkie pola planszy"""
@@ -156,21 +180,26 @@ class PlanszaGospodarza(PlanszaGUI):
                 kolumna, rzad = i + 1, j + 1
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
                 statek = self.plansza.podaj_statek(pole_gui.pole)
-                if pole_gui.pole.znacznik in (Plansza.ZNACZNIKI["pusty"], Plansza.ZNACZNIKI["obwiednia"]):
+                if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
                     pole_gui.configure(style="Puste.TButton")
                 else:
                     pole_gui.configure(text=statek.SYMBOL)
 
     def oznacz_pudlo(self, pole_gui):
         """Oznacza podane pole jako pudło"""
-        pole_gui.pole.znacznik = Plansza.ZNACZNIKI["pudło"]
+        pole_gui.pole.znacznik = Pole.ZNACZNIKI["pudło"]
         pole_gui.configure(style="Pudło.TButton", text="•")
+
+    def oznacz_trafione(self, pole_gui):
+        """Oznacza podane pole jako trafione"""
+        pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
+        pole_gui.configure(style="Trafione.TButton")
 
 
 class PlanszaGoscia(PlanszaGUI):
     """GUI dla planszy gościa"""
 
-    def __init__(self, rodzic, kolumny, rzedy, tytul="Gracz"):
+    def __init__(self, rodzic, kolumny, rzedy, tytul="Gość"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
         self.rejestruj_callback()
 
@@ -186,7 +215,7 @@ class PlanszaGoscia(PlanszaGUI):
         """Callback każdego pola uruchamiany po naciśnięciu"""
         print("Kliknięcie w polu: ({}{})".format(self.ALFABET[rzad], kolumna))
         pole_gui = self.podaj_pole_gui(kolumna, rzad)
-        if pole_gui.pole.znacznik in (Plansza.ZNACZNIKI["pusty"], Plansza.ZNACZNIKI["obwiednia"], Plansza.ZNACZNIKI["pudło"]):
+        if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"], Pole.ZNACZNIKI["pudło"]):
             pole_gui.configure(style="Puste.TButton")
             print("pudło")
         else:
@@ -205,9 +234,9 @@ def main():
 
     # przy ekranie 1920x1200 sensowne wymiary (jednej) planszy to od 5x5 do 50x30, przy dwóch planszach (gracz+przeciwnik) to 5x5 do 25x30 ==> TODO: zaimplementować w GUI
     kolumny, rzedy = 25, 30
-    host = PlanszaGospodarza(rama, kolumny, rzedy, "Gospodarz")
+    host = PlanszaGospodarza(rama, kolumny, rzedy)
     host.grid(column=0, row=0)
-    guest = PlanszaGoscia(rama, kolumny, rzedy, "Gość")
+    guest = PlanszaGoscia(rama, kolumny, rzedy)
     guest.grid(column=1, row=0)
     root.resizable(False, False)
     root.mainloop()

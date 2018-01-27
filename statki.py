@@ -10,14 +10,6 @@ from random import randint, choice, gauss
 
 class Plansza:
     """Abstrakcyjna reprezentacja planszy do gry w statki"""
-    ZNACZNIKI = {
-        "pusty": "0",
-        "pudło": "x",
-        "trafiony": "T",
-        "zatopiony": "Z",
-        "statek": "&",
-        "obwiednia": "."
-    }
     MIN_ROZMIAR_STATKU = 1
     MAX_ROZMIAR_STATKU = 20
 
@@ -26,7 +18,7 @@ class Plansza:
         self.kolumny = kolumny
         self.rzedy = rzedy
         self.rozmiar = rzedy * kolumny
-        self.pola = self.stworz_pola()  # lista rzędów (list) pól
+        self.pola = self.stworz_pola()  # matryca (lista rzędów (list)) pól
         self.statki = []
         # inicjalizacja
         self.drukuj_sie()
@@ -68,7 +60,7 @@ class Plansza:
 
     def czy_pole_puste(self, kolumna, rzad):
         """Sprawdza czy wskazane pole jest puste"""
-        if self.pola[rzad - 1][kolumna - 1].znacznik == self.ZNACZNIKI["pusty"]:
+        if self.pola[rzad - 1][kolumna - 1].znacznik == Pole.ZNACZNIKI["puste"]:
             return True
         else:
             return False
@@ -101,7 +93,7 @@ class Plansza:
 
             if licznik_iteracji == 0:  # pole startowe
                 if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                    self.oznacz_pole(kolumna, rzad, self.ZNACZNIKI["statek"])
+                    self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                     licznik_oznaczen += 1
                     ozn_pola.append(self.podaj_pole(kolumna, rzad))
                 else:
@@ -138,14 +130,14 @@ class Plansza:
                         else:  # nie ma gdzie wracać, jesteśmy w punkcie startowym - NIEUDANE UMIESZCZENIE statku
                             for pole in ozn_pola:  # czyszczenie planszy
                                 kolumna, rzad = pole.podaj_wspolrzedne()
-                                self.oznacz_pole(kolumna, rzad, self.ZNACZNIKI["pusty"])
+                                self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["puste"])
                             return None
 
                     kierunek = pula_kierunkow[randint(0, len(pula_kierunkow) - 1)]
                     if kierunek == "prawo":
                         kolumna += 1
                         if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(kolumna, rzad, self.ZNACZNIKI["statek"])
+                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
@@ -158,7 +150,7 @@ class Plansza:
                     elif kierunek == "lewo":
                         kolumna -= 1
                         if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(kolumna, rzad, self.ZNACZNIKI["statek"])
+                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
@@ -171,7 +163,7 @@ class Plansza:
                     elif kierunek == "gora":
                         rzad -= 1
                         if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(kolumna, rzad, self.ZNACZNIKI["statek"])
+                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
@@ -184,7 +176,7 @@ class Plansza:
                     else:  # idziemy w dół
                         rzad += 1
                         if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(kolumna, rzad, self.ZNACZNIKI["statek"])
+                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
@@ -237,7 +229,7 @@ class Plansza:
                 y = rzad + b
 
                 if self.czy_pole_w_planszy(x, y) and self.czy_pole_puste(x, y):
-                    self.oznacz_pole(x, y, self.ZNACZNIKI["obwiednia"])
+                    self.oznacz_pole(x, y, Pole.ZNACZNIKI["obwiednia"])
 
     def podaj_statek(self, pole):
         """Zwraca statek zajmujący podane pole"""
@@ -250,7 +242,7 @@ class Plansza:
         """Oznacza pola wskazanego statku jako zatopione"""
         for pole in statek.pola:
             kolumna, rzad = pole.podaj_wspolrzedne()
-            self.oznacz_pole(kolumna, rzad, self.ZNACZNIKI["zatopiony"])
+            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["zatopione"])
 
     def wypelnij_statkami(self, zapelnienie=15, odch_st=9, prz_mediany=-7):
         """
@@ -329,8 +321,18 @@ class Plansza:
 
 class Pole:
     """Abstrakcyjna reprezentacja pola planszy"""
+    ZNACZNIKI = {
+        "puste": "0",
+        "pudło": "x",
+        "trafione": "T",
+        "zatopione": "Z",
+        "statek": "&",
+        "obwiednia": "."
+    }
 
-    def __init__(self, kolumna, rzad, znacznik=Plansza.ZNACZNIKI["pusty"]):
+    def __init__(self, kolumna, rzad, znacznik=None):
+        if znacznik is None:
+            znacznik = self.ZNACZNIKI["puste"]
         self.kolumna = kolumna
         self.rzad = rzad
         self.znacznik = znacznik
@@ -453,7 +455,7 @@ class Statek:
         rzymska = cls.rzymskie[ranga][0]
 
         nowa_lista = []
-        for nazwa in NAZWY_WG_RANGI[ranga]:
+        for nazwa in self.NAZWY_WG_RANGI[ranga]:
             nowa_lista.append(u" ".join([nazwa, rzymska]))
 
         cls.rzymskie[ranga].remove(rzymska)
@@ -479,7 +481,7 @@ class Statek:
         licznik_trafien = 0
         for pole in self.pola:
             kolumna, rzad = pole.podaj_wspolrzedne()
-            if self.plansza.pola[rzad - 1][kolumna - 1].znacznik in (Plansza.ZNACZNIKI["trafiony"], Plansza.ZNACZNIKI["zatopiony"]):
+            if self.plansza.pola[rzad - 1][kolumna - 1].znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
                 licznik_trafien += 1
         return licznik_trafien
 
