@@ -21,9 +21,7 @@ class PoleGUI(ttk.Button):
         "trafione": "light coral",
         "trafione-active": "light pink",
         "zatopione": "ivory4",
-        # "zatopione": "coral4",
         "zatopione-active": "ivory3"
-        # "zatopione-active": "salmon3"
     }
 
     def __init__(self, pole, rodzic, *args, **kwargs):
@@ -188,6 +186,11 @@ class PlanszaGUI(ttk.Frame):
         """Podaje pole planszy"""
         return self.pola_gui[rzad - 1][kolumna - 1]
 
+    def oznacz_pudlo(self, pole_gui):
+        """Oznacza podane pole jako pudło"""
+        pole_gui.pole.znacznik = Pole.ZNACZNIKI["pudło"]
+        pole_gui.configure(style="Pudło.TButton", text="•")
+
     def oznacz_trafione(self, pole_gui):
         """Oznacza podane pole jako trafione"""
         pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
@@ -225,11 +228,6 @@ class PlanszaGracza(PlanszaGUI):
                 else:
                     pole_gui.configure(text=statek.SYMBOL)
 
-    def oznacz_pudlo(self, pole_gui):
-        """Oznacza podane pole jako pudło"""
-        pole_gui.pole.znacznik = Pole.ZNACZNIKI["pudło"]
-        pole_gui.configure(style="Pudło.TButton", text="•")
-
 
 class PlanszaPrzeciwnika(PlanszaGUI):
     """Graficzna reprezentacja planszy przeciwnika"""
@@ -254,7 +252,8 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             pole_gui.configure(style="Puste.TButton")
             print("pudło")
         else:
-            pole_gui.configure(text="⁇")
+            pole_gui.configure(text="�")
+            # pole_gui.configure(text="⁇")
             # pole_gui.state(["disabled"])
             print("TRAFIONY!")
 
