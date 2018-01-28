@@ -238,12 +238,6 @@ class Plansza:
                 return statek
         return None
 
-    def zatop_statek(self, statek):
-        """Oznacza pola wskazanego statku jako zatopione"""
-        for pole in statek.pola:
-            kolumna, rzad = pole.podaj_wspolrzedne()
-            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["zatopione"])
-
     def wypelnij_statkami(self, zapelnienie=15, odch_st=9, prz_mediany=-7):
         """
         Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry metody
@@ -455,7 +449,7 @@ class Statek:
         rzymska = cls.rzymskie[ranga][0]
 
         nowa_lista = []
-        for nazwa in self.NAZWY_WG_RANGI[ranga]:
+        for nazwa in cls.NAZWY_WG_RANGI[ranga]:
             nowa_lista.append(u" ".join([nazwa, rzymska]))
 
         cls.rzymskie[ranga].remove(rzymska)

@@ -11,7 +11,7 @@ from statki import Plansza, Pole
 
 
 class PoleGUI(ttk.Button):
-    """Pole planszy GUI jako przycisk posiadający pole planszy właściwej"""
+    """Graficzna reprezentacja pola planszy"""
 
     KOLORY = {
         "puste": "powder blue",
@@ -20,6 +20,10 @@ class PoleGUI(ttk.Button):
         "pudło-active": "deep sky blue",
         "trafione": "light coral",
         "trafione-active": "light pink",
+        "zatopione": "ivory4",
+        # "zatopione": "coral4",
+        "zatopione-active": "ivory3"
+        # "zatopione-active": "salmon3"
     }
 
     def __init__(self, pole, rodzic, *args, **kwargs):
@@ -28,7 +32,7 @@ class PoleGUI(ttk.Button):
 
 
 class PlanszaGUI(ttk.Frame):
-    """GUI dla planszy - szczegółowa implementacja w klasach potomnych"""
+    """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych"""
 
     ALFABET = {
         1: "A",
@@ -60,7 +64,17 @@ class PlanszaGUI(ttk.Frame):
         27: "AA",
         28: "AB",
         29: "AC",
-        30: "AD"
+        30: "AD",
+        31: "AE",
+        32: "AF",
+        33: "AG",
+        34: "AH",
+        35: "AI",
+        36: "AJ",
+        37: "AK",
+        38: "AL",
+        39: "AM",
+        40: "AN"
     }
 
     def __init__(self, rodzic, kolumny, rzedy, tytul):
@@ -87,8 +101,8 @@ class PlanszaGUI(ttk.Frame):
         )
         self.styl.map(
             "Puste.TButton",
-            relief=[('active', 'sunken'), ('disabled', 'sunken')],
-            background=[('active', PoleGUI.KOLORY["puste-active"]), ('disabled', "gray")]
+            relief=[("active", "sunken"), ("disabled", "sunken")],
+            background=[("active", PoleGUI.KOLORY["puste-active"]), ("disabled", "gray")]
         )
         # pudło
         self.styl.configure(
@@ -98,8 +112,8 @@ class PlanszaGUI(ttk.Frame):
         )
         self.styl.map(
             "Pudło.TButton",
-            relief=[('active', 'sunken'), ('disabled', 'sunken')],
-            background=[('active', PoleGUI.KOLORY["pudło-active"]), ('disabled', "gray")]
+            relief=[("active", "sunken"), ("disabled", "sunken")],
+            background=[("active", PoleGUI.KOLORY["pudło-active"]), ("disabled", "gray")]
         )
         # trafione
         self.styl.configure(
@@ -109,8 +123,21 @@ class PlanszaGUI(ttk.Frame):
         )
         self.styl.map(
             "Trafione.TButton",
-            # relief=[('active', 'sunken'), ('disabled', 'sunken')],
-            background=[('active', PoleGUI.KOLORY["trafione-active"]), ('disabled', "gray")]
+            # relief=[("active", "sunken"), ("disabled", "sunken")],
+            background=[("active", PoleGUI.KOLORY["trafione-active"]), ("disabled", "gray")]
+        )
+        # zatopione
+        self.styl.configure(
+            "Zatopione.TButton",
+            relief="sunken",
+            foreground="white",
+            background=PoleGUI.KOLORY["zatopione"]
+        )
+        self.styl.map(
+            "Zatopione.TButton",
+            relief=[("active", "sunken"), ("disabled", "sunken")],
+            foreground=[("active", "white"), ("disabled", "white")],
+            background=[("active", PoleGUI.KOLORY["zatopione-active"]), ("disabled", "gray")]
         )
 
     def buduj_etykiety(self):
@@ -158,27 +185,40 @@ class PlanszaGUI(ttk.Frame):
                 self.pola_gui[j][i] = pole_gui
 
     def podaj_pole_gui(self, kolumna, rzad):
-        """Podaje wskazane pole (przycisk)"""
+        """Podaje pole planszy"""
         return self.pola_gui[rzad - 1][kolumna - 1]
 
+    def oznacz_trafione(self, pole_gui):
+        """Oznacza podane pole jako trafione"""
+        pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
+        pole_gui.configure(style="Trafione.TButton")
 
-class PlanszaGospodarza(PlanszaGUI):
-    """GUI dla planszy gospodarza"""
+    def zatop_statek(self, statek):
+        """Oznacza pola wskazanego statku jako zatopione"""
+        for pole in statek.pola:
+            pole.znacznik = Pole.ZNACZNIKI["zatopione"]
+            self.podaj_pole_gui(*pole.podaj_wspolrzedne()).configure(style="Zatopione.TButton")
+            statek.czy_zatopiony = True
 
-    def __init__(self, rodzic, kolumny, rzedy, tytul="Gospodarz"):
+
+class PlanszaGracza(PlanszaGUI):
+    """Graficzna reprezentacja planszy gracza"""
+
+    def __init__(self, rodzic, kolumny, rzedy, tytul="Gracz"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
         self.odkryj_pola()
+
         # testy
         self.oznacz_pudlo(self.podaj_pole_gui(5, 5))
         statek = self.plansza.statki[0]
         self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
+        statek = self.plansza.statki[1]
+        self.zatop_statek(statek)
 
     def odkryj_pola(self):
         """Odkrywa wszystkie pola planszy"""
-        for i in range(self.plansza.kolumny):
-            for j in range(self.plansza.rzedy):
-                kolumna, rzad = i + 1, j + 1
-                pole_gui = self.podaj_pole_gui(kolumna, rzad)
+        for rzad in self.pola_gui:
+            for pole_gui in rzad:
                 statek = self.plansza.podaj_statek(pole_gui.pole)
                 if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
                     pole_gui.configure(style="Puste.TButton")
@@ -190,21 +230,16 @@ class PlanszaGospodarza(PlanszaGUI):
         pole_gui.pole.znacznik = Pole.ZNACZNIKI["pudło"]
         pole_gui.configure(style="Pudło.TButton", text="•")
 
-    def oznacz_trafione(self, pole_gui):
-        """Oznacza podane pole jako trafione"""
-        pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
-        pole_gui.configure(style="Trafione.TButton")
 
+class PlanszaPrzeciwnika(PlanszaGUI):
+    """Graficzna reprezentacja planszy przeciwnika"""
 
-class PlanszaGoscia(PlanszaGUI):
-    """GUI dla planszy gościa"""
-
-    def __init__(self, rodzic, kolumny, rzedy, tytul="Gość"):
+    def __init__(self, rodzic, kolumny, rzedy, tytul="Przeciwnik"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
         self.rejestruj_callback()
 
     def rejestruj_callback(self):
-        """Rejestruje na_klikniecie() z wszystkimi polami"""
+        """Rejestruje callback na_klikniecie() we wszystkich polach"""
         for i in range(self.plansza.kolumny):
             for j in range(self.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
@@ -219,7 +254,7 @@ class PlanszaGoscia(PlanszaGUI):
             pole_gui.configure(style="Puste.TButton")
             print("pudło")
         else:
-            pole_gui.configure(text="&")
+            pole_gui.configure(text="⁇")
             # pole_gui.state(["disabled"])
             print("TRAFIONY!")
 
@@ -234,10 +269,10 @@ def main():
 
     # przy ekranie 1920x1200 sensowne wymiary (jednej) planszy to od 5x5 do 50x30, przy dwóch planszach (gracz+przeciwnik) to 5x5 do 25x30 ==> TODO: zaimplementować w GUI
     kolumny, rzedy = 25, 30
-    host = PlanszaGospodarza(rama, kolumny, rzedy)
-    host.grid(column=0, row=0)
-    guest = PlanszaGoscia(rama, kolumny, rzedy)
-    guest.grid(column=1, row=0)
+    gracz = PlanszaGracza(rama, kolumny, rzedy)
+    gracz.grid(column=0, row=0)
+    przeciwnik = PlanszaPrzeciwnika(rama, kolumny, rzedy)
+    przeciwnik.grid(column=1, row=0)
     root.resizable(False, False)
     root.mainloop()
 
