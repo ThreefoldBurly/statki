@@ -4,9 +4,8 @@
 Gra w statki na planszy o arbitralnym rozmiarze
 """
 
-from random import randint, choice
-
-from wspolne import *
+import codecs
+from random import randint, choice, gauss
 
 
 class Plansza:
@@ -15,11 +14,16 @@ class Plansza:
     MAX_ROZMIAR_STATKU = 20
 
     def __init__(self, kolumny, rzedy):
-        self.kolumny = kolumny  # max 69 ze względu na stout - ograniczenie nie zawarte w kodzie
-        self.rzedy = rzedy  # max. 99 - ograniczenie nie zawarte w kodzie
+        # pola klasy
+        self.kolumny = kolumny
+        self.rzedy = rzedy
         self.rozmiar = rzedy * kolumny
-        self.pola = self.stworz_pola()  # lista rzędów (list) pól
+        self.pola = self.stworz_pola()  # matryca (lista rzędów (list)) pól
         self.statki = []
+        # inicjalizacja
+        self.drukuj_sie()
+        self.wypelnij_statkami()
+        self.drukuj_sie()
 
     def stworz_pola(self):
         """Tworzy pola planszy"""
@@ -31,9 +35,8 @@ class Plansza:
             pola.append(rzad)
         return pola
 
-    def rysuj_sie(self):
-        """Rysuje planszę"""
-
+    def drukuj_sie(self):
+        """Drukuje planszę w standard output"""
         # numeracja kolumn
         print()
         print("    " + "  ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba < 10]) + " " + " ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba >= 10]))
@@ -51,13 +54,13 @@ class Plansza:
         """Podaje wskazane pole"""
         return self.pola[rzad - 1][kolumna - 1]
 
-    def oznacz_pole(self, znacznik, kolumna, rzad):
+    def oznacz_pole(self, kolumna, rzad, znacznik):
         """Oznacza wskazane polę wskazanym znacznikiem"""
         self.pola[rzad - 1][kolumna - 1].znacznik = znacznik
 
     def czy_pole_puste(self, kolumna, rzad):
         """Sprawdza czy wskazane pole jest puste"""
-        if self.pola[rzad - 1][kolumna - 1].znacznik == ZNACZNIKI["pusty"]:
+        if self.pola[rzad - 1][kolumna - 1].znacznik == Pole.ZNACZNIKI["puste"]:
             return True
         else:
             return False
@@ -69,10 +72,11 @@ class Plansza:
         else:
             return True
 
-    def umiesc_statek(self, rozmiar, kolumna, rzad):
+    def umiesc_statek(self, kolumna, rzad, rozmiar):
         """
         Stara się umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu metoda zwraca umieszczony statek, w razie porażki zwraca None (czyszcząc oznaczone wcześniej pola).
         """
+        kierunki = ["prawo", "lewo", "gora", "dol"]
         licznik_oznaczen = 0
         licznik_iteracji = 0
         sciezka = []
@@ -89,19 +93,19 @@ class Plansza:
 
             if licznik_iteracji == 0:  # pole startowe
                 if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                    self.oznacz_pole(ZNACZNIKI["statek"], kolumna, rzad)
+                    self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                     licznik_oznaczen += 1
                     ozn_pola.append(self.podaj_pole(kolumna, rzad))
                 else:
                     return None  # NIEUDANE UMIESZCZENIE
             else:
                 oznaczono = False
-                kierunki = KIERUNKI[:]
+                pula_kierunkow = kierunki[:]
 
                 while not oznaczono:
 
                     # obsługa zapętlenia - pętla może się wykonać maksymalnie 4 razy (tyle ile możliwych kierunków ruchu)
-                    if len(kierunki) < 1:  # wyczerpaliśmy wszystkie możliwe kierunki - trzeba wracać (o ile jest gdzie!)
+                    if len(pula_kierunkow) < 1:  # wyczerpaliśmy wszystkie możliwe kierunki - trzeba wracać (o ile jest gdzie!)
                         if len(sciezka) > 0:
                             ostatni_kierunek = sciezka[len(sciezka) - 1]
                             if ostatni_kierunek == "prawo":
@@ -126,14 +130,14 @@ class Plansza:
                         else:  # nie ma gdzie wracać, jesteśmy w punkcie startowym - NIEUDANE UMIESZCZENIE statku
                             for pole in ozn_pola:  # czyszczenie planszy
                                 kolumna, rzad = pole.podaj_wspolrzedne()
-                                self.oznacz_pole(ZNACZNIKI["pusty"], kolumna, rzad)
+                                self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["puste"])
                             return None
 
-                    kierunek = kierunki[randint(0, len(kierunki) - 1)]
+                    kierunek = pula_kierunkow[randint(0, len(pula_kierunkow) - 1)]
                     if kierunek == "prawo":
                         kolumna += 1
                         if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(ZNACZNIKI["statek"], kolumna, rzad)
+                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
@@ -142,11 +146,11 @@ class Plansza:
                             # print(kierunek.center(3 * self.kolumny), str(rzad), str(kolumna))
                         else:
                             kolumna -= 1
-                            kierunki.remove(kierunek)
+                            pula_kierunkow.remove(kierunek)
                     elif kierunek == "lewo":
                         kolumna -= 1
                         if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(ZNACZNIKI["statek"], kolumna, rzad)
+                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
@@ -155,11 +159,11 @@ class Plansza:
                             # print(kierunek.center(3 * self.kolumny), str(rzad), str(kolumna))
                         else:
                             kolumna += 1
-                            kierunki.remove(kierunek)
+                            pula_kierunkow.remove(kierunek)
                     elif kierunek == "gora":
                         rzad -= 1
                         if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(ZNACZNIKI["statek"], kolumna, rzad)
+                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
@@ -168,11 +172,11 @@ class Plansza:
                             # print(kierunek.center(3 * self.kolumny), str(rzad), str(kolumna))
                         else:
                             rzad += 1
-                            kierunki.remove(kierunek)
+                            pula_kierunkow.remove(kierunek)
                     else:  # idziemy w dół
                         rzad += 1
                         if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(ZNACZNIKI["statek"], kolumna, rzad)
+                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
                             oznaczono = True
                             licznik_oznaczen += 1
                             sciezka.append(kierunek)
@@ -181,12 +185,25 @@ class Plansza:
                             # print(kierunek.center(3 * self.kolumny), str(rzad), str(kolumna))
                         else:
                             rzad -= 1
-                            kierunki.remove(kierunek)
+                            pula_kierunkow.remove(kierunek)
 
-            # self.rysuj_sie() #test
+            # self.drukuj_sie() #test
             licznik_iteracji += 1
 
-        return Statek(ozn_pola)
+        if rozmiar == 1:
+            return Kuter(self, ozn_pola)
+        elif rozmiar in range(2, 4):
+            return Patrolowiec(self, ozn_pola)
+        elif rozmiar in range(4, 7):
+            return Korweta(self, ozn_pola)
+        elif rozmiar in range(7, 10):
+            return Fregata(self, ozn_pola)
+        elif rozmiar in range(10, 13):
+            return Niszczyciel(self, ozn_pola)
+        elif rozmiar in range(13, 17):
+            return Krazownik(self, ozn_pola)
+        elif rozmiar in range(17, 21):
+            return Pancernik(self, ozn_pola)
 
     def umiesc_obwiednie_statku(self, statek):
         """Umieszcza na planszy obwiednię wskazanego statku"""
@@ -212,13 +229,14 @@ class Plansza:
                 y = rzad + b
 
                 if self.czy_pole_w_planszy(x, y) and self.czy_pole_puste(x, y):
-                    self.oznacz_pole(ZNACZNIKI["obwiednia"], x, y)
+                    self.oznacz_pole(x, y, Pole.ZNACZNIKI["obwiednia"])
 
-    def zatop_statek(self, statek):
-        """Oznacza pola wskazanego statku jako zatopione"""
-        for pole in statek.pola:
-            kolumna, rzad = pole.podaj_wspolrzedne()
-            self.oznacz_pole(ZNACZNIKI["zatopiony"], kolumna, rzad)
+    def podaj_statek(self, pole):
+        """Zwraca statek zajmujący podane pole"""
+        for statek in self.statki:
+            if pole in statek.pola:
+                return statek
+        return None
 
     def wypelnij_statkami(self, zapelnienie=15, odch_st=9, prz_mediany=-7):
         """
@@ -241,6 +259,22 @@ class Plansza:
         # wartości domyślne parametrów zostały ustalone po testach
         # większa granulacja rozmiarów statków (z zapewnieniem sporadycznego występowania dużych
         # statków) zapewnia ciekawszą grę
+
+        def podaj_int_z_rozkladu_Gaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
+            """
+            Podaje losowy int wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany. Liczby spoza zadanego przedziału zwracane przez random.gauss() są odbijane proporcjonalnie do wewnątrz przedziału. PRZYKŁAD: dla przedziału <1, 20>, jeśli random.gauss() zwraca -2, to zwróconą liczbą będzie 3, jeśli -5, to 6 jeśli random.gauss() zwraca 22, to zwróconą liczbą, będzie 19, jeśli 27, to 14.
+            """
+            i = int(round(gauss(mediana + prz_mediany, odch_st)))
+            if i < minimum:
+                i = minimum - i
+                if i > maximum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite minimum- miałoby wyjść poza zadany przedział, jest przycinane do maximum bez odbicia)
+                    i = maximum
+            if i > maximum:
+                i = maximum - (i - maximum) + 1
+                if i < minimum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite maximum+ miałoby wyjść poza zadany przedział, jest przycinane do minimum bez odbicia)
+                    i = minimum
+            return i
+
         mediana = (self.MIN_ROZMIAR_STATKU + self.MAX_ROZMIAR_STATKU) / 2.0  # 10.5
 
         licznik_iteracji = 0
@@ -254,7 +288,7 @@ class Plansza:
             pole_startowe_x = randint(1, self.kolumny)
             pole_startowe_y = randint(1, self.rzedy)
 
-            umieszczony_statek = self.umiesc_statek(rozmiar_statku, pole_startowe_x, pole_startowe_y)
+            umieszczony_statek = self.umiesc_statek(pole_startowe_x, pole_startowe_y, rozmiar_statku)
 
             if umieszczony_statek is not None:
                 self.umiesc_obwiednie_statku(umieszczony_statek)
@@ -281,27 +315,130 @@ class Plansza:
 
 class Pole:
     """Abstrakcyjna reprezentacja pola planszy"""
+    ZNACZNIKI = {
+        "puste": "0",
+        "pudło": "x",
+        "trafione": "T",
+        "zatopione": "Z",
+        "statek": "&",
+        "obwiednia": "."
+    }
 
-    def __init__(self, kolumna, rzad, znacznik=ZNACZNIKI["pusty"]):
+    def __init__(self, kolumna, rzad, znacznik=None):
+        if znacznik is None:
+            znacznik = self.ZNACZNIKI["puste"]
         self.kolumna = kolumna
         self.rzad = rzad
         self.znacznik = znacznik
+
+    def __str__(self):
+        """Zwraca informację o polu w formacie: (kolumna,rzad)"""
+        return "({},{})".format(self.kolumna, self.rzad)
+
+    # przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes)
+    def __eq__(self, other):
+        if isinstance(self, other.__class__):
+            return self.__dict__ == other.__dict__
+        return NotImplemented
+
+    # przeładowanie operatora "=="
+    def __hash__(self):
+        return hash(tuple(sorted(self.__dict__.items())))
 
     def podaj_wspolrzedne(self):
         return (self.kolumna, self.rzad)
 
 
+class Parser:
+    """Parsuje nazwy statków z 'dane/nazwy.sti'"""
+
+    @staticmethod
+    def sparsuj_nazwy(rangi):
+        """Parsuje z pliku tekstowego 'dane/nazwy.sti' listę nazw dla każdej rangi statku (całość jako słownik)"""
+        nazwy = {}
+
+        def parsuj_wg_rangi(linie, ranga):  # funkcja pomocnicza dla bloku poniżej
+            lista_nazw = []
+            for linia in linie:
+                if ranga in linia:
+                    linia = linia.rstrip('\n')
+                    lista_nazw.append(linia.split(':::')[0])
+            return lista_nazw
+
+        linie = []
+        with codecs.open('dane/nazwy.sti', encoding='utf-8') as plik:
+            for linia in plik:
+                linie.append(linia)
+
+        for ranga in rangi:
+            lista_nazw = parsuj_wg_rangi(linie, ranga)
+            print("\nRanga: {}. Dodano nazw: [{}]".format(ranga, len(lista_nazw)))  # test
+            nazwy[ranga] = lista_nazw
+
+        def czy_nazwy_OK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
+            czy_OK = True
+            for ranga in nazwy:
+                if len(nazwy[ranga]) == 0:
+                    czy_OK = False
+            return czy_OK
+
+        assert czy_nazwy_OK(), "Nieudane parsowanie nazw statków. Brak pliku 'dane/nazwy.sti' lub plik nie zawiera danych w prawidłowym formacie"
+
+        return nazwy
+
+    @staticmethod
+    def sklonuj_nazwy(nazwy_wg_rangi):
+        """
+        Klonuje słownik nazw wg rangi, wykonując kopię każdej składowej listy
+        """
+        nazwy = {}
+        for klucz in nazwy_wg_rangi:
+            nazwy[klucz] = nazwy_wg_rangi[klucz][:]
+        return nazwy
+
+
 class Statek:
     """Abstrakcyjna reprezentacja statku"""
 
-    nazwy = sklonuj_nazwy_statkow()  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
-    rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in NAZWY_RANG])
+    RANGI = ["kuter", "patrolowiec", "korweta", "fregata", "niszczyciel", "krążownik", "pancernik"]
+    NAZWY_WG_RANGI = Parser.sparsuj_nazwy(RANGI)  # słownik w formacie {ranga: [lista nazw]}
+    pula_nazw = Parser.sklonuj_nazwy(NAZWY_WG_RANGI)  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
+    rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])
 
-    def __init__(self, pola):
-        self.pola = sorted(pola, key=lambda p: p.podaj_wspolrzedne())  # lista pól posortowana wg współrzędnych - najpierw wg "x" potem wg "y"
+    def __init__(self, plansza, pola):
+        self.plansza = plansza
+        self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # lista pól posortowana od pola najbardziej na NW do pola najbardziej na SE
+        self.polozenie = self.pola[0]
         self.rozmiar = len(pola)
-        self.ranga = RANGI_STATKOW[self.rozmiar]
-        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.czy_zatopiony = False
+        self.zatopione = []  # lista statków przeciwnika zatopionych przez ten statek
+        self.ranga = None  # implementacja w klasach potomnych
+        self.nazwa = None  # implementacja w klasach potomnych
+        self.salwy = None  # implementacja w klasach potomnych
+
+    def __str__(self):
+        """
+        Zwraca informację o statku w formacie:
+
+        ranga "nazwa" (4,5) [10/17] **
+
+        gdzie:
+        - (4,5) to położenie pola najbardziej wysuniętego na NW (self.polozenie)
+        - [10/17] to pola nietrafione/wszystkie pola
+        - ** - tyle gwiazdek ile dodatkowych salw za zatopienie przeciwnika
+        """
+        nietrafione = self.rozmiar - self.ile_otrzymanych_trafien()
+        info = '{} "{}" {} [{}/{}] '.format(
+            self.ranga,
+            self.nazwa,
+            str(self.polozenie),
+            str(nietrafione),
+            str(self.rozmiar)
+        )
+        for gwiazdka in ["*" for zatopiony in self.zatopione]:
+            info += gwiazdka
+
+        return info
 
     @classmethod
     def zresetuj_nazwy(cls, ranga):
@@ -312,41 +449,130 @@ class Statek:
         rzymska = cls.rzymskie[ranga][0]
 
         nowa_lista = []
-        for nazwa in NAZWY_STATKOW[ranga]:
+        for nazwa in cls.NAZWY_WG_RANGI[ranga]:
             nowa_lista.append(u" ".join([nazwa, rzymska]))
 
         cls.rzymskie[ranga].remove(rzymska)
         return nowa_lista
 
-    def losuj_nazwe(self, ranga):
+    @classmethod
+    def losuj_nazwe(cls, ranga):
         """
         Losuje nazwę dla statku o określonej randze z listy w polu klasy. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z listy
         """
-        lista_nazw = Statek.nazwy[ranga]
+        lista_nazw = Statek.pula_nazw[ranga]
         if len(lista_nazw) > 0:
             nazwa = choice(lista_nazw)
         else:  # obsługa wyczerpania dostępnych nazw dla danej rangi
-            lista_nazw = Statek.nazwy[ranga] = self.zresetuj_nazwy(ranga)
+            lista_nazw = Statek.pula_nazw[ranga] = cls.zresetuj_nazwy(ranga)
             nazwa = choice(lista_nazw)
 
         lista_nazw.remove(nazwa)
         return nazwa
 
-    def czy_zatopiony(self, plansza):
-        """Sprawdza czy wszystkie pola statku zostały trafione na wskazanej planszy"""
+    def ile_otrzymanych_trafien(self):
+        """Podaje ilość otrzymanych trafień"""
         licznik_trafien = 0
         for pole in self.pola:
             kolumna, rzad = pole.podaj_wspolrzedne()
-            if plansza.pola[rzad - 1][kolumna - 1] == ZNACZNIKI["trafiony"]:
+            if self.plansza.pola[rzad - 1][kolumna - 1].znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
                 licznik_trafien += 1
-        if licznik_trafien == self.rozmiar:
-            return True
-        else:
-            return False
+        return licznik_trafien
 
 
-# testy
-plansza = Plansza(20, 20)
-plansza.rysuj_sie()
-plansza.wypelnij_statkami()
-plansza.rysuj_sie()
+class Kuter(Statek):
+    """Statek o rozmiarze 1 pola"""
+
+    RANGA = Statek.RANGI[0]
+    SALWY = [1]
+    SYMBOL = "T"
+
+    def __init__(self, plansza, pola):
+        super().__init__(plansza, pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Patrolowiec(Statek):
+    """Statek o rozmiarze 2-3 pól"""
+
+    RANGA = Statek.RANGI[1]
+    SALWY = [2]
+    SYMBOL = "L"
+
+    def __init__(self, plansza, pola):
+        super().__init__(plansza, pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Korweta(Statek):
+    """Statek o rozmiarze 4-6 pól"""
+
+    RANGA = Statek.RANGI[2]
+    SALWY = [3]
+    SYMBOL = "W"
+
+    def __init__(self, plansza, pola):
+        super().__init__(plansza, pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Fregata(Statek):
+    """Statek o rozmiarze 7-9 pól"""
+
+    RANGA = Statek.RANGI[3]
+    SALWY = [2, 2]
+    SYMBOL = "F"
+
+    def __init__(self, plansza, pola):
+        super().__init__(plansza, pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Niszczyciel(Statek):
+    """Statek o rozmiarze 10-12 pól"""
+
+    RANGA = Statek.RANGI[4]
+    SALWY = [3, 2]
+    SYMBOL = "N"
+
+    def __init__(self, plansza, pola):
+        super().__init__(plansza, pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Krazownik(Statek):
+    """Statek o rozmiarze 13-16 pól"""
+
+    RANGA = Statek.RANGI[5]
+    SALWY = [3, 3]
+    SYMBOL = "K"
+
+    def __init__(self, plansza, pola):
+        super().__init__(plansza, pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+
+
+class Pancernik(Statek):
+    """Statek o rozmiarze 17-20 pól"""
+
+    RANGA = Statek.RANGI[6]
+    SALWY = [3, 2, 2]
+    SYMBOL = "P"
+
+    def __init__(self, plansza, pola):
+        super().__init__(plansza, pola)
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.nazwa = self.losuj_nazwe(self.ranga)
+        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
