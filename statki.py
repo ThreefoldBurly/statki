@@ -206,9 +206,9 @@ class Plansza:
             return Pancernik(self, ozn_pola)
 
     def umiesc_obwiednie_statku(self, statek):
-        """Umieszcza na planszy obwiednię wskazanego statku"""
+        """Umieszcza na planszy obwiednię wskazanego statku (który je zapamiętuje)"""
 
-        # wystarczy zaznaczyć wszystkich 8 bezpośrednich sąsiadów danego punktu (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
+        # wystarczy zaznaczyć wszystkich 8 bezpośrednich sąsiadów danego pola (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
         for pole in statek.pola:
             kolumna, rzad = pole.podaj_wspolrzedne()
             a = 0  # współczynnik przesunięcia w pionie (x)
@@ -228,8 +228,15 @@ class Plansza:
                 x = kolumna + a
                 y = rzad + b
 
-                if self.czy_pole_w_planszy(x, y) and self.czy_pole_puste(x, y):
-                    self.oznacz_pole(x, y, Pole.ZNACZNIKI["obwiednia"])
+                if self.czy_pole_w_planszy(x, y):
+                    sasiad = self.podaj_pole(x, y)
+
+                    if sasiad.znacznik != Pole.ZNACZNIKI["statek"]:  # jeśli to nie statek...
+                        if sasiad.znacznik == Pole.ZNACZNIKI["obwiednia"]:  # to może być obwiednia innego statku...
+                            statek.obwiednia.append(sasiad)
+                        else:  # albo puste pole - to zaznaczamy
+                            self.oznacz_pole(x, y, Pole.ZNACZNIKI["obwiednia"])
+                            statek.obwiednia.append(sasiad)
 
     def podaj_statek(self, pole):
         """Zwraca statek zajmujący podane pole"""
@@ -317,11 +324,11 @@ class Pole:
     """Abstrakcyjna reprezentacja pola planszy"""
     ZNACZNIKI = {
         "puste": "0",
+        "obwiednia": ".",
+        "statek": "&",
         "pudło": "x",
         "trafione": "T",
-        "zatopione": "Z",
-        "statek": "&",
-        "obwiednia": "."
+        "zatopione": "Z"
     }
 
     def __init__(self, kolumna, rzad, znacznik=None):
@@ -408,10 +415,11 @@ class Statek:
     def __init__(self, plansza, pola):
         self.plansza = plansza
         self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # lista pól posortowana od pola najbardziej na NW do pola najbardziej na SE
+        self.obwiednia = []  # lista pól obwiedni wokół statku
         self.polozenie = self.pola[0]
         self.rozmiar = len(pola)
-        self.czy_zatopiony = False
-        self.zatopione = []  # lista statków przeciwnika zatopionych przez ten statek
+        self.zatopiony = False
+        self.ofiary = []  # lista statków przeciwnika zatopionych przez ten statek
         self.ranga = None  # implementacja w klasach potomnych
         self.nazwa = None  # implementacja w klasach potomnych
         self.salwy = None  # implementacja w klasach potomnych
@@ -435,7 +443,7 @@ class Statek:
             str(nietrafione),
             str(self.rozmiar)
         )
-        for gwiazdka in ["*" for zatopiony in self.zatopione]:
+        for gwiazdka in ["*" for zatopiony in self.ofiary]:
             info += gwiazdka
 
         return info
@@ -478,6 +486,13 @@ class Statek:
             if self.plansza.pola[rzad - 1][kolumna - 1].znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
                 licznik_trafien += 1
         return licznik_trafien
+
+    def czy_zatopiony(self):
+        """Sprawdza czy statek jest zatopiony"""
+        if self.ile_otrzymanych_trafien() == self.rozmiar:
+            return True
+        else:
+            return False
 
 
 class Kuter(Statek):

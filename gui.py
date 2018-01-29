@@ -14,8 +14,8 @@ class PoleGUI(ttk.Button):
     """Graficzna reprezentacja pola planszy"""
 
     KOLORY = {
-        "puste": "powder blue",
-        "puste-active": "light cyan",
+        "woda": "powder blue",
+        "woda-active": "light cyan",
         "pudło": "DeepSkyBlue3",
         "pudło-active": "deep sky blue",
         "trafione": "light coral",
@@ -91,16 +91,16 @@ class PlanszaGUI(ttk.Frame):
 
     def ustaw_style(self):
         """Definiuje style dla pól"""
-        # puste
+        # woda
         self.styl.configure(
-            "Puste.TButton",
+            "Woda.TButton",
             relief="sunken",
-            background=PoleGUI.KOLORY["puste"]
+            background=PoleGUI.KOLORY["woda"]
         )
         self.styl.map(
-            "Puste.TButton",
+            "Woda.TButton",
             relief=[("active", "sunken"), ("disabled", "sunken")],
-            background=[("active", PoleGUI.KOLORY["puste-active"]), ("disabled", "gray")]
+            background=[("active", PoleGUI.KOLORY["woda-active"]), ("disabled", "gray")]
         )
         # pudło
         self.styl.configure(
@@ -196,12 +196,16 @@ class PlanszaGUI(ttk.Frame):
         pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
         pole_gui.configure(style="Trafione.TButton")
 
-    def zatop_statek(self, statek):
+    def zatop_statek(self, statek, symbole=False):
         """Oznacza pola wskazanego statku jako zatopione"""
         for pole in statek.pola:
             pole.znacznik = Pole.ZNACZNIKI["zatopione"]
-            self.podaj_pole_gui(*pole.podaj_wspolrzedne()).configure(style="Zatopione.TButton")
-            statek.czy_zatopiony = True
+            pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
+            pole_gui.configure(style="Zatopione.TButton")
+            if symbole:
+                pole_gui.configure(text=statek.SYMBOL)
+
+        statek.zatopiony = True
 
 
 class PlanszaGracza(PlanszaGUI):
@@ -224,7 +228,7 @@ class PlanszaGracza(PlanszaGUI):
             for pole_gui in rzad:
                 statek = self.plansza.podaj_statek(pole_gui.pole)
                 if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
-                    pole_gui.configure(style="Puste.TButton")
+                    pole_gui.configure(style="Woda.TButton")
                 else:
                     pole_gui.configure(text=statek.SYMBOL)
 
@@ -246,16 +250,29 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
     def na_klikniecie(self, kolumna, rzad):
         """Callback każdego pola uruchamiany po naciśnięciu"""
-        print("Kliknięcie w polu: ({}{})".format(self.ALFABET[rzad], kolumna))
+        print("Kliknięcie w polu: ({}{})".format(self.ALFABET[rzad], kolumna))  # test
         pole_gui = self.podaj_pole_gui(kolumna, rzad)
-        if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"], Pole.ZNACZNIKI["pudło"]):
-            pole_gui.configure(style="Puste.TButton")
-            print("pudło")
-        else:
-            pole_gui.configure(text="�")
+        if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
+            self.oznacz_pudlo(pole_gui)
+            print("pudło")  # test
+        elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
+            pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
+            pole_gui.configure(style="Trafione.TButton", text="�")
             # pole_gui.configure(text="⁇")
             # pole_gui.state(["disabled"])
-            print("TRAFIONY!")
+            print("TRAFIONY!")  # test
+            statek = self.plansza.podaj_statek(pole_gui.pole)
+            if statek.czy_zatopiony():
+                self.zatop_statek(statek, symbole=True)
+                self.odkryj_obwiednie(statek)
+
+    def odkryj_obwiednie(self, statek):
+        """Odkrywa na planszy obwiednie zatopionego statku"""
+        for pole in statek.obwiednia:
+            # configure("style") zwraca krotkę, której ostatnim elementem jest nazwa stylu
+            pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
+            if pole_gui.configure("style")[-1] not in ("Woda.TButton", "Pudło.TButton"):
+                pole_gui.configure(style="Woda.TButton")
 
 
 def main():
