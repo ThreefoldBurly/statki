@@ -62,6 +62,7 @@ class Plansza:
         self.rozmiar = rzedy * kolumny
         self.pola = self.stworz_pola()  # matryca (lista rzędów (list)) pól
         self.statki = []
+        self.zatopione = []  # lista zatopionych statków (żeby wiedzieć kiedy skończyć grę)
         # inicjalizacja
         self.drukuj_sie()
         self.wypelnij_statkami()
@@ -460,7 +461,6 @@ class Statek:
         self.obwiednia = []  # lista pól obwiedni wokół statku
         self.polozenie = self.pola[0]
         self.rozmiar = len(pola)
-        self.zatopiony = False
         self.ofiary = []  # lista statków przeciwnika zatopionych przez ten statek
         self.ranga = None  # implementacja w klasach potomnych
         self.nazwa = None  # implementacja w klasach potomnych
@@ -485,7 +485,7 @@ class Statek:
             str(nietrafione),
             str(self.rozmiar)
         )
-        for gwiazdka in ["*" for zatopiony in self.ofiary]:
+        for gwiazdka in ["*" for ofiara in self.ofiary]:
             info += gwiazdka
         else:
             info = info[:-1]

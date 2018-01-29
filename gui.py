@@ -161,7 +161,7 @@ class PlanszaGUI(ttk.Frame):
             if symbole:
                 pole_gui.configure(text=statek.SYMBOL)
 
-        statek.zatopiony = True
+        self.plansza.zatopione.append(statek)
 
 
 class PlanszaGracza(PlanszaGUI):
@@ -169,7 +169,7 @@ class PlanszaGracza(PlanszaGUI):
 
     def __init__(self, rodzic, kolumny, rzedy, tytul="Gracz"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
-        self.odkryj_pola()
+        self.odkryj_wszystkie_pola()
 
         # testy
         self.oznacz_pudlo(self.podaj_pole_gui(5, 5))
@@ -178,7 +178,7 @@ class PlanszaGracza(PlanszaGUI):
         statek = self.plansza.statki[1]
         self.zatop_statek(statek)
 
-    def odkryj_pola(self):
+    def odkryj_wszystkie_pola(self):
         """Odkrywa wszystkie pola planszy"""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
@@ -237,20 +237,54 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     def na_klikniecie(self, kolumna, rzad):
         """
         Callback każdego pola uruchamiany po naciśnięciu.
-        W zależności od 9-stanowej flagi 'tryb_ataku' zaznacza na planszy pudła lub trafienia. Zatapia trafiony statek (i odkrywa pola jego obwiedni), jeśli trzeba
+        W zależności od 9-stanowej flagi 'tryb_ataku' odkrywa na planszy odpowiednie pola (lub pole)
         """
-        pole_gui = self.podaj_pole_gui(kolumna, rzad)
-        if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
-            self.oznacz_pudlo(pole_gui)
-        elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
-            pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
-            pole_gui.configure(style="Trafione.TButton", text="�")
-            statek = self.plansza.podaj_statek(pole_gui.pole)
-            if statek.czy_zatopiony():
-                self.zatop_statek(statek, symbole=True)
-                self.odkryj_obwiednie(statek)
+        self.odkryj_pole(kolumna, rzad)
+        if self.tryb_ataku == self.TRYBY_ATAKU["--"]:
+            self.odkryj_pole(kolumna + 1, rzad)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["||"]:
+            self.odkryj_pole(kolumna, rzad + 1)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["---"]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna + 1, rzad)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["|||"]:
+            self.odkryj_pole(kolumna, rzad - 1)
+            self.odkryj_pole(kolumna, rzad + 1)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["L"]:
+            self.odkryj_pole(kolumna, rzad - 1)
+            self.odkryj_pole(kolumna + 1, rzad)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L90"]]:
+            self.odkryj_pole(kolumna, rzad + 1)
+            self.odkryj_pole(kolumna + 1, rzad)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L180"]]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna, rzad + 1)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L270"]]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna, rzad - 1)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[rzad], kolumna))  # test
+
+    def odkryj_pole(self, kolumna, rzad):
+        """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Zatapia trafiony statek (i odkrywa pola jego obwiedni), jeśli trzeba"""
+        if self.plansza.czy_pole_w_planszy(kolumna, rzad):
+            pole_gui = self.podaj_pole_gui(kolumna, rzad)
+            if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
+                self.oznacz_pudlo(pole_gui)
+            elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
+                pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
+                pole_gui.configure(style="Trafione.TButton", text="�")
+                statek = self.plansza.podaj_statek(pole_gui.pole)
+                if statek.czy_zatopiony():
+                    self.zatop_statek(statek, symbole=True)
+                    self.odkryj_obwiednie(statek)
 
     def odkryj_obwiednie(self, statek):
         """Odkrywa na planszy obwiednie zatopionego statku"""
