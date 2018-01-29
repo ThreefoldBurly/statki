@@ -9,9 +9,51 @@ from random import randint, choice, gauss
 
 
 class Plansza:
-    """Abstrakcyjna reprezentacja planszy do gry w statki"""
+    """Abstrakcyjna reprezentacja planszy do gry w Statki"""
     MIN_ROZMIAR_STATKU = 1
     MAX_ROZMIAR_STATKU = 20
+    ALFABET = {
+        1: "A",
+        2: "B",
+        3: "C",
+        4: "D",
+        5: "E",
+        6: "F",
+        7: "G",
+        8: "H",
+        9: "I",
+        10: "J",
+        11: "K",
+        12: "L",
+        13: "M",
+        14: "N",
+        15: "O",
+        16: "P",
+        17: "Q",
+        18: "R",
+        19: "S",
+        20: "T",
+        21: "U",
+        22: "V",
+        23: "W",
+        24: "X",
+        25: "Y",
+        26: "Z",
+        27: "AA",
+        28: "AB",
+        29: "AC",
+        30: "AD",
+        31: "AE",
+        32: "AF",
+        33: "AG",
+        34: "AH",
+        35: "AI",
+        36: "AJ",
+        37: "AK",
+        38: "AL",
+        39: "AM",
+        40: "AN"
+    }
 
     def __init__(self, kolumny, rzedy):
         # pola klasy
@@ -20,6 +62,7 @@ class Plansza:
         self.rozmiar = rzedy * kolumny
         self.pola = self.stworz_pola()  # matryca (lista rzędów (list)) pól
         self.statki = []
+        self.zatopione = []  # lista zatopionych statków (żeby wiedzieć kiedy skończyć grę)
         # inicjalizacja
         self.drukuj_sie()
         self.wypelnij_statkami()
@@ -206,9 +249,9 @@ class Plansza:
             return Pancernik(self, ozn_pola)
 
     def umiesc_obwiednie_statku(self, statek):
-        """Umieszcza na planszy obwiednię wskazanego statku"""
+        """Umieszcza na planszy obwiednię wskazanego statku (który je zapamiętuje)"""
 
-        # wystarczy zaznaczyć wszystkich 8 bezpośrednich sąsiadów danego punktu (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
+        # wystarczy zaznaczyć wszystkich 8 bezpośrednich sąsiadów danego pola (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
         for pole in statek.pola:
             kolumna, rzad = pole.podaj_wspolrzedne()
             a = 0  # współczynnik przesunięcia w pionie (x)
@@ -228,8 +271,15 @@ class Plansza:
                 x = kolumna + a
                 y = rzad + b
 
-                if self.czy_pole_w_planszy(x, y) and self.czy_pole_puste(x, y):
-                    self.oznacz_pole(x, y, Pole.ZNACZNIKI["obwiednia"])
+                if self.czy_pole_w_planszy(x, y):
+                    sasiad = self.podaj_pole(x, y)
+
+                    if sasiad.znacznik != Pole.ZNACZNIKI["statek"]:  # jeśli to nie statek...
+                        if sasiad.znacznik == Pole.ZNACZNIKI["obwiednia"]:  # to może być obwiednia innego statku...
+                            statek.obwiednia.append(sasiad)
+                        else:  # albo puste pole - to zaznaczamy
+                            self.oznacz_pole(x, y, Pole.ZNACZNIKI["obwiednia"])
+                            statek.obwiednia.append(sasiad)
 
     def podaj_statek(self, pole):
         """Zwraca statek zajmujący podane pole"""
@@ -317,11 +367,11 @@ class Pole:
     """Abstrakcyjna reprezentacja pola planszy"""
     ZNACZNIKI = {
         "puste": "0",
+        "obwiednia": ".",
+        "statek": "&",
         "pudło": "x",
         "trafione": "T",
-        "zatopione": "Z",
-        "statek": "&",
-        "obwiednia": "."
+        "zatopione": "Z"
     }
 
     def __init__(self, kolumna, rzad, znacznik=None):
@@ -332,8 +382,8 @@ class Pole:
         self.znacznik = znacznik
 
     def __str__(self):
-        """Zwraca informację o polu w formacie: (kolumna,rzad)"""
-        return "({},{})".format(self.kolumna, self.rzad)
+        """Zwraca informację o polu w formacie: litera rzędu+cyfra kolumny np. (B9)"""
+        return "({}{})".format(Plansza.ALFABET[self.rzad], self.kolumna)
 
     # przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes)
     def __eq__(self, other):
@@ -408,10 +458,10 @@ class Statek:
     def __init__(self, plansza, pola):
         self.plansza = plansza
         self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # lista pól posortowana od pola najbardziej na NW do pola najbardziej na SE
+        self.obwiednia = []  # lista pól obwiedni wokół statku
         self.polozenie = self.pola[0]
         self.rozmiar = len(pola)
-        self.czy_zatopiony = False
-        self.zatopione = []  # lista statków przeciwnika zatopionych przez ten statek
+        self.ofiary = []  # lista statków przeciwnika zatopionych przez ten statek
         self.ranga = None  # implementacja w klasach potomnych
         self.nazwa = None  # implementacja w klasach potomnych
         self.salwy = None  # implementacja w klasach potomnych
@@ -435,8 +485,10 @@ class Statek:
             str(nietrafione),
             str(self.rozmiar)
         )
-        for gwiazdka in ["*" for zatopiony in self.zatopione]:
+        for gwiazdka in ["*" for ofiara in self.ofiary]:
             info += gwiazdka
+        else:
+            info = info[:-1]
 
         return info
 
@@ -478,6 +530,20 @@ class Statek:
             if self.plansza.pola[rzad - 1][kolumna - 1].znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
                 licznik_trafien += 1
         return licznik_trafien
+
+    def czy_zatopiony(self):
+        """Sprawdza czy statek jest zatopiony"""
+        if self.ile_otrzymanych_trafien() == self.rozmiar:
+            return True
+        else:
+            return False
+
+    def o_zatopieniu(self):
+        """Zwraca komunikat o swoim zatopieniu"""
+        if self.RANGA in self.RANGI[2:4]:  # korweta lub fregata
+            return "{} zatopiona!".format(str(self))
+        else:
+            return "{} zatopiony!".format(str(self))
 
 
 class Kuter(Statek):

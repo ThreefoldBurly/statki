@@ -14,14 +14,15 @@ class PoleGUI(ttk.Button):
     """Graficzna reprezentacja pola planszy"""
 
     KOLORY = {
-        "puste": "powder blue",
-        "puste-active": "light cyan",
+        "woda": "powder blue",
+        "woda-active": "light cyan",
         "pudło": "DeepSkyBlue3",
         "pudło-active": "deep sky blue",
         "trafione": "light coral",
         "trafione-active": "light pink",
         "zatopione": "ivory4",
-        "zatopione-active": "ivory3"
+        "zatopione-active": "ivory3",
+        "nieodkryte-active": "DarkSeaGreen1"
     }
 
     def __init__(self, pole, rodzic, *args, **kwargs):
@@ -31,49 +32,6 @@ class PoleGUI(ttk.Button):
 
 class PlanszaGUI(ttk.Frame):
     """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych"""
-
-    ALFABET = {
-        1: "A",
-        2: "B",
-        3: "C",
-        4: "D",
-        5: "E",
-        6: "F",
-        7: "G",
-        8: "H",
-        9: "I",
-        10: "J",
-        11: "K",
-        12: "L",
-        13: "M",
-        14: "N",
-        15: "O",
-        16: "P",
-        17: "Q",
-        18: "R",
-        19: "S",
-        20: "T",
-        21: "U",
-        22: "V",
-        23: "W",
-        24: "X",
-        25: "Y",
-        26: "Z",
-        27: "AA",
-        28: "AB",
-        29: "AC",
-        30: "AD",
-        31: "AE",
-        32: "AF",
-        33: "AG",
-        34: "AH",
-        35: "AI",
-        36: "AJ",
-        37: "AK",
-        38: "AL",
-        39: "AM",
-        40: "AN"
-    }
 
     def __init__(self, rodzic, kolumny, rzedy, tytul):
         super().__init__(rodzic, padding=10)
@@ -91,16 +49,16 @@ class PlanszaGUI(ttk.Frame):
 
     def ustaw_style(self):
         """Definiuje style dla pól"""
-        # puste
+        # woda
         self.styl.configure(
-            "Puste.TButton",
+            "Woda.TButton",
             relief="sunken",
-            background=PoleGUI.KOLORY["puste"]
+            background=PoleGUI.KOLORY["woda"]
         )
         self.styl.map(
-            "Puste.TButton",
+            "Woda.TButton",
             relief=[("active", "sunken"), ("disabled", "sunken")],
-            background=[("active", PoleGUI.KOLORY["puste-active"]), ("disabled", "gray")]
+            background=[("active", PoleGUI.KOLORY["woda-active"]), ("disabled", "gray")]
         )
         # pudło
         self.styl.configure(
@@ -116,12 +74,10 @@ class PlanszaGUI(ttk.Frame):
         # trafione
         self.styl.configure(
             "Trafione.TButton",
-            # relief="sunken",
             background=PoleGUI.KOLORY["trafione"]
         )
         self.styl.map(
             "Trafione.TButton",
-            # relief=[("active", "sunken"), ("disabled", "sunken")],
             background=[("active", PoleGUI.KOLORY["trafione-active"]), ("disabled", "gray")]
         )
         # zatopione
@@ -154,7 +110,7 @@ class PlanszaGUI(ttk.Frame):
         for rzad in range(self.plansza.rzedy):
             ttk.Label(
                 self.ramka_pol,
-                text=self.ALFABET[rzad + 1]
+                text=Plansza.ALFABET[rzad + 1]
             ).grid(
                 column=0,
                 row=rzad + 1,
@@ -196,12 +152,16 @@ class PlanszaGUI(ttk.Frame):
         pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
         pole_gui.configure(style="Trafione.TButton")
 
-    def zatop_statek(self, statek):
+    def zatop_statek(self, statek, symbole=False):
         """Oznacza pola wskazanego statku jako zatopione"""
         for pole in statek.pola:
             pole.znacznik = Pole.ZNACZNIKI["zatopione"]
-            self.podaj_pole_gui(*pole.podaj_wspolrzedne()).configure(style="Zatopione.TButton")
-            statek.czy_zatopiony = True
+            pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
+            pole_gui.configure(style="Zatopione.TButton")
+            if symbole:
+                pole_gui.configure(text=statek.SYMBOL)
+
+        self.plansza.zatopione.append(statek)
 
 
 class PlanszaGracza(PlanszaGUI):
@@ -209,7 +169,7 @@ class PlanszaGracza(PlanszaGUI):
 
     def __init__(self, rodzic, kolumny, rzedy, tytul="Gracz"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
-        self.odkryj_pola()
+        self.odkryj_wszystkie_pola()
 
         # testy
         self.oznacz_pudlo(self.podaj_pole_gui(5, 5))
@@ -218,44 +178,200 @@ class PlanszaGracza(PlanszaGUI):
         statek = self.plansza.statki[1]
         self.zatop_statek(statek)
 
-    def odkryj_pola(self):
+    def odkryj_wszystkie_pola(self):
         """Odkrywa wszystkie pola planszy"""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
                 statek = self.plansza.podaj_statek(pole_gui.pole)
                 if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
-                    pole_gui.configure(style="Puste.TButton")
+                    pole_gui.configure(style="Woda.TButton")
                 else:
                     pole_gui.configure(text=statek.SYMBOL)
 
 
 class PlanszaPrzeciwnika(PlanszaGUI):
     """Graficzna reprezentacja planszy przeciwnika"""
+    ELKI = {
+        "L90": "Г",
+        "L180": "˥",
+        "L270": "⅃"
+    }
+    TRYBY_ATAKU = {
+        "zwykły": 1,
+        "--": 2,
+        "||": 3,
+        "---": 4,
+        "|||": 5,
+        "L": 6,
+        "Г": 7,
+        "˥": 8,
+        "⅃": 9
+    }
 
     def __init__(self, rodzic, kolumny, rzedy, tytul="Przeciwnik"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
-        self.rejestruj_callback()
+        self.tryb_ataku = self.TRYBY_ATAKU["zwykły"]
+        self.zmien_podswietlanie_nieodkrytych()
+        self.rejestruj_callbacki()
+        # test
+        self.tryb_ataku = self.TRYBY_ATAKU[self.ELKI["L270"]]
 
-    def rejestruj_callback(self):
-        """Rejestruje callback na_klikniecie() we wszystkich polach"""
+    def zmien_podswietlanie_nieodkrytych(self):
+        """Zmienia podświetlanie nieodkrytych pól na odpowiedni kolor"""
+        self.styl.map("Nieodkryte.TButton", background=[("active", PoleGUI.KOLORY["nieodkryte-active"])])
+        for rzad in self.pola_gui:
+            for pole_gui in rzad:
+                pole_gui.configure(styl="Nieodkryte.TButton")
+
+    def rejestruj_callbacki(self):
+        """Rejestruje callbacki na_klikniecie(), na_wejscie() i na_wyjscie() we wszystkich polach"""
         for i in range(self.plansza.kolumny):
             for j in range(self.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 # lambda bez własnych argumentów (w formie: lambda: self.na_klikniecie(kolumna, rzad) nie zadziała prawidłowo w tym przypadku - zmienne przekazywane do każdej funkcji (anonimowej czy nie - bez różnicy) są zawsze ewaluowane dopiero w momencie wywołania tej funkcji, tak więc w tym przypadku w danej iteracji pętli zostają przekazane zmienne "i" i "j" (nazwy) a nie ich wartości - wartości zostaną ewaluowane dopiero w momencie wywołania callbacka (czyli naciśnięcia przycisku) i będzie to wartość z ostatniej iteracji dla wszystkich przycisków, więcej tutaj: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126))
-                self.podaj_pole_gui(kolumna, rzad).configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))
+                pole_gui = self.podaj_pole_gui(kolumna, rzad)
+                pole_gui.configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))  # lambda konieczna, bo nie da się tego obsłużyć tak jak niżej z bind() - w przypadku przypisywania callbacków opcją 'command' nie ma przekazywania obiektu zdarzenia, z którego można by pobrać współrzędne pola
+                pole_gui.bind("<Enter>", self.na_wejscie)
+                pole_gui.bind("<Leave>", self.na_wyjscie)
 
     def na_klikniecie(self, kolumna, rzad):
-        """Callback każdego pola uruchamiany po naciśnięciu"""
-        print("Kliknięcie w polu: ({}{})".format(self.ALFABET[rzad], kolumna))
-        pole_gui = self.podaj_pole_gui(kolumna, rzad)
-        if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"], Pole.ZNACZNIKI["pudło"]):
-            pole_gui.configure(style="Puste.TButton")
-            print("pudło")
-        else:
-            pole_gui.configure(text="�")
-            # pole_gui.configure(text="⁇")
-            # pole_gui.state(["disabled"])
-            print("TRAFIONY!")
+        """
+        Callback każdego pola uruchamiany po naciśnięciu.
+        W zależności od 9-stanowej flagi 'tryb_ataku' odkrywa na planszy odpowiednie pola (lub pole)
+        """
+        self.odkryj_pole(kolumna, rzad)
+        if self.tryb_ataku == self.TRYBY_ATAKU["--"]:
+            self.odkryj_pole(kolumna + 1, rzad)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["||"]:
+            self.odkryj_pole(kolumna, rzad + 1)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["---"]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna + 1, rzad)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["|||"]:
+            self.odkryj_pole(kolumna, rzad - 1)
+            self.odkryj_pole(kolumna, rzad + 1)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["L"]:
+            self.odkryj_pole(kolumna, rzad - 1)
+            self.odkryj_pole(kolumna + 1, rzad)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L90"]]:
+            self.odkryj_pole(kolumna, rzad + 1)
+            self.odkryj_pole(kolumna + 1, rzad)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L180"]]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna, rzad + 1)
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L270"]]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna, rzad - 1)
+
+        print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[rzad], kolumna))  # test
+
+    def odkryj_pole(self, kolumna, rzad):
+        """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Zatapia trafiony statek (i odkrywa pola jego obwiedni), jeśli trzeba"""
+        if self.plansza.czy_pole_w_planszy(kolumna, rzad):
+            pole_gui = self.podaj_pole_gui(kolumna, rzad)
+            if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
+                self.oznacz_pudlo(pole_gui)
+            elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
+                pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
+                pole_gui.configure(style="Trafione.TButton", text="�")
+                statek = self.plansza.podaj_statek(pole_gui.pole)
+                if statek.czy_zatopiony():
+                    self.zatop_statek(statek, symbole=True)
+                    self.odkryj_obwiednie(statek)
+
+    def odkryj_obwiednie(self, statek):
+        """Odkrywa na planszy obwiednie zatopionego statku"""
+        for pole in statek.obwiednia:
+            # configure("style") zwraca krotkę, której ostatnim elementem jest nazwa stylu
+            pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
+            if pole_gui.configure("style")[-1] not in ("Woda.TButton", "Pudło.TButton"):
+                pole_gui.configure(style="Woda.TButton")
+        # test
+        print(statek.o_zatopieniu())
+
+    def na_wejscie(self, event):
+        """
+        Callback każdego pola uruchamiany po wejściu kursora w obręb pola.
+        W zależności od 9-stanowej flagi 'tryb_ataku' podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji
+        """
+        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        if self.tryb_ataku == self.TRYBY_ATAKU["--"]:
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["||"]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["---"]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["|||"]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["L"]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L90"]]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L180"]]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L270"]]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+
+    def na_wyjscie(self, event):
+        """
+        Callback każdego pola uruchamiany po wyjściu kursora z obrębu pola.
+        W zależności od 9-stanowej flagi 'tryb_ataku' kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniej odpaleniem callbacka na_wejscie()
+        """
+        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        if self.tryb_ataku == self.TRYBY_ATAKU["--"]:
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["||"]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["---"]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["|||"]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["L"]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L90"]]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L180"]]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L270"]]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+
+    def zmien_stan_pola(self, kolumna, rzad, stan):
+        """Zmienia stan pola wg podanych współrzędnych"""
+        if self.plansza.czy_pole_w_planszy(kolumna, rzad):
+            self.podaj_pole_gui(kolumna, rzad).state([stan])
 
 
 def main():
