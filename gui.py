@@ -196,11 +196,25 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         "L180": "˥",
         "L270": "⅃"
     }
+    TRYBY_ATAKU = {
+        "zwykły": 1,
+        "--": 2,
+        "||": 3,
+        "---": 4,
+        "|||": 5,
+        "L": 6,
+        "Г": 7,
+        "˥": 8,
+        "⅃": 9
+    }
 
     def __init__(self, rodzic, kolumny, rzedy, tytul="Przeciwnik"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
+        self.tryb_ataku = self.TRYBY_ATAKU["zwykły"]
         self.zmien_podswietlanie_nieodkrytych()
-        self.rejestruj_callback()
+        self.rejestruj_callbacki()
+        # test
+        self.tryb_ataku = self.TRYBY_ATAKU[self.ELKI["L270"]]
 
     def zmien_podswietlanie_nieodkrytych(self):
         """Zmienia podświetlanie nieodkrytych pól na odpowiedni kolor"""
@@ -209,31 +223,34 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             for pole_gui in rzad:
                 pole_gui.configure(styl="Nieodkryte.TButton")
 
-    def rejestruj_callback(self):
-        """Rejestruje callback na_klikniecie() we wszystkich polach"""
+    def rejestruj_callbacki(self):
+        """Rejestruje callbacki na_klikniecie(), na_wejscie() i na_wyjscie() we wszystkich polach"""
         for i in range(self.plansza.kolumny):
             for j in range(self.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 # lambda bez własnych argumentów (w formie: lambda: self.na_klikniecie(kolumna, rzad) nie zadziała prawidłowo w tym przypadku - zmienne przekazywane do każdej funkcji (anonimowej czy nie - bez różnicy) są zawsze ewaluowane dopiero w momencie wywołania tej funkcji, tak więc w tym przypadku w danej iteracji pętli zostają przekazane zmienne "i" i "j" (nazwy) a nie ich wartości - wartości zostaną ewaluowane dopiero w momencie wywołania callbacka (czyli naciśnięcia przycisku) i będzie to wartość z ostatniej iteracji dla wszystkich przycisków, więcej tutaj: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126))
-                self.podaj_pole_gui(kolumna, rzad).configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))
+                pole_gui = self.podaj_pole_gui(kolumna, rzad)
+                pole_gui.configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))  # lambda konieczna, bo nie da się tego obsłużyć tak jak niżej z bind() - w przypadku przypisywania callbacków opcją 'command' nie ma przekazywania obiektu zdarzenia, z którego można by pobrać współrzędne pola
+                pole_gui.bind("<Enter>", self.na_wejscie)
+                pole_gui.bind("<Leave>", self.na_wyjscie)
 
     def na_klikniecie(self, kolumna, rzad):
-        """Callback każdego pola uruchamiany po naciśnięciu"""
-        print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[rzad], kolumna))  # test
+        """
+        Callback każdego pola uruchamiany po naciśnięciu.
+        W zależności od 9-stanowej flagi 'tryb_ataku' zaznacza na planszy pudła lub trafienia. Zatapia trafiony statek (i odkrywa pola jego obwiedni), jeśli trzeba
+        """
         pole_gui = self.podaj_pole_gui(kolumna, rzad)
         if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
             self.oznacz_pudlo(pole_gui)
-            print("pudło")  # test
         elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
             pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
             pole_gui.configure(style="Trafione.TButton", text="�")
-            # pole_gui.configure(text="⁇")
-            # pole_gui.state(["disabled"])
-            print("TRAFIONY!")  # test
             statek = self.plansza.podaj_statek(pole_gui.pole)
             if statek.czy_zatopiony():
                 self.zatop_statek(statek, symbole=True)
                 self.odkryj_obwiednie(statek)
+
+        print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[rzad], kolumna))  # test
 
     def odkryj_obwiednie(self, statek):
         """Odkrywa na planszy obwiednie zatopionego statku"""
@@ -244,6 +261,83 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 pole_gui.configure(style="Woda.TButton")
         # test
         print(statek.o_zatopieniu())
+
+    def na_wejscie(self, event):
+        """
+        Callback każdego pola uruchamiany po wejściu kursora w obręb pola.
+        W zależności od 9-stanowej flagi 'tryb_ataku' podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji
+        """
+        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        if self.tryb_ataku == self.TRYBY_ATAKU["--"]:
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["||"]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["---"]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["|||"]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["L"]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L90"]]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L180"]]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L270"]]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+
+    def na_wyjscie(self, event):
+        """
+        Callback każdego pola uruchamiany po wyjściu kursora z obrębu pola.
+        W zależności od 9-stanowej flagi 'tryb_ataku' kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniej odpaleniem callbacka na_wejscie()
+        """
+        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        if self.tryb_ataku == self.TRYBY_ATAKU["--"]:
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["||"]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["---"]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["|||"]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU["L"]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L90"]]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L180"]]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+
+        elif self.tryb_ataku == self.TRYBY_ATAKU[self.ELKI["L270"]]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+
+    def zmien_stan_pola(self, kolumna, rzad, stan):
+        """Zmienia stan pola wg podanych współrzędnych"""
+        if self.plansza.czy_pole_w_planszy(kolumna, rzad):
+            self.podaj_pole_gui(kolumna, rzad).state([stan])
 
 
 def main():
