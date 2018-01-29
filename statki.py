@@ -9,9 +9,51 @@ from random import randint, choice, gauss
 
 
 class Plansza:
-    """Abstrakcyjna reprezentacja planszy do gry w statki"""
+    """Abstrakcyjna reprezentacja planszy do gry w Statki"""
     MIN_ROZMIAR_STATKU = 1
     MAX_ROZMIAR_STATKU = 20
+    ALFABET = {
+        1: "A",
+        2: "B",
+        3: "C",
+        4: "D",
+        5: "E",
+        6: "F",
+        7: "G",
+        8: "H",
+        9: "I",
+        10: "J",
+        11: "K",
+        12: "L",
+        13: "M",
+        14: "N",
+        15: "O",
+        16: "P",
+        17: "Q",
+        18: "R",
+        19: "S",
+        20: "T",
+        21: "U",
+        22: "V",
+        23: "W",
+        24: "X",
+        25: "Y",
+        26: "Z",
+        27: "AA",
+        28: "AB",
+        29: "AC",
+        30: "AD",
+        31: "AE",
+        32: "AF",
+        33: "AG",
+        34: "AH",
+        35: "AI",
+        36: "AJ",
+        37: "AK",
+        38: "AL",
+        39: "AM",
+        40: "AN"
+    }
 
     def __init__(self, kolumny, rzedy):
         # pola klasy
@@ -339,8 +381,8 @@ class Pole:
         self.znacznik = znacznik
 
     def __str__(self):
-        """Zwraca informację o polu w formacie: (kolumna,rzad)"""
-        return "({},{})".format(self.kolumna, self.rzad)
+        """Zwraca informację o polu w formacie: litera rzędu+cyfra kolumny np. (B9)"""
+        return "({}{})".format(Plansza.ALFABET[self.rzad], self.kolumna)
 
     # przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes)
     def __eq__(self, other):
@@ -445,6 +487,8 @@ class Statek:
         )
         for gwiazdka in ["*" for zatopiony in self.ofiary]:
             info += gwiazdka
+        else:
+            info = info[:-1]
 
         return info
 
@@ -493,6 +537,13 @@ class Statek:
             return True
         else:
             return False
+
+    def o_zatopieniu(self):
+        """Zwraca komunikat o swoim zatopieniu"""
+        if self.RANGA in self.RANGI[2:4]:  # korweta lub fregata
+            return "{} zatopiona!".format(str(self))
+        else:
+            return "{} zatopiony!".format(str(self))
 
 
 class Kuter(Statek):

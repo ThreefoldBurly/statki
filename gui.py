@@ -21,7 +21,8 @@ class PoleGUI(ttk.Button):
         "trafione": "light coral",
         "trafione-active": "light pink",
         "zatopione": "ivory4",
-        "zatopione-active": "ivory3"
+        "zatopione-active": "ivory3",
+        "nieodkryte-active": "DarkSeaGreen1"
     }
 
     def __init__(self, pole, rodzic, *args, **kwargs):
@@ -31,49 +32,6 @@ class PoleGUI(ttk.Button):
 
 class PlanszaGUI(ttk.Frame):
     """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych"""
-
-    ALFABET = {
-        1: "A",
-        2: "B",
-        3: "C",
-        4: "D",
-        5: "E",
-        6: "F",
-        7: "G",
-        8: "H",
-        9: "I",
-        10: "J",
-        11: "K",
-        12: "L",
-        13: "M",
-        14: "N",
-        15: "O",
-        16: "P",
-        17: "Q",
-        18: "R",
-        19: "S",
-        20: "T",
-        21: "U",
-        22: "V",
-        23: "W",
-        24: "X",
-        25: "Y",
-        26: "Z",
-        27: "AA",
-        28: "AB",
-        29: "AC",
-        30: "AD",
-        31: "AE",
-        32: "AF",
-        33: "AG",
-        34: "AH",
-        35: "AI",
-        36: "AJ",
-        37: "AK",
-        38: "AL",
-        39: "AM",
-        40: "AN"
-    }
 
     def __init__(self, rodzic, kolumny, rzedy, tytul):
         super().__init__(rodzic, padding=10)
@@ -116,12 +74,10 @@ class PlanszaGUI(ttk.Frame):
         # trafione
         self.styl.configure(
             "Trafione.TButton",
-            # relief="sunken",
             background=PoleGUI.KOLORY["trafione"]
         )
         self.styl.map(
             "Trafione.TButton",
-            # relief=[("active", "sunken"), ("disabled", "sunken")],
             background=[("active", PoleGUI.KOLORY["trafione-active"]), ("disabled", "gray")]
         )
         # zatopione
@@ -154,7 +110,7 @@ class PlanszaGUI(ttk.Frame):
         for rzad in range(self.plansza.rzedy):
             ttk.Label(
                 self.ramka_pol,
-                text=self.ALFABET[rzad + 1]
+                text=Plansza.ALFABET[rzad + 1]
             ).grid(
                 column=0,
                 row=rzad + 1,
@@ -235,10 +191,23 @@ class PlanszaGracza(PlanszaGUI):
 
 class PlanszaPrzeciwnika(PlanszaGUI):
     """Graficzna reprezentacja planszy przeciwnika"""
+    ELKI = {
+        "L90": "Г",
+        "L180": "˥",
+        "L270": "⅃"
+    }
 
     def __init__(self, rodzic, kolumny, rzedy, tytul="Przeciwnik"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
+        self.zmien_podswietlanie_nieodkrytych()
         self.rejestruj_callback()
+
+    def zmien_podswietlanie_nieodkrytych(self):
+        """Zmienia podświetlanie nieodkrytych pól na odpowiedni kolor"""
+        self.styl.map("Nieodkryte.TButton", background=[("active", PoleGUI.KOLORY["nieodkryte-active"])])
+        for rzad in self.pola_gui:
+            for pole_gui in rzad:
+                pole_gui.configure(styl="Nieodkryte.TButton")
 
     def rejestruj_callback(self):
         """Rejestruje callback na_klikniecie() we wszystkich polach"""
@@ -250,7 +219,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
     def na_klikniecie(self, kolumna, rzad):
         """Callback każdego pola uruchamiany po naciśnięciu"""
-        print("Kliknięcie w polu: ({}{})".format(self.ALFABET[rzad], kolumna))  # test
+        print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[rzad], kolumna))  # test
         pole_gui = self.podaj_pole_gui(kolumna, rzad)
         if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
             self.oznacz_pudlo(pole_gui)
@@ -273,6 +242,8 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             if pole_gui.configure("style")[-1] not in ("Woda.TButton", "Pudło.TButton"):
                 pole_gui.configure(style="Woda.TButton")
+        # test
+        print(statek.o_zatopieniu())
 
 
 def main():
