@@ -59,12 +59,12 @@ class Plansza:
     }
 
     def __init__(self, kolumny, rzedy):
-        # stałe planszy
+        # numeryczne stałe planszy
         self.kolumny, self.rzedy, self.rozmiar = kolumny, rzedy, rzedy * kolumny
         # zmienne planszy
         self.pola = self.stworz_pola()  # matryca (lista rzędów (list)) pól
         self.statki = []
-        self.zatopione = []  # lista zatopionych statków (dla kontroli końca gry)
+        self.zatopione = []  # lista zatopionych statków (na tej planszy - dla kontroli końca gry)
         # inicjalizacja
         self.drukuj_sie()
         self.wypelnij_statkami()
@@ -380,7 +380,7 @@ class Pole:
     }
 
     def __init__(self, kolumna, rzad, znacznik=None):
-        self.kolumna, self.rzad = kolumna, rzad  # stałe pola
+        self.kolumna, self.rzad = kolumna, rzad  # stałe współrzędne pola
         self.znacznik = znacznik or self.ZNACZNIKI["puste"]  # zmienna stanu pola
 
     def __str__(self):
@@ -450,22 +450,36 @@ class Parser:
 
 
 class Statek:
-    """Abstrakcyjna reprezentacja statku, czyli kolekcji pól planszy o określonych parametrach"""
+    """
+    Abstrakcyjna reprezentacja statku, czyli kolekcji pól planszy o określonych parametrach
+    Inicjalizowane są tylko obiekty klas potomnych
+    """
 
     RANGI = ["kuter", "patrolowiec", "korweta", "fregata", "niszczyciel", "krążownik", "pancernik"]
     NAZWY_WG_RANGI = Parser.sparsuj_nazwy(RANGI)  # słownik w formacie {ranga: [lista nazw]}
     pula_nazw = Parser.sklonuj_nazwy(NAZWY_WG_RANGI)  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
     rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])  # słownik aktualnie dostępnych liczebników rzymskich, do wykorzystania na wypadek wyczerpania listy dostępnych nazw (użycie tego kiedykolwiek jest mało prawdopodobne)
 
+    RANGA = None  # implementacja w klasach potomnych
+    SALWY = {
+        "kuter": [1],
+        "patrolowiec": [2],
+        "korweta": [3],
+        "fregata": [2, 2],
+        "niszczyciel": [3, 2],
+        "krążownik": [3, 3],
+        "pancernik": [3, 2, 2]
+    }
+
     def __init__(self, plansza, pola):
         self.plansza = plansza
-        self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # lista pól posortowana od pola najbardziej na NW do pola najbardziej na SE
+        self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # lista pól posortowana od pola najbardziej na NW (zapisanego w osobnej zmiennej: self.polozenie) do pola najbardziej na SE
         self.obwiednia = []  # lista pól obwiedni wokół statku
         self.polozenie = self.pola[0]
         self.rozmiar = len(pola)
         self.ofiary = []  # lista statków przeciwnika zatopionych przez ten statek
-        self.ranga = None  # implementacja w klasach potomnych
         self.nazwa = None  # implementacja w klasach potomnych
+        self.ranga = None  # implementacja w klasach potomnych
         self.salwy = None  # implementacja w klasach potomnych
 
     def __str__(self):
@@ -547,100 +561,104 @@ class Statek:
         else:
             return "{} zatopiony!".format(str(self))
 
+    def obniz_range(self):
+        """Obniża rangę statku jako efekt otrzymanych trafień zgodnie z meta/zasady.md"""
+        # UWAGA: przed wywołaniem caller powinien sprawdzić czy nie obniża rangi kutra
+        index = self.RANGI.index(self.ranga) - 1
+        self.ranga = self.RANGI[index]
+        self.salwy = self.SALWY[self.ranga][:]
+
+    def resetuj_salwy(self):
+        """Resetuje listę salw, do wartości"""
+        self.salwy = self.SALWY[self.ranga][:]
+
 
 class Kuter(Statek):
     """Statek o rozmiarze 1 pola"""
 
     RANGA = Statek.RANGI[0]
-    SALWY = [1]
     SYMBOL = "T"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
-        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.salwy = self.SALWY[self.ranga][:]  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
 
 
 class Patrolowiec(Statek):
     """Statek o rozmiarze 2-3 pól"""
 
     RANGA = Statek.RANGI[1]
-    SALWY = [2]
     SYMBOL = "L"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
-        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.salwy = self.SALWY[self.ranga][:]  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
 
 
 class Korweta(Statek):
     """Statek o rozmiarze 4-6 pól"""
 
     RANGA = Statek.RANGI[2]
-    SALWY = [3]
     SYMBOL = "W"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
-        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.salwy = self.SALWY[self.ranga][:]  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
 
 
 class Fregata(Statek):
     """Statek o rozmiarze 7-9 pól"""
 
     RANGA = Statek.RANGI[3]
-    SALWY = [2, 2]
     SYMBOL = "F"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
-        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.salwy = self.SALWY[self.ranga][:]  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
 
 
 class Niszczyciel(Statek):
     """Statek o rozmiarze 10-12 pól"""
 
     RANGA = Statek.RANGI[4]
-    SALWY = [3, 2]
     SYMBOL = "N"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
-        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.salwy = self.SALWY[self.ranga][:]  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
 
 
 class Krazownik(Statek):
     """Statek o rozmiarze 13-16 pól"""
 
     RANGA = Statek.RANGI[5]
-    SALWY = [3, 3]
     SYMBOL = "K"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
-        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.salwy = self.SALWY[self.ranga][:]  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
 
 
 class Pancernik(Statek):
     """Statek o rozmiarze 17-20 pól"""
 
     RANGA = Statek.RANGI[6]
-    SALWY = [3, 2, 2]
     SYMBOL = "P"
 
     def __init__(self, plansza, pola):
         super().__init__(plansza, pola)
-        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.salwy = self.SALWY  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
+        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.salwy = self.SALWY[self.ranga][:]  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
