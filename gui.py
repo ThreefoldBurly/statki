@@ -11,7 +11,7 @@ from plansza import Plansza, Pole
 
 
 class PoleGUI(ttk.Button):
-    """Graficzna reprezentacja pola planszy"""
+    """Graficzna reprezentacja pola planszy."""
 
     KOLORY = {
         "woda": "powder blue",
@@ -31,7 +31,7 @@ class PoleGUI(ttk.Button):
 
 
 class PlanszaGUI(ttk.Frame):
-    """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych"""
+    """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych."""
 
     def __init__(self, rodzic, kolumny, rzedy, tytul):
         super().__init__(rodzic, padding=10)
@@ -48,7 +48,7 @@ class PlanszaGUI(ttk.Frame):
         self.buduj_pola()
 
     def ustaw_style(self):
-        """Definiuje style dla pól"""
+        """Definiuje style dla pól."""
         # woda
         self.styl.configure(
             "Woda.TButton",
@@ -95,7 +95,7 @@ class PlanszaGUI(ttk.Frame):
         )
 
     def buduj_etykiety(self):
-        """Buduje etykiety kolumn i rzędów"""
+        """Buduje etykiety kolumn i rzędów."""
         for kolumna in range(self.plansza.kolumny):
             ttk.Label(
                 self.etykietoramka,
@@ -137,17 +137,17 @@ class PlanszaGUI(ttk.Frame):
                 self.pola_gui[j][i] = pole_gui
 
     def podaj_pole_gui(self, kolumna, rzad):
-        """Podaje pole planszy"""
+        """Podaje pole planszy."""
         return self.pola_gui[rzad - 1][kolumna - 1]
 
     @staticmethod
     def oznacz_pudlo(pole_gui):
-        """Oznacza podane pole jako pudło"""
+        """Oznacza podane pole jako pudło."""
         pole_gui.pole.znacznik = Pole.ZNACZNIKI["pudło"]
         pole_gui.configure(style="Pudło.TButton", text="•")
 
     def zatop_statek(self, statek, symbole=False):
-        """Oznacza pola wskazanego statku jako zatopione"""
+        """Oznacza pola wskazanego statku jako zatopione."""
         for pole in statek.pola:
             pole.znacznik = Pole.ZNACZNIKI["zatopione"]
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
@@ -156,10 +156,11 @@ class PlanszaGUI(ttk.Frame):
                 pole_gui.configure(text=statek.SYMBOL)
 
         self.plansza.zatopione.append(statek)
+        self.plansza.niezatopione.remove(statek)
 
 
 class PlanszaGracza(PlanszaGUI):
-    """Graficzna reprezentacja planszy gracza"""
+    """Graficzna reprezentacja planszy gracza."""
 
     def __init__(self, rodzic, kolumny, rzedy, tytul="Gracz"):
         super().__init__(rodzic, kolumny, rzedy, tytul)
@@ -174,12 +175,12 @@ class PlanszaGracza(PlanszaGUI):
 
     @staticmethod
     def oznacz_trafione(pole_gui):
-        """Oznacza podane pole jako trafione"""
+        """Oznacza podane pole jako trafione."""
         pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
         pole_gui.configure(style="Trafione.TButton")
 
     def odkryj_wszystkie_pola(self):
-        """Odkrywa wszystkie pola planszy"""
+        """Odkrywa wszystkie pola planszy."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
                 statek = self.plansza.podaj_statek(pole_gui.pole)
@@ -190,7 +191,7 @@ class PlanszaGracza(PlanszaGUI):
 
 
 class PlanszaPrzeciwnika(PlanszaGUI):
-    """Graficzna reprezentacja planszy przeciwnika"""
+    """Graficzna reprezentacja planszy przeciwnika."""
     ELKI = {
         "L90": "Г",
         "L180": "˥",
@@ -217,14 +218,14 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         self.tryb_ataku = self.TRYBY_ATAKU[self.ELKI["L270"]]
 
     def zmien_podswietlanie_nieodkrytych(self):
-        """Zmienia podświetlanie nieodkrytych pól na odpowiedni kolor"""
+        """Zmienia podświetlanie nieodkrytych pól na odpowiedni kolor."""
         self.styl.map("Nieodkryte.TButton", background=[("active", PoleGUI.KOLORY["nieodkryte-active"])])
         for rzad in self.pola_gui:
             for pole_gui in rzad:
                 pole_gui.configure(styl="Nieodkryte.TButton")
 
     def rejestruj_callbacki(self):
-        """Rejestruje callbacki na_klikniecie(), na_wejscie() i na_wyjscie() we wszystkich polach"""
+        """Rejestruje callbacki na_klikniecie(), na_wejscie() i na_wyjscie() we wszystkich polach."""
         for i in range(self.plansza.kolumny):
             for j in range(self.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
@@ -237,7 +238,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     def na_klikniecie(self, kolumna, rzad):
         """
         Callback każdego pola uruchamiany po naciśnięciu.
-        W zależności od 9-stanowej flagi 'tryb_ataku' odkrywa na planszy odpowiednie pola (lub pole)
+        W zależności od 9-stanowej flagi 'tryb_ataku' odkrywa na planszy odpowiednie pola (lub pole).
         """
         self.odkryj_pole(kolumna, rzad)
         if self.tryb_ataku == self.TRYBY_ATAKU["--"]:
@@ -273,7 +274,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[rzad], kolumna))  # test
 
     def odkryj_pole(self, kolumna, rzad):
-        """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Zatapia trafiony statek (i odkrywa pola jego obwiedni), jeśli trzeba"""
+        """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Zatapia trafiony statek (i odkrywa pola jego obwiedni), jeśli trzeba."""
         if self.plansza.czy_pole_w_planszy(kolumna, rzad):
             pole_gui = self.podaj_pole_gui(kolumna, rzad)
             if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
@@ -287,7 +288,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                     self.odkryj_obwiednie(statek)
 
     def odkryj_obwiednie(self, statek):
-        """Odkrywa na planszy obwiednie zatopionego statku"""
+        """Odkrywa na planszy obwiednie zatopionego statku."""
         for pole in statek.obwiednia:
             # configure("style") zwraca krotkę, której ostatnim elementem jest nazwa stylu
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
@@ -299,7 +300,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     def na_wejscie(self, event):
         """
         Callback każdego pola uruchamiany po wejściu kursora w obręb pola.
-        W zależności od 9-stanowej flagi 'tryb_ataku' podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji
+        W zależności od 9-stanowej flagi 'tryb_ataku' podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji.
         """
         kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
         if self.tryb_ataku == self.TRYBY_ATAKU["--"]:
@@ -335,7 +336,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     def na_wyjscie(self, event):
         """
         Callback każdego pola uruchamiany po wyjściu kursora z obrębu pola.
-        W zależności od 9-stanowej flagi 'tryb_ataku' kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniej odpaleniem callbacka na_wejscie()
+        W zależności od 9-stanowej flagi 'tryb_ataku' kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniej odpaleniem callbacka na_wejscie().
         """
         kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
         if self.tryb_ataku == self.TRYBY_ATAKU["--"]:
@@ -369,13 +370,13 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             self.zmien_stan_pola(kolumna, rzad - 1, "!active")
 
     def zmien_stan_pola(self, kolumna, rzad, stan):
-        """Zmienia stan pola wg podanych współrzędnych"""
+        """Zmienia stan pola wg podanych współrzędnych."""
         if self.plansza.czy_pole_w_planszy(kolumna, rzad):
             self.podaj_pole_gui(kolumna, rzad).state([stan])
 
 
 class KontrolaAtaku(ttk.Frame):
-    """Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry"""
+    """Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry."""
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=10)
@@ -389,7 +390,7 @@ class KontrolaAtaku(ttk.Frame):
 
 
 def main():
-    """Uruchamia skrypt"""
+    """Uruchamia skrypt."""
     root = tk.Tk()
     root.title("Statki")
 
