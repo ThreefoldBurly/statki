@@ -64,13 +64,12 @@ class Plansza:
         # zmienne planszy
         self.pola = self.stworz_pola()  # matryca (lista rzędów (list)) pól
         self.statki = []
+        # inicjalizacja
+        self.wypelnij_statkami()
+        self.drukuj_sie()  # test
         # kontrola 2 poniższych zmiennych via GUI
         self.zatopione = []  # lista zatopionych statków (na tej planszy - dla kontroli końca gry)
         self.niezatopione = self.statki[:]  # lista niezatopionych statków (na tej planszy)
-        # inicjalizacja
-        self.drukuj_sie()
-        self.wypelnij_statkami()
-        self.drukuj_sie()
 
     def stworz_pola(self):
         """Tworzy pola planszy"""

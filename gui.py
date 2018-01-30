@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from plansza import Plansza, Pole
+from gra import Gra
 
 
 class PoleGUI(ttk.Button):
@@ -33,10 +34,10 @@ class PoleGUI(ttk.Button):
 class PlanszaGUI(ttk.Frame):
     """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych."""
 
-    def __init__(self, rodzic, kolumny, rzedy, tytul):
+    def __init__(self, rodzic, plansza, tytul):
         super().__init__(rodzic, padding=10)
         self.tytul = tytul
-        self.plansza = Plansza(kolumny, rzedy)
+        self.plansza = plansza
         self.pola_gui = [[0 for kolumna in range(self.plansza.kolumny)] for rzad in range(self.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
         # GUI
         self.grid()
@@ -162,8 +163,8 @@ class PlanszaGUI(ttk.Frame):
 class PlanszaGracza(PlanszaGUI):
     """Graficzna reprezentacja planszy gracza."""
 
-    def __init__(self, rodzic, kolumny, rzedy, tytul="Gracz"):
-        super().__init__(rodzic, kolumny, rzedy, tytul)
+    def __init__(self, rodzic, plansza, tytul="Gracz"):
+        super().__init__(rodzic, plansza, tytul)
         self.odkryj_wszystkie_pola()
 
         # testy
@@ -209,8 +210,8 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         "⅃": 9
     }
 
-    def __init__(self, rodzic, kolumny, rzedy, tytul="Przeciwnik"):
-        super().__init__(rodzic, kolumny, rzedy, tytul)
+    def __init__(self, rodzic, plansza, tytul="Przeciwnik"):
+        super().__init__(rodzic, plansza, tytul)
         self.tryb_ataku = self.TRYBY_ATAKU["zwykły"]
         self.zmien_podswietlanie_nieodkrytych()
         self.rejestruj_callbacki()
@@ -389,21 +390,34 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_orientacji = None
 
 
+class GraGUI(ttk.Frame):
+    """Graficzna reprezentacja głównego interfejsu gry"""
+
+    def __init__(self, rodzic):
+        super().__init__(rodzic)
+        self.grid()
+        # przy ekranie 1920x1200 sensowne wymiary (jednej) planszy to od 5x5 do 50x30, przy dwóch planszach (gracz+przeciwnik) to 5x5 do 25x30 ==> TODO: zaimplementować w GUI
+        kolumny, rzedy = 15, 20  # test
+        # kolumny, rzedy = 25, 30
+        # plansza gracza
+        plansza_gracza = Plansza(kolumny, rzedy)
+        self.plansza_gracza_gui = PlanszaGracza(self, plansza_gracza)
+        self.plansza_gracza_gui.grid(column=0, row=0)
+        # plansza przeciwnika
+        plansza_przeciwnika = Plansza(kolumny, rzedy)
+        self.plansza_przeciwnika_gui = PlanszaPrzeciwnika(self, plansza_przeciwnika)
+        self.plansza_przeciwnika_gui.grid(column=1, row=0)
+        # gra
+        self.gra = Gra(plansza_gracza, plansza_przeciwnika)
+
+
 def main():
     """Uruchamia skrypt."""
     root = tk.Tk()
     root.title("Statki")
 
-    rama = ttk.Frame(root)
-    rama.grid()
+    GraGUI(root)
 
-    # przy ekranie 1920x1200 sensowne wymiary (jednej) planszy to od 5x5 do 50x30, przy dwóch planszach (gracz+przeciwnik) to 5x5 do 25x30 ==> TODO: zaimplementować w GUI
-    kolumny, rzedy = 15, 20
-    # kolumny, rzedy = 25, 30
-    gracz = PlanszaGracza(rama, kolumny, rzedy)
-    gracz.grid(column=0, row=0)
-    przeciwnik = PlanszaPrzeciwnika(rama, kolumny, rzedy)
-    przeciwnik.grid(column=1, row=0)
     root.resizable(False, False)
     root.mainloop()
 

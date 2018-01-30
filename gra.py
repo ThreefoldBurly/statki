@@ -11,9 +11,9 @@ class Gra:
     Abstrakcyjna reprezentacja gry.
     """
 
-    def __init__(self, gracz, przeciwnik):
-        self.gracz = gracz
-        self.przeciwnik = przeciwnik
+    def __init__(self, plansza_gracza, plansza_przeciwnika):
+        self.gracz = Gracz(plansza_gracza)
+        self.przeciwnik = Gracz(plansza_przeciwnika)
 
 
 class Gracz:
@@ -75,5 +75,5 @@ class Runda:
     def dodaj_strzal_otrzymany(self, kolumna, rzad):
         self.strzały_otrzymane.append((kolumna, rzad))
 
-    def zrob_migawkę(self):
+    def zrob_migawke(self):
         self.migawka_planszy = deepcopy(self.plansza)
