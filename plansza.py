@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Gra w statki na planszy o arbitralnym rozmiarze
+Plansza gry wraz z jej podstawowymi elementami
 """
 
 import codecs
@@ -9,7 +9,10 @@ from random import randint, choice, gauss
 
 
 class Plansza:
-    """Abstrakcyjna reprezentacja planszy do gry w Statki"""
+    """
+    Abstrakcyjna reprezentacja planszy do gry w Statki.
+    Zapisuje całą informację o stanie gry po stronie jednego gracza w danym momencie. Z tego wynika, że dla pełnego obrazu stanu gry (w danym momencie) potrzebne są 2 obiekty tej klasy - jeden dla gracza, drugi dla przeciwnika. Moduł gui.py powiela tę dychotomię
+    """
     MIN_ROZMIAR_STATKU = 1
     MAX_ROZMIAR_STATKU = 20
     ALFABET = {
@@ -56,13 +59,12 @@ class Plansza:
     }
 
     def __init__(self, kolumny, rzedy):
-        # pola klasy
-        self.kolumny = kolumny
-        self.rzedy = rzedy
-        self.rozmiar = rzedy * kolumny
+        # stałe planszy
+        self.kolumny, self.rzedy, self.rozmiar = kolumny, rzedy, rzedy * kolumny
+        # zmienne planszy
         self.pola = self.stworz_pola()  # matryca (lista rzędów (list)) pól
         self.statki = []
-        self.zatopione = []  # lista zatopionych statków (żeby wiedzieć kiedy skończyć grę)
+        self.zatopione = []  # lista zatopionych statków (dla kontroli końca gry)
         # inicjalizacja
         self.drukuj_sie()
         self.wypelnij_statkami()
@@ -364,7 +366,10 @@ class Plansza:
 
 
 class Pole:
-    """Abstrakcyjna reprezentacja pola planszy"""
+    """
+    Abstrakcyjna reprezentacja pola planszy.
+    Posiada 6 podstawowych stanów pola oznaczonych znacznikami. Z czego tylko pierwsze 3 biorą udział przy tworzeniu planszy, a pozostałe 3 pojawiają się tylko jako efekct działań graczy via GUI
+    """
     ZNACZNIKI = {
         "puste": "0",
         "obwiednia": ".",
@@ -375,17 +380,14 @@ class Pole:
     }
 
     def __init__(self, kolumna, rzad, znacznik=None):
-        if znacznik is None:
-            znacznik = self.ZNACZNIKI["puste"]
-        self.kolumna = kolumna
-        self.rzad = rzad
-        self.znacznik = znacznik
+        self.kolumna, self.rzad = kolumna, rzad  # stałe pola
+        self.znacznik = znacznik or self.ZNACZNIKI["puste"]  # zmienna stanu pola
 
     def __str__(self):
         """Zwraca informację o polu w formacie: litera rzędu+cyfra kolumny np. (B9)"""
         return "({}{})".format(Plansza.ALFABET[self.rzad], self.kolumna)
 
-    # przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes)
+    # przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes) --> wrzucone dla ewentualnego porównywania pól, ale jak na razie wygląda na to, że niepotrzebne
     def __eq__(self, other):
         if isinstance(self, other.__class__):
             return self.__dict__ == other.__dict__
@@ -448,12 +450,12 @@ class Parser:
 
 
 class Statek:
-    """Abstrakcyjna reprezentacja statku"""
+    """Abstrakcyjna reprezentacja statku, czyli kolekcji pól planszy o określonych parametrach"""
 
     RANGI = ["kuter", "patrolowiec", "korweta", "fregata", "niszczyciel", "krążownik", "pancernik"]
     NAZWY_WG_RANGI = Parser.sparsuj_nazwy(RANGI)  # słownik w formacie {ranga: [lista nazw]}
     pula_nazw = Parser.sklonuj_nazwy(NAZWY_WG_RANGI)  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
-    rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])
+    rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])  # słownik aktualnie dostępnych liczebników rzymskich, do wykorzystania na wypadek wyczerpania listy dostępnych nazw (użycie tego kiedykolwiek jest mało prawdopodobne)
 
     def __init__(self, plansza, pola):
         self.plansza = plansza

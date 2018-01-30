@@ -7,7 +7,7 @@ Graficzny interfejs użytkownika
 import tkinter as tk
 from tkinter import ttk
 
-from statki import Plansza, Pole
+from plansza import Plansza, Pole
 
 
 class PoleGUI(ttk.Button):
@@ -25,7 +25,7 @@ class PoleGUI(ttk.Button):
         "nieodkryte-active": "DarkSeaGreen1"
     }
 
-    def __init__(self, pole, rodzic, *args, **kwargs):
+    def __init__(self, rodzic, pole, *args, **kwargs):
         super().__init__(rodzic, *args, **kwargs)
         self.pole = pole
 
@@ -124,8 +124,8 @@ class PlanszaGUI(ttk.Frame):
             for j in range(self.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 pole_gui = PoleGUI(
-                    self.plansza.podaj_pole(kolumna, rzad),
                     self.etykietoramka,
+                    self.plansza.podaj_pole(kolumna, rzad),
                     text="",
                     width=2
                 )
@@ -133,8 +133,6 @@ class PlanszaGUI(ttk.Frame):
                     column=kolumna,
                     row=rzad,
                     sticky=tk.W
-                    # pady=1,
-                    # padx=1
                 )
                 self.pola_gui[j][i] = pole_gui
 
@@ -374,6 +372,20 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """Zmienia stan pola wg podanych współrzędnych"""
         if self.plansza.czy_pole_w_planszy(kolumna, rzad):
             self.podaj_pole_gui(kolumna, rzad).state([stan])
+
+
+class KontrolaAtaku(ttk.Frame):
+    """Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry"""
+
+    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
+        super().__init__(rodzic, padding=10)
+        self.plansza_gracza = plansza_gracza
+        self.plansza_przeciwnika = plansza_przeciwnika
+        # GUI
+        self.etykietoramka = ttk.Labelframe(self, text="Atak", padding=10)
+        self.combo_statku = None
+        self.combo_salwy = None
+        self.combo_orientacji = None
 
 
 def main():
