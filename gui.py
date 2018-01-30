@@ -400,15 +400,15 @@ class GraGUI(ttk.Frame):
         kolumny, rzedy = 15, 20  # test
         # kolumny, rzedy = 25, 30
         # plansza gracza
-        plansza_gracza = Plansza(kolumny, rzedy)
-        self.plansza_gracza_gui = PlanszaGracza(self, plansza_gracza)
-        self.plansza_gracza_gui.grid(column=0, row=0)
+        pg = Plansza(kolumny, rzedy)
+        self.plansza_gracza = PlanszaGracza(self, pg)
+        self.plansza_gracza.grid(column=0, row=0)
         # plansza przeciwnika
-        plansza_przeciwnika = Plansza(kolumny, rzedy)
-        self.plansza_przeciwnika_gui = PlanszaPrzeciwnika(self, plansza_przeciwnika)
-        self.plansza_przeciwnika_gui.grid(column=1, row=0)
+        pp = Plansza(kolumny, rzedy)
+        self.plansza_przeciwnika = PlanszaPrzeciwnika(self, pp)
+        self.plansza_przeciwnika.grid(column=1, row=0)
         # gra
-        self.gra = Gra(plansza_gracza, plansza_przeciwnika)
+        self.gra = Gra(pg, pp)
 
 
 def main():
