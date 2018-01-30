@@ -41,8 +41,8 @@ class PlanszaGUI(ttk.Frame):
         # GUI
         self.grid()
         self.styl = ttk.Style()
-        self.ramka_pol = ttk.LabelFrame(self, text=self.tytul, padding=10)
-        self.ramka_pol.grid()
+        self.etykietoramka = ttk.LabelFrame(self, text=self.tytul, padding=10)
+        self.etykietoramka.grid()
         self.ustaw_style()
         self.buduj_etykiety()
         self.buduj_pola()
@@ -98,7 +98,7 @@ class PlanszaGUI(ttk.Frame):
         """Buduje etykiety kolumn i rzędów"""
         for kolumna in range(self.plansza.kolumny):
             ttk.Label(
-                self.ramka_pol,
+                self.etykietoramka,
                 text=str(kolumna + 1),
                 anchor=tk.CENTER
             ).grid(
@@ -109,7 +109,7 @@ class PlanszaGUI(ttk.Frame):
             )
         for rzad in range(self.plansza.rzedy):
             ttk.Label(
-                self.ramka_pol,
+                self.etykietoramka,
                 text=Plansza.ALFABET[rzad + 1]
             ).grid(
                 column=0,
@@ -125,7 +125,7 @@ class PlanszaGUI(ttk.Frame):
                 kolumna, rzad = i + 1, j + 1
                 pole_gui = PoleGUI(
                     self.plansza.podaj_pole(kolumna, rzad),
-                    self.ramka_pol,
+                    self.etykietoramka,
                     text="",
                     width=2
                 )
@@ -142,15 +142,11 @@ class PlanszaGUI(ttk.Frame):
         """Podaje pole planszy"""
         return self.pola_gui[rzad - 1][kolumna - 1]
 
-    def oznacz_pudlo(self, pole_gui):
+    @staticmethod
+    def oznacz_pudlo(pole_gui):
         """Oznacza podane pole jako pudło"""
         pole_gui.pole.znacznik = Pole.ZNACZNIKI["pudło"]
         pole_gui.configure(style="Pudło.TButton", text="•")
-
-    def oznacz_trafione(self, pole_gui):
-        """Oznacza podane pole jako trafione"""
-        pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
-        pole_gui.configure(style="Trafione.TButton")
 
     def zatop_statek(self, statek, symbole=False):
         """Oznacza pola wskazanego statku jako zatopione"""
@@ -177,6 +173,12 @@ class PlanszaGracza(PlanszaGUI):
         self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
         statek = self.plansza.statki[1]
         self.zatop_statek(statek)
+
+    @staticmethod
+    def oznacz_trafione(pole_gui):
+        """Oznacza podane pole jako trafione"""
+        pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
+        pole_gui.configure(style="Trafione.TButton")
 
     def odkryj_wszystkie_pola(self):
         """Odkrywa wszystkie pola planszy"""
@@ -383,7 +385,8 @@ def main():
     rama.grid()
 
     # przy ekranie 1920x1200 sensowne wymiary (jednej) planszy to od 5x5 do 50x30, przy dwóch planszach (gracz+przeciwnik) to 5x5 do 25x30 ==> TODO: zaimplementować w GUI
-    kolumny, rzedy = 25, 30
+    kolumny, rzedy = 15, 20
+    # kolumny, rzedy = 25, 30
     gracz = PlanszaGracza(rama, kolumny, rzedy)
     gracz.grid(column=0, row=0)
     przeciwnik = PlanszaPrzeciwnika(rama, kolumny, rzedy)
