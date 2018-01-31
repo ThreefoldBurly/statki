@@ -40,10 +40,10 @@ class PlanszaGUI(ttk.Frame):
         self.plansza = plansza
         self.pola_gui = [[0 for kolumna in range(self.plansza.kolumny)] for rzad in range(self.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
         # GUI
-        self.grid()
+        self.grid(rowspan=3)
         self.styl = ttk.Style()
-        self.etykietoramka = ttk.LabelFrame(self, text=self.tytul, padding=10)
-        self.etykietoramka.grid()
+        self.etyramka = ttk.LabelFrame(self, text=self.tytul, padding=10)
+        self.etyramka.grid()
         self.ustaw_style()
         self.buduj_etykiety()
         self.buduj_pola()
@@ -99,7 +99,7 @@ class PlanszaGUI(ttk.Frame):
         """Buduje etykiety kolumn i rzędów."""
         for kolumna in range(self.plansza.kolumny):
             ttk.Label(
-                self.etykietoramka,
+                self.etyramka,
                 text=str(kolumna + 1),
                 anchor=tk.CENTER
             ).grid(
@@ -110,7 +110,7 @@ class PlanszaGUI(ttk.Frame):
             )
         for rzad in range(self.plansza.rzedy):
             ttk.Label(
-                self.etykietoramka,
+                self.etyramka,
                 text=Plansza.ALFABET[rzad + 1]
             ).grid(
                 column=0,
@@ -125,7 +125,7 @@ class PlanszaGUI(ttk.Frame):
             for j in range(self.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 pole_gui = PoleGUI(
-                    self.etykietoramka,
+                    self.etyramka,
                     self.plansza.podaj_pole(kolumna, rzad),
                     text="",
                     width=2
@@ -377,17 +377,63 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
 
 class KontrolaAtaku(ttk.Frame):
-    """Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry."""
+    """
+    Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry.
+    """
 
-    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
+    def __init__(self, rodzic, gra, plansza_g_gui, plansza_p_gui):
         super().__init__(rodzic, padding=10)
-        self.plansza_gracza = plansza_gracza
-        self.plansza_przeciwnika = plansza_przeciwnika
+        self.gra = gra
         # GUI
-        self.etykietoramka = ttk.Labelframe(self, text="Atak", padding=10)
+        self.grid()
+        self.plansza_g_gui = plansza_g_gui
+        self.plansza_p_gui = plansza_p_gui
+        self.etyramka = ttk.Labelframe(self, text="Atak", padding=10)
         self.combo_statku = None
         self.combo_salwy = None
         self.combo_orientacji = None
+
+
+class KontrolaFloty(ttk.Frame):
+    """
+    Graficzna reprezentacja sekcji kontroli floty znajdującej się w środku po prawej stronie głównego interfejsu gry.
+    """
+
+    def __init__(self, rodzic, gra):
+        super().__init__(rodzic, padding=10)
+        self.gra = gra
+        # GUI
+        self.grid()
+        self.etyramka = ttk.Labelframe(self, text="Flota", padding=10)
+        pass  # TODO
+
+
+class KontrolaGry(ttk.Frame):
+    """
+    Graficzna reprezentacja sekcji kontroli gry znajdującej się w prawym dolnym rogu głównego interfejsu gry.
+    """
+
+    def __init__(self, rodzic, gra):
+        super().__init__(rodzic, padding=10)
+        self.gra = gra
+        self.tytul = None  # string w formacie `Tura #[liczba]/Runda #[liczba]`
+        # GUI
+        self.grid()
+        self.etyramka = ttk.Labelframe(self, text=self.tytul, padding=10)
+        pass  # TODO
+
+
+class PasekStanu(ttk.Frame):
+    """
+    Graficzna reprezentacja paska stanu wyświetlającego komunikaty o grze na dole głównego interfejsu gry.
+    """
+
+    def __init__(self, rodzic, gra):
+        super().__init__(rodzic, padding=10)
+        self.gra = gra
+        # GUI
+        self.grid(columnspan=3)
+        pass  # TODO
 
 
 class GraGUI(ttk.Frame):
@@ -395,20 +441,31 @@ class GraGUI(ttk.Frame):
 
     def __init__(self, rodzic):
         super().__init__(rodzic)
-        self.grid()
-        # przy ekranie 1920x1200 sensowne wymiary (jednej) planszy to od 5x5 do 50x30, przy dwóch planszach (gracz+przeciwnik) to 5x5 do 25x30 ==> TODO: zaimplementować w GUI
-        kolumny, rzedy = 15, 20  # test
-        # kolumny, rzedy = 25, 30
+        self.grid()  # TODO: po dodaniu sekcji kontrolnych, ustawić `rowspan=3` dla kolumny 0 i 1 oraz `columnspan=3` dla rzędu 3 (czwartego)
+        kolumny, rzedy = 25, 30  # test
         # plansza gracza
-        pg = Plansza(kolumny, rzedy)
-        self.plansza_gracza = PlanszaGracza(self, pg)
-        self.plansza_gracza.grid(column=0, row=0)
+        plansza_g = Plansza(kolumny, rzedy)
+        plansza_g_gui = PlanszaGracza(self, plansza_g)
+        plansza_g_gui.grid(column=0, row=0)
         # plansza przeciwnika
-        pp = Plansza(kolumny, rzedy)
-        self.plansza_przeciwnika = PlanszaPrzeciwnika(self, pp)
-        self.plansza_przeciwnika.grid(column=1, row=0)
+        plansza_p = Plansza(kolumny, rzedy)
+        plansza_p_gui = PlanszaPrzeciwnika(self, plansza_p)
+        plansza_p_gui.grid(column=1, row=0)
+
         # gra
-        self.gra = Gra(pg, pp)
+        gra = Gra(plansza_g, plansza_p)
+
+        # kontrolna sekcja po prawej stronie
+        kontrola_ataku = KontrolaAtaku(self, gra, plansza_g_gui, plansza_p_gui)
+        kontrola_ataku.grid(column=3, row=0)
+        kontrola_floty = KontrolaFloty(self, gra)
+        kontrola_floty.grid(column=3, row=1)
+        kontrola_gry = KontrolaGry(self, gra)
+        kontrola_gry.grid(column=3, row=2)
+
+        # sekcja komunikatów na dole okna
+        pasek_stanu = PasekStanu(self, gra)
+        pasek_stanu.grid(column=0, row=3)
 
 
 def main():
