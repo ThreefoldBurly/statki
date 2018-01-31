@@ -20,7 +20,7 @@
 6. krążownik: 2x 3 pola [2 salwy]
 7. pancernik: 1x 3 pola, 2x 2 pola [3 salwy]
 
-W każdej rundzie gracze strzelają naprzemiennie wybranymi statkami. Tura danego gracza kończy się w momencie gdy wszystkie statki oddały salwę. Nie można strzelać dwa razy tym samym statkiem podczas jednej tury danego gracza. Oznacza to że tury (ale nie rundy!) graczy posiadających różne ilości statków są asynchroniczne - gracz posiadający mniej statków szybciej kończy swoją turę i rozpoczyna następną. W ten sposób gracz posiadający mało dużych statków strzela częściej dużymi salwami niż gracz który posiada dużo małych statków, co balansuje rozgrywkę, ponieważ niweluje 2 naturalne przewagi gracza z małymi statkami:
+W każdej rundzie gracze strzelają naprzemiennie wybranymi statkami. Runda kończy się kiedy dany statek odda wszystkie dostępne dla niego salwy. Tura danego gracza kończy się w momencie gdy wszystkie statki skończyły swoje rundy. Nie można strzelać dwa razy tym samym statkiem podczas jednej tury danego gracza. Oznacza to że tury (ale nie rundy!) graczy posiadających różne ilości statków są asynchroniczne - gracz posiadający mniej statków szybciej kończy swoją turę i rozpoczyna następną. W ten sposób gracz posiadający mało dużych statków strzela częściej dużymi salwami niż gracz który posiada dużo małych statków, co balansuje rozgrywkę, ponieważ niweluje 2 naturalne przewagi gracza z małymi statkami:
 - w małe statki trudniej trafić,
 - siła rażenia małych statków nie spada wprost proporcjonalnie do ich rozmiaru (20 kutrów ma większą siłę rażenia (20 pól) niż jeden 20-polowy pancernik (7 pól))
 
