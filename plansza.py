@@ -66,6 +66,7 @@ class Plansza:
         self.statki = []
         # inicjalizacja
         self.wypelnij_statkami()
+        self.o_statkach()  # test
         self.drukuj_sie()  # test
         # kontrola 2 poniższych zmiennych via GUI
         self.zatopione = []  # lista zatopionych statków (na tej planszy - dla kontroli końca gry)
@@ -84,6 +85,8 @@ class Plansza:
     def drukuj_sie(self):
         """Drukuje planszę w standard output."""
         # numeracja kolumn
+        print()
+        print("##### PLANSZA #####".center(self.kolumny * 3 + 2))
         print()
         print("    " + "  ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba < 10]) + " " + " ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba >= 10]))
         print()
@@ -343,12 +346,15 @@ class Plansza:
 
         self.statki.sort(key=lambda s: s.rozmiar, reverse=True)  # od największego do najmniejszego
 
-        # do testów
+    def o_statkach(self):  # do testów
+        """Drukuje informację o umieszczonych statkach"""
+        print()
+        print("##### STATKI #####".center(self.kolumny * 3 + 2))
         sum_rozmiar = 0
         for statek in self.statki:
             sum_rozmiar += statek.rozmiar
             print('\nUmieszczony statek: {} "{}" [{}]'.format(statek.ranga, statek.nazwa, statek.rozmiar))
-        # do testów
+
         print("\nWszystkich umieszczonych statków: {}. Ich sumaryczny rozmiar: [{}]".format(len(self.statki), sum_rozmiar))
 
 
