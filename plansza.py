@@ -377,8 +377,8 @@ class Pole:
         self.znacznik = znacznik or self.ZNACZNIKI["puste"]  # zmienna stanu pola
 
     def __str__(self):
-        """Zwraca informację o polu w formacie: litera rzędu+cyfra kolumny np. (B9)"""
-        return "({}{})".format(Plansza.ALFABET[self.rzad], self.kolumna)
+        """Zwraca informację o polu w formacie: litera kolumny+cyfra rzędu np. (B9)"""
+        return "({}{})".format(Plansza.ALFABET[self.kolumna], self.rzad)
 
     # przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes) --> wrzucone dla ewentualnego porównywania pól, ale jak na razie wygląda na to, że niepotrzebne
     def __eq__(self, other):

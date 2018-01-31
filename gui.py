@@ -130,7 +130,7 @@ class PlanszaGUI(ttk.Frame):
         for kolumna in range(self.plansza.kolumny):
             ttk.Label(
                 self.etyramka,
-                text=str(kolumna + 1),
+                text=Plansza.ALFABET[kolumna + 1],
                 anchor=tk.CENTER
             ).grid(
                 row=0,
@@ -141,7 +141,7 @@ class PlanszaGUI(ttk.Frame):
         for rzad in range(self.plansza.rzedy):
             ttk.Label(
                 self.etyramka,
-                text=Plansza.ALFABET[rzad + 1]
+                text=str(rzad + 1)
             ).grid(
                 column=0,
                 row=rzad + 1,
@@ -224,7 +224,7 @@ class PlanszaGracza(PlanszaGUI):
             self.kasuj_wybor_statku(self.wybrany_statek)
             self.wybierz_statek(statek)
 
-        print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[rzad], kolumna))  # test
+        print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
     def wybierz_statek(self, statek):
         """Wybiera statek na planszy"""
@@ -341,7 +341,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             self.odkryj_pole(kolumna - 1, rzad)
             self.odkryj_pole(kolumna, rzad - 1)
 
-        print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[rzad], kolumna))  # test
+        print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
     def odkryj_pole(self, kolumna, rzad):
         """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Zatapia trafiony statek (i odkrywa pola jego obwiedni), jeśli trzeba."""
