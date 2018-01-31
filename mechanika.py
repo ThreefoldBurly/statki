@@ -6,14 +6,14 @@ Mechanika i przepływ gry w rozbiciu na tury, rundy i graczy - wg opisu zawarteg
 from copy import deepcopy
 
 
-class Gra:
-    """
-    Abstrakcyjna reprezentacja gry.
-    """
+# class Gra:
+#     """
+#     Abstrakcyjna reprezentacja gry.
+#     """
 
-    def __init__(self, plansza_gracza, plansza_przeciwnika):
-        self.gracz = Gracz(plansza_gracza)
-        self.przeciwnik = Gracz(plansza_przeciwnika)
+#     def __init__(self, plansza_gracza, plansza_przeciwnika):
+#         self.gracz = Gracz(plansza_gracza)
+#         self.przeciwnik = Gracz(plansza_przeciwnika)
 
 
 class Gracz:
@@ -61,13 +61,10 @@ class Runda:
     def __init__(self, plansza):
         self.plansza = plansza
         self.migawka_planszy = None  # wykonywana na koniec rundy
-        self.statek = None  # wartość ustalana przez użytkownika via GUI
+        self.statek = None  # wartość ustalana przez użytkownika via GUI, przyjmuje wartość `None` w przypadku braku selekcji
         # zmienne poniżej przechowują tylko wspólrzędne zamiast pełnych obiektów pól planszy przeciwnika, żeby zachować kompartmentację informacji, co będzie miało znaczenie przy implementacji komunikacji sieciowej dla gry osobowej (aplikacje będą wysyłać sobie nawzajem tylko proste liczby całkowite)
         self.strzaly_wyslane = []  # lista krotek współrzędnych pól na planszy przeciwnika (kolumna, rzad), w które zostały oddane strzały
         self.strzaly_otrzymane = []  # lista krotek współrzędnych pól na planszy gracza (kolumna, rzad), w które strzelił przeciwnik
-
-    def wybierz_statek(self, statek):
-        self.statek = statek
 
     def dodaj_strzal_wyslany(self, kolumna, rzad):
         self.strzały_wyslane.append((kolumna, rzad))

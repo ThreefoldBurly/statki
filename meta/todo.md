@@ -31,4 +31,12 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
 8. Pola planszy (wszystkie: nieodkryte, wody, statków (niezatopionych i zatopionych), oddanych salw (trafień i pudeł)) powinny mieć tooltipy z informacjami, jednak pojawiające się tylko po określonym czasie bezruchu kursora (podobnie jak w Civ5).
 
+## MECHANIKA
 
+Ogólna struktura OOP modułów:
+
+plansza.py <<--->> mechanika.py <<--->> gui.py
+
+  (stan)            (proces)          (interfejs)
+
+  (dane)       (zapis/komunikacja)   (input/output)

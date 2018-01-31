@@ -8,7 +8,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from plansza import Plansza, Pole
-from gra import Gra
+from mechanika import Gracz
 
 
 class PoleGUI(ttk.Button):
@@ -46,22 +46,26 @@ class PoleGUI(ttk.Button):
 class PlanszaGUI(ttk.Frame):
     """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych."""
 
-    def __init__(self, rodzic, plansza, tytul):
+    def __init__(self, rodzic, gracz, tytul):
         super().__init__(rodzic, padding=10)
+        self.gracz = gracz
         self.tytul = tytul
-        self.plansza = plansza
-        self.pola_gui = [[0 for kolumna in range(self.plansza.kolumny)] for rzad in range(self.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
-        # GUI
-        self.grid(rowspan=3)
-        self.styl = ttk.Style()
-        self.etyramka = ttk.LabelFrame(self, text=self.tytul, padding=10)
-        self.etyramka.grid()
+        self.pola_gui = [[0 for kolumna in range(self.gracz.plansza.kolumny)] for rzad in range(self.gracz.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
+
         self.ustaw_style()
+        self.ustaw_sie()
         self.buduj_etykiety()
         self.buduj_pola()
 
+    def ustaw_sie(self):
+        """Ustawia interfejs pod widżety."""
+        self.grid(rowspan=3)
+        self.etyramka = ttk.LabelFrame(self, text=self.tytul, padding=10)
+        self.etyramka.grid()
+
     def ustaw_style(self):
         """Definiuje style dla pól."""
+        self.styl = ttk.Style()
         # woda
         self.styl.configure(
             PoleGUI.STYLE["woda"],
@@ -127,7 +131,7 @@ class PlanszaGUI(ttk.Frame):
 
     def buduj_etykiety(self):
         """Buduje etykiety kolumn i rzędów."""
-        for kolumna in range(self.plansza.kolumny):
+        for kolumna in range(self.gracz.plansza.kolumny):
             ttk.Label(
                 self.etyramka,
                 text=Plansza.ALFABET[kolumna + 1],
@@ -138,7 +142,7 @@ class PlanszaGUI(ttk.Frame):
                 sticky=tk.W + tk.E,
                 pady=(0, 3)
             )
-        for rzad in range(self.plansza.rzedy):
+        for rzad in range(self.gracz.plansza.rzedy):
             ttk.Label(
                 self.etyramka,
                 text=str(rzad + 1)
@@ -151,12 +155,12 @@ class PlanszaGUI(ttk.Frame):
 
     def buduj_pola(self):
         """Buduje pola planszy"""
-        for i in range(self.plansza.kolumny):
-            for j in range(self.plansza.rzedy):
+        for i in range(self.gracz.plansza.kolumny):
+            for j in range(self.gracz.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 pole_gui = PoleGUI(
                     self.etyramka,
-                    self.plansza.podaj_pole(kolumna, rzad),
+                    self.gracz.plansza.podaj_pole(kolumna, rzad),
                     text="",
                     width=2
                 )
@@ -185,8 +189,8 @@ class PlanszaGUI(ttk.Frame):
             if symbole:
                 pole_gui.configure(text=statek.SYMBOL)
 
-        self.plansza.zatopione.append(statek)
-        self.plansza.niezatopione.remove(statek)
+        self.gracz.plansza.zatopione.append(statek)
+        self.gracz.plansza.niezatopione.remove(statek)
 
 
 class PlanszaGracza(PlanszaGUI):
@@ -194,22 +198,21 @@ class PlanszaGracza(PlanszaGUI):
 
     def __init__(self, rodzic, plansza, tytul="Gracz"):
         super().__init__(rodzic, plansza, tytul)
-        self.wybrany_statek = None  # przyjmuje wartość `None` w przypadku braku selekcji
-        self.wybierz_statek(self.plansza.statki[0])
+        self.wybierz_statek(self.gracz.plansza.statki[0])
         self.rejestruj_callback()
         self.odkryj_wszystkie_pola()
 
         # testy
         # self.oznacz_pudlo(self.podaj_pole_gui(5, 5))
-        statek = self.plansza.statki[2]
+        statek = self.gracz.plansza.statki[2]
         self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
-        statek = self.plansza.statki[3]
+        statek = self.gracz.plansza.statki[3]
         self.zatop_statek(statek)
 
     def rejestruj_callback(self):
         """Rejestruje callback na_klikniecie() we wszystkich polach."""
-        for i in range(self.plansza.kolumny):
-            for j in range(self.plansza.rzedy):
+        for i in range(self.gracz.plansza.kolumny):
+            for j in range(self.gracz.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 # lambda bez własnych argumentów (w formie: lambda: self.na_klikniecie(kolumna, rzad) nie zadziała prawidłowo w tym przypadku - zmienne przekazywane do każdej funkcji (anonimowej czy nie - bez różnicy) są zawsze ewaluowane dopiero w momencie wywołania tej funkcji, tak więc w tym przypadku w danej iteracji pętli zostają przekazane zmienne "i" i "j" (nazwy) a nie ich wartości - wartości zostaną ewaluowane dopiero w momencie wywołania callbacka (czyli naciśnięcia przycisku) i będzie to wartość z ostatniej iteracji dla wszystkich przycisków, więcej tutaj: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126))
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
@@ -219,9 +222,9 @@ class PlanszaGracza(PlanszaGUI):
         """
         Callback każdego pola uruchamiany po naciśnięciu. Wybiera kliknięty statek, kasując wybór poprzedniego. Zatopione statki nie są wybierane. Ten sam mechanizm jest uruchamiany po wyborze statku w sekcji Kontroli Ataku.
         """
-        statek = self.plansza.podaj_statek(self.podaj_pole_gui(kolumna, rzad).pole)
+        statek = self.gracz.plansza.podaj_statek(self.podaj_pole_gui(kolumna, rzad).pole)
         if not statek.czy_zatopiony():
-            self.kasuj_wybor_statku(self.wybrany_statek)
+            self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
             self.wybierz_statek(statek)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
@@ -235,7 +238,7 @@ class PlanszaGracza(PlanszaGUI):
             else:
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane"])
 
-        self.wybrany_statek = statek
+        self.gracz.tura.runda.statek = statek
 
     def kasuj_wybor_statku(self, statek):
         """Kasuje wybór statku na planszy"""
@@ -255,7 +258,7 @@ class PlanszaGracza(PlanszaGUI):
         """Odkrywa wszystkie pola planszy."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
-                statek = self.plansza.podaj_statek(pole_gui.pole)
+                statek = self.gracz.plansza.podaj_statek(pole_gui.pole)
                 if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
                     pole_gui.configure(style=PoleGUI.STYLE["woda"])
                 else:
@@ -298,8 +301,8 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
     def rejestruj_callbacki(self):
         """Rejestruje callbacki na_klikniecie(), na_wejscie() i na_wyjscie() we wszystkich polach."""
-        for i in range(self.plansza.kolumny):
-            for j in range(self.plansza.rzedy):
+        for i in range(self.gracz.plansza.kolumny):
+            for j in range(self.gracz.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
                 pole_gui.configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))
@@ -345,14 +348,14 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
     def odkryj_pole(self, kolumna, rzad):
         """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Zatapia trafiony statek (i odkrywa pola jego obwiedni), jeśli trzeba."""
-        if self.plansza.czy_pole_w_planszy(kolumna, rzad):
+        if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
             pole_gui = self.podaj_pole_gui(kolumna, rzad)
             if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
                 self.oznacz_pudlo(pole_gui)
             elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
                 pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
                 pole_gui.configure(style=PoleGUI.STYLE["trafione"], text="�")
-                statek = self.plansza.podaj_statek(pole_gui.pole)
+                statek = self.gracz.plansza.podaj_statek(pole_gui.pole)
                 if statek.czy_zatopiony():
                     self.zatop_statek(statek, symbole=True)
                     self.odkryj_obwiednie(statek)
@@ -439,7 +442,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
     def zmien_stan_pola(self, kolumna, rzad, stan):
         """Zmienia stan pola wg podanych współrzędnych."""
-        if self.plansza.czy_pole_w_planszy(kolumna, rzad):
+        if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
             self.podaj_pole_gui(kolumna, rzad).state([stan])
 
 
@@ -448,23 +451,55 @@ class KontrolaAtaku(ttk.Frame):
     Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry.
     """
 
-    def __init__(self, rodzic, gra, plansza_g_gui, plansza_p_gui):
-        super().__init__(rodzic, padding=10)
-        self.gra = gra
-        # GUI
-        self.grid()
-        self.plansza_g_gui = plansza_g_gui
-        self.plansza_p_gui = plansza_p_gui
-        etyramka = ttk.Labelframe(self, text="Atak", padding=10)
-        etyramka.grid()
+    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
+        super().__init__(rodzic, padding=(0, 0, 10, 0))
+        self.plansza_g = plansza_gracza
+        self.plansza_p = plansza_przeciwnika
+
+        self.ustaw_style()
+        self.ustaw_sie()
+        self.buduj_etykiety()
+
+    def ustaw_style(self):
+        """Ustawia style dla widżetów"""
+        self.styl = ttk.Style()
         # etykiety
-        etykieta_statku = None
-        etykieta_salwy = None
-        etykieta_orientacji = None
-        # comboboksy
-        self.combo_statku = None
-        self.combo_salwy = None
-        self.combo_orientacji = None
+        # self.styl.configure(
+        #     "KA.TLabel",
+        #     padding=(0, 5, 0, 0)
+        # )
+
+    def ustaw_sie(self):
+        """Ustawia interfejs pod widżety."""
+        self.grid()
+        self.etyramka = ttk.Labelframe(self, text="Atak", padding=5)
+        self.etyramka.grid()
+
+    def buduj_etykiety(self):
+        """Buduje etykiety."""
+        ttk.Label(self.etyramka, text="Wybierz statek:").grid(
+            row=0,
+            column=0,
+            sticky=tk.W
+        )
+        ttk.Label(self.etyramka, text="Wybierz salwę:").grid(
+            row=2,
+            column=0,
+            sticky=tk.W,
+            pady=(5, 0)
+        )
+        ttk.Label(self.etyramka, text="Wybierz orientację salwy:").grid(
+            row=4,
+            column=0,
+            sticky=tk.W,
+            pady=(5, 0)
+        )
+
+    # def buduj_comboboksy(self):
+    #     """Buduje comboboksy."""
+    #     self.combo_statku = ttk.Combobox(self.etyramka)
+    #     self.combo_salwy = None
+    #     self.combo_orientacji = None
 
 
 class KontrolaFloty(ttk.Frame):
@@ -472,14 +507,13 @@ class KontrolaFloty(ttk.Frame):
     Graficzna reprezentacja sekcji kontroli floty znajdującej się w środku po prawej stronie głównego interfejsu gry.
     """
 
-    def __init__(self, rodzic, gra, plansza_g_gui, plansza_p_gui):
-        super().__init__(rodzic, padding=10)
-        self.gra = gra
+    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
+        super().__init__(rodzic, padding=(0, 0, 10, 0))
+        self.plansza_g = plansza_gracza
+        self.plansza_p = plansza_przeciwnika
         # GUI
         self.grid()
-        self.plansza_g_gui = plansza_g_gui
-        self.plansza_p_gui = plansza_p_gui
-        etyramka = ttk.Labelframe(self, text="Flota", padding=10)
+        etyramka = ttk.Labelframe(self, text="Flota", padding=5)
         etyramka.grid()
         pass  # TODO
 
@@ -489,13 +523,14 @@ class KontrolaGry(ttk.Frame):
     Graficzna reprezentacja sekcji kontroli gry znajdującej się w prawym dolnym rogu głównego interfejsu gry.
     """
 
-    def __init__(self, rodzic, gra):
-        super().__init__(rodzic, padding=10)
-        self.gra = gra
-        self.tytul = None  # string w formacie `Tura #[liczba]/Runda #[liczba]`
+    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
+        super().__init__(rodzic, padding=(0, 0, 10, 0))
+        self.plansza_g = plansza_gracza
+        self.plansza_p = plansza_przeciwnika
         # GUI
+        self.tytul = None  # string w formacie `Tura #[liczba]/Runda #[liczba]`
         self.grid()
-        etyramka = ttk.Labelframe(self, text=self.tytul, padding=10)
+        etyramka = ttk.Labelframe(self, text=self.tytul, padding=5)
         etyramka.grid()
         pass  # TODO
 
@@ -505,9 +540,10 @@ class PasekStanu(ttk.Frame):
     Graficzna reprezentacja paska stanu wyświetlającego komunikaty o grze na dole głównego interfejsu gry.
     """
 
-    def __init__(self, rodzic, gra):
+    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=10)
-        self.gra = gra
+        self.plansza_g = plansza_gracza
+        self.plansza_p = plansza_przeciwnika
         # GUI
         self.grid(columnspan=3)
         pass  # TODO
@@ -516,32 +552,28 @@ class PasekStanu(ttk.Frame):
 class GraGUI(ttk.Frame):
     """Graficzna reprezentacja głównego interfejsu gry"""
 
-    def __init__(self, rodzic):
+    def __init__(self, rodzic, kolumny, rzedy):
         super().__init__(rodzic)
-        self.grid()  # TODO: po dodaniu sekcji kontrolnych, ustawić `rowspan=3` dla kolumny 0 i 1 oraz `columnspan=3` dla rzędu 3 (czwartego)
-        kolumny, rzedy = 25, 30  # test
-        # plansza gracza
-        plansza_g = Plansza(kolumny, rzedy)
-        plansza_g_gui = PlanszaGracza(self, plansza_g)
-        plansza_g_gui.grid(column=0, row=0)
-        # plansza przeciwnika
-        plansza_p = Plansza(kolumny, rzedy)
-        plansza_p_gui = PlanszaPrzeciwnika(self, plansza_p)
-        plansza_p_gui.grid(column=1, row=0)
+        self.grid()
 
-        # gra
-        gra = Gra(plansza_g, plansza_p)
+        gracz = Gracz(Plansza(kolumny, rzedy))
+        przeciwnik = Gracz(Plansza(kolumny, rzedy))
+
+        plansza_gracza = PlanszaGracza(self, gracz, "Gracz")
+        plansza_gracza.grid(column=0, row=0)
+        plansza_przeciwnika = PlanszaPrzeciwnika(self, przeciwnik, "Przeciwnik")
+        plansza_przeciwnika.grid(column=1, row=0)
 
         # kontrolna sekcja po prawej stronie
-        kontrola_ataku = KontrolaAtaku(self, gra, plansza_g_gui, plansza_p_gui)
+        kontrola_ataku = KontrolaAtaku(self, plansza_gracza, plansza_przeciwnika)
         kontrola_ataku.grid(column=3, row=0)
-        kontrola_floty = KontrolaFloty(self, gra, plansza_g_gui, plansza_p_gui)
+        kontrola_floty = KontrolaFloty(self, plansza_gracza, plansza_przeciwnika)
         kontrola_floty.grid(column=3, row=1)
-        kontrola_gry = KontrolaGry(self, gra)
+        kontrola_gry = KontrolaGry(self, plansza_gracza, plansza_przeciwnika)
         kontrola_gry.grid(column=3, row=2)
 
         # sekcja komunikatów na dole okna
-        pasek_stanu = PasekStanu(self, gra)
+        pasek_stanu = PasekStanu(self, plansza_gracza, plansza_przeciwnika)
         pasek_stanu.grid(column=0, row=3)
 
 
@@ -550,7 +582,7 @@ def main():
     root = tk.Tk()
     root.title("Statki")
 
-    GraGUI(root)
+    GraGUI(root, 25, 30)
 
     root.resizable(False, False)
     root.mainloop()
