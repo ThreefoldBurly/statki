@@ -1,6 +1,6 @@
-## ZASADY
+# ZASADY
 
-# Rangi wg rozmiaru:
+### Rangi wg rozmiaru:
 
 1. 1:       kuter
 2. 2-3:     patrolowiec
@@ -10,7 +10,7 @@
 6. 13-16:   krążownik
 7. 17-20:   pancernik
 
-# Salwy w rundzie wg rang:
+### Salwy w rundzie wg rang:
 
 1. kuter: 1x 1 pole [1 salwa]
 2. patrolowiec: 1x 2 pola [1 salwa]
