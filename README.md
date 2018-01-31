@@ -1,19 +1,30 @@
 # statki
 
-Gra w statki na planszy o arbitralnym rozmiarze.
+Gra w Statki na planszy o arbitralnym rozmiarze z nieznacznie zmodyfikowanymi (czyt. *wzbogaconymi*) zasadami ([więcej](https://github.com/tburly/statki/blob/master/meta/zasady.md)).
 
-Statki mają rangi:
+Podstawowe różnice względem klasycznej wersji:
 
-- kuter (1 pole)
-- patrolowiec (2-3 pola)
-- korweta (4-6 pól)
-- fregata (7-9 pól)
-- niszczyciel (10-12 pól)
-- krążownik (13-16 pól)
-- pancernik (17-20 pól)
+1. Statki mają rozmiar **od 1 do 20 pól**. Z tego wynika, że mogą na planszy przybierać dość ekstrawaganckie kształty (np. mogą mieć *dziurę* w środku). Podstawowa zasada umieszczania statków - to, że nie mogą się ze sobą stykać - jest zachowana.
 
-Każdy statek ma nazwę. Nazwa to taki detal, który robi klimat. Nawet w tak prostej grze jak statki. Dlatego poświęciłem trochę czasu, żeby program miał z czego wybierać. Jak na razie plik `nazwy-statkow.sti` zawiera 690 wymyślonych przeze mnie nazw. Trochę nad tym posiedziałem i myślę, że każdy, kto pracuje nad polską grą ze statkami (w jakiejkolwiek postaci - dajmy na to SF), mógłby na tym skorzystać.
+2. Statki mają rangi zależne od rozmiaru:
 
-Statki mają dowolne kształty. Algorytm umieszcza je na planszy pole po polu, losując kierunek: *prawo*, *lewo*, *góra*, *dół*.
+* kuter (1 pole)
+* patrolowiec (2-3 pola)
+* korweta (4-6 pól)
+* fregata (7-9 pól)
+* niszczyciel (10-12 pól)
+* krążownik (13-16 pól)
+* pancernik (17-20 pól)
 
-Logika umieszczania statków na planszy jest zakończona (w sumie ten sam algorytm mógłby służyć do rysowania map dla strategii 2D). Zaczynam pracę nad GUI (w <del>Kivy</del> Tkinterze).
+które decydują o sile rażenia w trakcie rundy gracza. Uwaga: ta siła rażenia *zmienia się* w trakcie rozgrywki! (w wyniku wrogich trafień).
+
+3. Różna siła rażenia sprowadza się do tego, że w przeciwieństwie do wersji klasycznej:
+
+* pojedyńcza salwa statku może zostać oddana **nie w jedno a w 1-3 sąsiadujące (w poziomie i piona) pola przeciwnika**
+* statek może strzelać **od 1 do 3 salwami w ciągu swojej rundy**
+
+4. Każdy statek ma nazwę. Na pierwszy rzut oka może się to wydawać przesadą. Komu to potrzebne w tak prostej grze, prawda? Jak się jednak okazuje (i jak mam nadzieję przekonają się potencjalni gracze) nazwa to taki detal, który dodaje zabawie dodatkowego wymiaru. Przesadą może było wymyślenie aż **690 nazw**. No cóż, poniosło mnie, ale może ktoś jeszcze z tego skorzysta, bo zestaw jest ciekawy i myślę, że każdy, kto pracuje nad polską grą ze statkami/okrętami (w jakiejkolwiek postaci - dajmy na to SF), mógłby z niego skorzystać.
+
+---
+
+**statki** to WIP. Aktualnie jestem na etapie budowania interfejsu w Tkinterze, co póki co daje efekty lepsze niż się spodziewałem. Bieżące rozwijanie programu robię na gałęzi [`develop`](https://github.com/tburly/statki/tree/develop), więc tam należy szukać najbardziej aktualnej wersji.
