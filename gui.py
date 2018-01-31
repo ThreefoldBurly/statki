@@ -5,6 +5,7 @@ Graficzny interfejs użytkownika
 """
 
 import tkinter as tk
+import tkinter.font as tkfont
 from tkinter import ttk
 
 from plansza import Plansza, Pole
@@ -198,16 +199,17 @@ class PlanszaGracza(PlanszaGUI):
 
     def __init__(self, rodzic, plansza, tytul="Gracz"):
         super().__init__(rodzic, plansza, tytul)
+        self.combo_statku = None  # widżet przekazywany przez Kontrolę Ataku w trakcie jej inicjalizacji
         self.wybierz_statek(self.gracz.plansza.statki[0])
         self.rejestruj_callback()
         self.odkryj_wszystkie_pola()
 
         # testy
         # self.oznacz_pudlo(self.podaj_pole_gui(5, 5))
-        statek = self.gracz.plansza.statki[2]
-        self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
-        statek = self.gracz.plansza.statki[3]
-        self.zatop_statek(statek)
+        # statek = self.gracz.plansza.statki[2]
+        # self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
+        # statek = self.gracz.plansza.statki[3]
+        # self.zatop_statek(statek)
 
     def rejestruj_callback(self):
         """Rejestruje callback na_klikniecie() we wszystkich polach."""
@@ -223,11 +225,16 @@ class PlanszaGracza(PlanszaGUI):
         Callback każdego pola uruchamiany po naciśnięciu. Wybiera kliknięty statek, kasując wybór poprzedniego. Zatopione statki nie są wybierane. Ten sam mechanizm jest uruchamiany po wyborze statku w sekcji Kontroli Ataku.
         """
         statek = self.gracz.plansza.podaj_statek(self.podaj_pole_gui(kolumna, rzad).pole)
-        if not statek.czy_zatopiony():
-            self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
-            self.wybierz_statek(statek)
+        self.zmien_statek(statek)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
+
+    def zmien_statek(self, statek):
+        """Zmienia wybrany statek"""
+        if statek and not statek.czy_zatopiony():
+            self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
+            self.wybierz_statek(statek)
+            self.combo_statku.set(statek)
 
     def wybierz_statek(self, statek):
         """Wybiera statek na planszy"""
@@ -459,6 +466,9 @@ class KontrolaAtaku(ttk.Frame):
         self.ustaw_style()
         self.ustaw_sie()
         self.buduj_etykiety()
+        self.buduj_comboboksy()
+
+        self.plansza_g.combo_statku = self.combo_statku  # przekazanie do planszy dla jej event handlera
 
     def ustaw_style(self):
         """Ustawia style dla widżetów"""
@@ -466,7 +476,19 @@ class KontrolaAtaku(ttk.Frame):
         # etykiety
         # self.styl.configure(
         #     "KA.TLabel",
-        #     padding=(0, 5, 0, 0)
+        #     font=("TkDefaultFont", 8)
+        # )
+        # comboboksy
+        self.styl.configure(
+            "KA.TCombobox",
+            font=("TkDefaultFont", 8)
+        )
+        # self.styl.map(
+        #     "KA.TCombobox",
+        #     selectbackground=[
+        #         ('!readonly', '!focus', 'SystemWindow'),
+        #         ('readonly', '!focus', 'SystemButtonFace'),
+        #     ]
         # )
 
     def ustaw_sie(self):
@@ -495,11 +517,34 @@ class KontrolaAtaku(ttk.Frame):
             pady=(5, 0)
         )
 
-    # def buduj_comboboksy(self):
-    #     """Buduje comboboksy."""
-    #     self.combo_statku = ttk.Combobox(self.etyramka)
-    #     self.combo_salwy = None
-    #     self.combo_orientacji = None
+    def buduj_comboboksy(self):
+        """Buduje comboboksy."""
+        # wybór statku
+        self.combo_statku = ttk.Combobox(
+            self.etyramka,
+            styl="KA.TCombobox",
+            values=self.plansza_g.gracz.tura.statki,
+            width=30
+        )
+        self.combo_statku.grid(
+            row=1,
+            column=0,
+            sticky=tk.W
+        )
+        self.combo_statku.configure(font=("TkDefaultFont", 8))  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
+        self.combo_statku.state(["readonly"])
+        self.combo_statku.bind("<<ComboboxSelected>>", self.na_wybor_statku)
+        # wybór salwy
+        self.combo_salwy = None
+        # wybór orientacji
+        self.combo_orientacji = None
+
+    def na_wybor_statku(self, event=None):
+        """Callback comboboksa wyboru statku uruchamiany po zmianie selekcji."""
+        event.widget.selection_clear()
+        index = event.widget.current()
+        wybrany_statek = self.plansza_g.gracz.tura.statki[index]
+        self.plansza_g.zmien_statek(wybrany_statek)
 
 
 class KontrolaFloty(ttk.Frame):
@@ -581,6 +626,12 @@ def main():
     """Uruchamia skrypt."""
     root = tk.Tk()
     root.title("Statki")
+    # zmiana rozmiaru fontu we wszystkich comboboksach aplikacji
+    # brzydki hack stąd: https://stackoverflow.com/questions/43086378/how-to-modify-ttk-combobox-fonts
+    # na poziomie pojedynczego widżeta się tego zrobić nie da
+    # co ciekawe nawet delegowanie tego kodu do osobnej funkcji powoduje, że hack przestaje działać
+    fnt = tkfont.Font(family="TkDefaultFont", size=8)
+    root.option_add("*TCombobox*Listbox.font", fnt)
 
     GraGUI(root, 25, 30)
 
