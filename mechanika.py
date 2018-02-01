@@ -47,7 +47,8 @@ class Tura:
 
     def dodaj_runde(self):
         """Tworzy nową rundę i dodaje do listy rund"""
-        self.statki.remove(self.rundy[-1].statek)
+        self.statki.remove(self.runda.statek)
+        self.runda.zrob_migawke()
         self.runda = Runda(self.plansza)
         self.rundy.append(self.runda)
 
@@ -62,6 +63,7 @@ class Runda:
         self.plansza = plansza
         self.migawka_planszy = None  # wykonywana na koniec rundy
         self.statek = None  # wartość ustalana przez użytkownika via GUI, przyjmuje wartość `None` w przypadku braku selekcji
+        self.salwy = None  # jw.
         # zmienne poniżej przechowują tylko wspólrzędne zamiast pełnych obiektów pól planszy przeciwnika, żeby zachować kompartmentację informacji, co będzie miało znaczenie przy implementacji komunikacji sieciowej dla gry osobowej (aplikacje będą wysyłać sobie nawzajem tylko proste liczby całkowite)
         self.strzaly_wyslane = []  # lista krotek współrzędnych pól na planszy przeciwnika (kolumna, rzad), w które zostały oddane strzały
         self.strzaly_otrzymane = []  # lista krotek współrzędnych pól na planszy gracza (kolumna, rzad), w które strzelił przeciwnik

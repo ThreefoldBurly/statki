@@ -199,15 +199,14 @@ class PlanszaGracza(PlanszaGUI):
 
     def __init__(self, rodzic, plansza, tytul="Gracz"):
         super().__init__(rodzic, plansza, tytul)
-        self.combo_statku = None  # widżet przekazywany przez Kontrolę Ataku w trakcie jej inicjalizacji
-        self.wybierz_statek(self.gracz.plansza.statki[0])
+        self.kontrola_ataku = None  # Kontrola Ataku przekazuje tutaj odnośnik do siebie na koniec swojej inicjalizacji
         self.rejestruj_callback()
         self.odkryj_wszystkie_pola()
 
         # testy
         # self.oznacz_pudlo(self.podaj_pole_gui(5, 5))
-        # statek = self.gracz.plansza.statki[2]
-        # self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
+        statek = self.gracz.plansza.statki[2]
+        self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
         # statek = self.gracz.plansza.statki[3]
         # self.zatop_statek(statek)
 
@@ -232,9 +231,10 @@ class PlanszaGracza(PlanszaGUI):
     def zmien_statek(self, statek):
         """Zmienia wybrany statek"""
         if statek and not statek.czy_zatopiony():
-            self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
+            stary_statek = self.gracz.tura.runda.statek
+            if stary_statek:
+                self.kasuj_wybor_statku(stary_statek)
             self.wybierz_statek(statek)
-            self.combo_statku.set(statek)
 
     def wybierz_statek(self, statek):
         """Wybiera statek na planszy"""
@@ -246,6 +246,8 @@ class PlanszaGracza(PlanszaGUI):
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane"])
 
         self.gracz.tura.runda.statek = statek
+        self.kontrola_ataku.combo_statku.set(statek)
+        self.kontrola_ataku.ustaw_salwy(statek)
 
     def kasuj_wybor_statku(self, statek):
         """Kasuje wybór statku na planszy"""
@@ -280,7 +282,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         "L270": "⅃"
     }
     ORIENTACJE_ATAKU = {
-        "zwykła": 1,
+        "x": 1,
         "--": 2,
         "||": 3,
         "---": 4,
@@ -293,7 +295,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
     def __init__(self, rodzic, plansza, tytul="Przeciwnik"):
         super().__init__(rodzic, plansza, tytul)
-        self.orientacja_ataku = self.ORIENTACJE_ATAKU["zwykła"]
+        self.orientacja_ataku = self.ORIENTACJE_ATAKU["x"]
         self.zmien_podswietlanie_nieodkrytych()
         self.rejestruj_callbacki()
         # test
@@ -458,6 +460,8 @@ class KontrolaAtaku(ttk.Frame):
     Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry.
     """
 
+    ORIENTACJE = ["x", "--", "||", "---", "|||", "L", "Г", "˥", "⅃"]
+
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=(0, 0, 10, 0))
         self.plansza_g = plansza_gracza
@@ -468,28 +472,25 @@ class KontrolaAtaku(ttk.Frame):
         self.buduj_etykiety()
         self.buduj_comboboksy()
 
-        self.plansza_g.combo_statku = self.combo_statku  # przekazanie do planszy dla jej event handlera
+        self.plansza_g.kontrola_ataku = self  # przekazanie do planszy dla jej event handlerów
 
     def ustaw_style(self):
         """Ustawia style dla widżetów"""
         self.styl = ttk.Style()
         # etykiety
-        # self.styl.configure(
-        #     "KA.TLabel",
-        #     font=("TkDefaultFont", 8)
-        # )
+        self.styl.configure(
+            "KA.TLabel",
+            font=("TkDefaultFont", 8)
+        )
         # comboboksy
         self.styl.configure(
             "KA.TCombobox",
             font=("TkDefaultFont", 8)
         )
-        # self.styl.map(
-        #     "KA.TCombobox",
-        #     selectbackground=[
-        #         ('!readonly', '!focus', 'SystemWindow'),
-        #         ('readonly', '!focus', 'SystemButtonFace'),
-        #     ]
-        # )
+        self.styl.map(
+            "KA.TCombobox",
+            fieldbackground=[("readonly", "white")]
+        )
 
     def ustaw_sie(self):
         """Ustawia interfejs pod widżety."""
@@ -499,20 +500,33 @@ class KontrolaAtaku(ttk.Frame):
 
     def buduj_etykiety(self):
         """Buduje etykiety."""
-        ttk.Label(self.etyramka, text="Wybierz statek:").grid(
+        ttk.Label(
+            self.etyramka,
+            text="Wybierz statek:",
+            style="KA.TLabel"
+        ).grid(
             row=0,
             column=0,
+            columnspan=2,
             sticky=tk.W
         )
-        ttk.Label(self.etyramka, text="Wybierz salwę:").grid(
+        ttk.Label(
+            self.etyramka,
+            text="Wybierz salwę:",
+            style="KA.TLabel"
+        ).grid(
             row=2,
             column=0,
             sticky=tk.W,
             pady=(5, 0)
         )
-        ttk.Label(self.etyramka, text="Wybierz orientację salwy:").grid(
-            row=4,
-            column=0,
+        ttk.Label(
+            self.etyramka,
+            text="Wybierz orientację:",
+            style="KA.TLabel"
+        ).grid(
+            row=2,
+            column=1,
             sticky=tk.W,
             pady=(5, 0)
         )
@@ -529,22 +543,80 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_statku.grid(
             row=1,
             column=0,
+            columnspan=2,
             sticky=tk.W
         )
         self.combo_statku.configure(font=("TkDefaultFont", 8))  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
         self.combo_statku.state(["readonly"])
         self.combo_statku.bind("<<ComboboxSelected>>", self.na_wybor_statku)
+
         # wybór salwy
-        self.combo_salwy = None
+        self.combo_salwy = ttk.Combobox(
+            self.etyramka,
+            styl="KA.TCombobox",
+            width=6
+        )
+        self.combo_salwy.grid(
+            row=3,
+            column=0,
+            sticky=tk.W,
+            pady=(0, 10)
+        )
+        self.combo_salwy.configure(font=("TkDefaultFont", 8))
+        self.combo_salwy.state(["readonly"])
+        self.combo_salwy.bind("<<ComboboxSelected>>", self.na_wybor_salwy)
+
         # wybór orientacji
-        self.combo_orientacji = None
+        self.combo_orientacji = ttk.Combobox(
+            self.etyramka,
+            styl="KA.TCombobox",
+            width=4
+        )
+        self.combo_orientacji.grid(
+            row=3,
+            column=1,
+            sticky=tk.W,
+            pady=(0, 10)
+        )
+        self.combo_orientacji.configure(font=("TkDefaultFont", 8))
+        self.combo_orientacji.state(["readonly"])
+        self.combo_orientacji.bind("<<ComboboxSelected>>", self.na_wybor_orientacji)
 
     def na_wybor_statku(self, event=None):
         """Callback comboboksa wyboru statku uruchamiany po zmianie selekcji."""
+        event.widget.selection_clear()  # czyści tło pola tekstowego comboboksa
+        indeks = event.widget.current()
+        wybrany_statek = self.plansza_g.gracz.tura.statki[indeks]
+        self.plansza_g.zmien_statek(wybrany_statek)  # plansza zmienia też statek w rundzie
+        self.ustaw_salwy(wybrany_statek)
+
+    def na_wybor_salwy(self, event=None):
+        """Callback comboboksa wyboru salwy uruchamiany po zmianie selekcji."""
         event.widget.selection_clear()
-        index = event.widget.current()
-        wybrany_statek = self.plansza_g.gracz.tura.statki[index]
-        self.plansza_g.zmien_statek(wybrany_statek)
+        self.ustaw_orientacje(event.widget.get())
+
+    def na_wybor_orientacji(self, event=None):
+        """Callback comboboksa wyboru salwy uruchamiany po zmianie selekcji."""
+        event.widget.selection_clear()
+
+    def ustaw_salwy(self, statek):
+        """Ustawia salwy wybranego statku"""
+        self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in statek.salwy]
+        self.combo_salwy.set(self.combo_salwy["values"][0])
+        self.ustaw_orientacje(self.combo_salwy["values"][0])
+
+    def ustaw_orientacje(self, salwa_tekst):
+        """Ustawia orientacje wybranej salwy"""
+        if not self.plansza_g.gracz.tura.runda.salwy:  # inicjalizacja listy salw w rundzie
+            self.plansza_g.gracz.tura.runda.salwy = self.plansza_g.gracz.tura.runda.statek
+        salwa = int(salwa_tekst[0])
+        if salwa == 1:
+            self.combo_orientacji["values"] = [self.ORIENTACJE[0]]
+        elif salwa == 2:
+            self.combo_orientacji["values"] = self.ORIENTACJE[1:3]
+        elif salwa == 3:
+            self.combo_orientacji["values"] = self.ORIENTACJE[3:]
+        self.combo_orientacji.set(self.combo_orientacji["values"][0])
 
 
 class KontrolaFloty(ttk.Frame):
