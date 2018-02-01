@@ -189,7 +189,6 @@ class PlanszaGracza(PlanszaGUI):
         self.ustaw_style_gracza()
         self.rejestruj_callback()
         self.odkryj_wszystkie_pola()
-
         # testy
         # self.oznacz_pudlo(self.podaj_pole_gui(5, 5))
         statek = self.gracz.plansza.statki[2]
@@ -239,9 +238,7 @@ class PlanszaGracza(PlanszaGUI):
     def zmien_statek(self, statek):
         """Zmienia wybrany statek"""
         if statek and not statek.czy_zatopiony():
-            stary_statek = self.gracz.tura.runda.statek
-            if stary_statek:
-                self.kasuj_wybor_statku(stary_statek)
+            self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
             self.wybierz_statek(statek)
 
     def wybierz_statek(self, statek):
@@ -461,7 +458,7 @@ class KontrolaAtaku(ttk.Frame):
     Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry.
     """
 
-    ORIENTACJE = ["•", "••", "||", "•••", "|||", "L", "Г", "˥", "⅃"]
+    ORIENTACJE = ["•", "••", "╏", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=(0, 0, 10, 0))
@@ -474,6 +471,8 @@ class KontrolaAtaku(ttk.Frame):
         self.buduj_comboboksy()
 
         self.plansza_g.kontrola_ataku = self  # przekazanie do planszy dla jej event handlerów
+        # start z automatycznie wybranym największym statkiem - wywołanie tutaj, bo musi być gotowa zarówno plansza jak i kontrola ataku a KA inicjalizuje się po planszy
+        self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
 
     def ustaw_style(self):
         """Ustawia style dla widżetów"""
@@ -484,10 +483,7 @@ class KontrolaAtaku(ttk.Frame):
             font=("TkDefaultFont", 8)
         )
         # comboboksy
-        self.styl.configure(
-            "KA.TCombobox",
-            font=("TkDefaultFont", 8)
-        )
+        self.styl.configure("KA.TCombobox")
         self.styl.map(
             "KA.TCombobox",
             fieldbackground=[("readonly", "white")]
@@ -602,15 +598,13 @@ class KontrolaAtaku(ttk.Frame):
         self.plansza_p.orientacja_ataku = event.widget.get()
 
     def ustaw_salwy(self, statek):
-        """Ustawia salwy wybranego statku"""
+        """Ustawia salwy wybranego statku."""
         self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in statek.salwy]
         self.combo_salwy.set(self.combo_salwy["values"][0])
         self.ustaw_orientacje(self.combo_salwy["values"][0])
 
     def ustaw_orientacje(self, salwa_tekst):
-        """Ustawia orientacje wybranej salwy"""
-        if not self.plansza_g.gracz.tura.runda.salwy:  # inicjalizacja listy salw w rundzie
-            self.plansza_g.gracz.tura.runda.salwy = self.plansza_g.gracz.tura.runda.statek
+        """Ustawia orientacje wybranej salwy."""
         salwa = int(salwa_tekst[0])
         if salwa == 1:
             self.combo_orientacji["values"] = [self.ORIENTACJE[0]]
