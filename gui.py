@@ -15,6 +15,10 @@ from mechanika import Gracz
 class PoleGUI(ttk.Button):
     """Graficzna reprezentacja pola planszy."""
 
+    GLIFY = {
+        "pudło": "•",
+        "trafione": "�"
+    }
     KOLORY = {
         "woda": "powder blue",
         "woda-active": "light cyan",
@@ -111,24 +115,6 @@ class PlanszaGUI(ttk.Frame):
             foreground=[("active", "white"), ("disabled", "white")],
             background=[("active", PoleGUI.KOLORY["zatopione-active"]), ("disabled", "gray")]
         )
-        # wybrane
-        self.styl.configure(
-            PoleGUI.STYLE["wybrane"],
-            background=PoleGUI.KOLORY["wybrane"]
-        )
-        self.styl.map(
-            PoleGUI.STYLE["wybrane"],
-            background=[("active", PoleGUI.KOLORY["wybrane-active"]), ("disabled", "gray")]
-        )
-        # wybrane&trafione
-        self.styl.configure(
-            PoleGUI.STYLE["wybrane&trafione"],
-            background=PoleGUI.KOLORY["wybrane&trafione"]
-        )
-        self.styl.map(
-            PoleGUI.STYLE["wybrane&trafione"],
-            background=[("active", PoleGUI.KOLORY["wybrane&trafione-active"]), ("disabled", "gray")]
-        )
 
     def buduj_etykiety(self):
         """Buduje etykiety kolumn i rzędów."""
@@ -179,7 +165,7 @@ class PlanszaGUI(ttk.Frame):
     def oznacz_pudlo(self, pole_gui):
         """Oznacza podane pole jako pudło."""
         pole_gui.pole.znacznik = Pole.ZNACZNIKI["pudło"]
-        pole_gui.configure(style=PoleGUI.STYLE["pudło"], text="•")
+        pole_gui.configure(style=PoleGUI.STYLE["pudło"], text=PoleGUI.GLIFY["pudło"])
 
     def zatop_statek(self, statek, symbole=False):
         """Oznacza pola wskazanego statku jako zatopione."""
@@ -200,6 +186,7 @@ class PlanszaGracza(PlanszaGUI):
     def __init__(self, rodzic, plansza, tytul="Gracz"):
         super().__init__(rodzic, plansza, tytul)
         self.kontrola_ataku = None  # Kontrola Ataku przekazuje tutaj odnośnik do siebie na koniec swojej inicjalizacji
+        self.ustaw_style_gracza()
         self.rejestruj_callback()
         self.odkryj_wszystkie_pola()
 
@@ -209,6 +196,27 @@ class PlanszaGracza(PlanszaGUI):
         self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
         # statek = self.gracz.plansza.statki[3]
         # self.zatop_statek(statek)
+
+    def ustaw_style_gracza(self):
+        """Definiuje style dla pól."""
+        # wybrane
+        self.styl.configure(
+            PoleGUI.STYLE["wybrane"],
+            background=PoleGUI.KOLORY["wybrane"]
+        )
+        self.styl.map(
+            PoleGUI.STYLE["wybrane"],
+            background=[("active", PoleGUI.KOLORY["wybrane-active"]), ("disabled", "gray")]
+        )
+        # wybrane&trafione
+        self.styl.configure(
+            PoleGUI.STYLE["wybrane&trafione"],
+            background=PoleGUI.KOLORY["wybrane&trafione"]
+        )
+        self.styl.map(
+            PoleGUI.STYLE["wybrane&trafione"],
+            background=[("active", PoleGUI.KOLORY["wybrane&trafione-active"]), ("disabled", "gray")]
+        )
 
     def rejestruj_callback(self):
         """Rejestruje callback na_klikniecie() we wszystkich polach."""
@@ -276,34 +284,26 @@ class PlanszaGracza(PlanszaGUI):
 
 class PlanszaPrzeciwnika(PlanszaGUI):
     """Graficzna reprezentacja planszy przeciwnika."""
-    ELKI = {
-        "L90": "Г",
-        "L180": "˥",
-        "L270": "⅃"
-    }
-    ORIENTACJE_ATAKU = {
-        "x": 1,
-        "--": 2,
-        "||": 3,
-        "---": 4,
-        "|||": 5,
-        "L": 6,
-        "Г": 7,
-        "˥": 8,
-        "⅃": 9
-    }
 
     def __init__(self, rodzic, plansza, tytul="Przeciwnik"):
         super().__init__(rodzic, plansza, tytul)
-        self.orientacja_ataku = self.ORIENTACJE_ATAKU["x"]
-        self.zmien_podswietlanie_nieodkrytych()
+        self.orientacja_ataku = None  # zmieniane przez event (pierwszy wybór statku)
+
+        self.ustaw_style_przeciwnika()
         self.rejestruj_callbacki()
         # test
-        self.orientacja_ataku = self.ORIENTACJE_ATAKU[self.ELKI["L270"]]
+        # self.orientacja_ataku = KontrolaAtaku.ORIENTACJE[0]
+
+    def ustaw_style_przeciwnika(self):
+        """Definiuje style dla pól."""
+        # nieodkryte
+        self.styl.map(
+            "Nieodkryte.TButton",
+            background=[("active", PoleGUI.KOLORY["nieodkryte-active"])]
+        )
 
     def zmien_podswietlanie_nieodkrytych(self):
         """Zmienia podświetlanie nieodkrytych pól na odpowiedni kolor."""
-        self.styl.map("Nieodkryte.TButton", background=[("active", PoleGUI.KOLORY["nieodkryte-active"])])
         for rzad in self.pola_gui:
             for pole_gui in rzad:
                 pole_gui.configure(styl="Nieodkryte.TButton")
@@ -322,36 +322,37 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """
         Callback każdego pola uruchamiany po naciśnięciu. W zależności od 9-stanowej flagi 'orientacja_ataku' odkrywa na planszy odpowiednie pola (lub pole).
         """
-        self.odkryj_pole(kolumna, rzad)
-        if self.orientacja_ataku == self.ORIENTACJE_ATAKU["--"]:
-            self.odkryj_pole(kolumna + 1, rzad)
+        if self.orientacja_ataku:
+            self.odkryj_pole(kolumna, rzad)
+            if self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[1]:
+                self.odkryj_pole(kolumna + 1, rzad)
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["||"]:
-            self.odkryj_pole(kolumna, rzad + 1)
+            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[2]:
+                self.odkryj_pole(kolumna, rzad + 1)
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["---"]:
-            self.odkryj_pole(kolumna - 1, rzad)
-            self.odkryj_pole(kolumna + 1, rzad)
+            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[3]:
+                self.odkryj_pole(kolumna - 1, rzad)
+                self.odkryj_pole(kolumna + 1, rzad)
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["|||"]:
-            self.odkryj_pole(kolumna, rzad - 1)
-            self.odkryj_pole(kolumna, rzad + 1)
+            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[4]:
+                self.odkryj_pole(kolumna, rzad - 1)
+                self.odkryj_pole(kolumna, rzad + 1)
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["L"]:
-            self.odkryj_pole(kolumna, rzad - 1)
-            self.odkryj_pole(kolumna + 1, rzad)
+            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[5]:
+                self.odkryj_pole(kolumna, rzad - 1)
+                self.odkryj_pole(kolumna + 1, rzad)
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU[self.ELKI["L90"]]:
-            self.odkryj_pole(kolumna, rzad + 1)
-            self.odkryj_pole(kolumna + 1, rzad)
+            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[6]:
+                self.odkryj_pole(kolumna, rzad + 1)
+                self.odkryj_pole(kolumna + 1, rzad)
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU[self.ELKI["L180"]]:
-            self.odkryj_pole(kolumna - 1, rzad)
-            self.odkryj_pole(kolumna, rzad + 1)
+            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[7]:
+                self.odkryj_pole(kolumna - 1, rzad)
+                self.odkryj_pole(kolumna, rzad + 1)
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU[self.ELKI["L270"]]:
-            self.odkryj_pole(kolumna - 1, rzad)
-            self.odkryj_pole(kolumna, rzad - 1)
+            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[8]:
+                self.odkryj_pole(kolumna - 1, rzad)
+                self.odkryj_pole(kolumna, rzad - 1)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
@@ -363,7 +364,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 self.oznacz_pudlo(pole_gui)
             elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
                 pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
-                pole_gui.configure(style=PoleGUI.STYLE["trafione"], text="�")
+                pole_gui.configure(style=PoleGUI.STYLE["trafione"], text=PoleGUI.GLIFY["trafione"])
                 statek = self.gracz.plansza.podaj_statek(pole_gui.pole)
                 if statek.czy_zatopiony():
                     self.zatop_statek(statek, symbole=True)
@@ -384,33 +385,33 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         Callback każdego pola uruchamiany po wejściu kursora w obręb pola. W zależności od 9-stanowej flagi 'orientacja_ataku' podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji.
         """
         kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
-        if self.orientacja_ataku == self.ORIENTACJE_ATAKU["--"]:
+        if self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[1]:
             self.zmien_stan_pola(kolumna + 1, rzad, "active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["||"]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[2]:
             self.zmien_stan_pola(kolumna, rzad + 1, "active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["---"]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[3]:
             self.zmien_stan_pola(kolumna - 1, rzad, "active")
             self.zmien_stan_pola(kolumna + 1, rzad, "active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["|||"]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[4]:
             self.zmien_stan_pola(kolumna, rzad - 1, "active")
             self.zmien_stan_pola(kolumna, rzad + 1, "active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["L"]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[5]:
             self.zmien_stan_pola(kolumna, rzad - 1, "active")
             self.zmien_stan_pola(kolumna + 1, rzad, "active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU[self.ELKI["L90"]]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[6]:
             self.zmien_stan_pola(kolumna, rzad + 1, "active")
             self.zmien_stan_pola(kolumna + 1, rzad, "active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU[self.ELKI["L180"]]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[7]:
             self.zmien_stan_pola(kolumna - 1, rzad, "active")
             self.zmien_stan_pola(kolumna, rzad + 1, "active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU[self.ELKI["L270"]]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[8]:
             self.zmien_stan_pola(kolumna - 1, rzad, "active")
             self.zmien_stan_pola(kolumna, rzad - 1, "active")
 
@@ -419,33 +420,33 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         Callback każdego pola uruchamiany po wyjściu kursora z obrębu pola. W zależności od 9-stanowej flagi 'orientacja_ataku' kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniej odpaleniem callbacka na_wejscie().
         """
         kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
-        if self.orientacja_ataku == self.ORIENTACJE_ATAKU["--"]:
+        if self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[1]:
             self.zmien_stan_pola(kolumna + 1, rzad, "!active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["||"]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[2]:
             self.zmien_stan_pola(kolumna, rzad + 1, "!active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["---"]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[3]:
             self.zmien_stan_pola(kolumna - 1, rzad, "!active")
             self.zmien_stan_pola(kolumna + 1, rzad, "!active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["|||"]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[4]:
             self.zmien_stan_pola(kolumna, rzad - 1, "!active")
             self.zmien_stan_pola(kolumna, rzad + 1, "!active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU["L"]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[5]:
             self.zmien_stan_pola(kolumna, rzad - 1, "!active")
             self.zmien_stan_pola(kolumna + 1, rzad, "!active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU[self.ELKI["L90"]]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[6]:
             self.zmien_stan_pola(kolumna, rzad + 1, "!active")
             self.zmien_stan_pola(kolumna + 1, rzad, "!active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU[self.ELKI["L180"]]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[7]:
             self.zmien_stan_pola(kolumna - 1, rzad, "!active")
             self.zmien_stan_pola(kolumna, rzad + 1, "!active")
 
-        elif self.orientacja_ataku == self.ORIENTACJE_ATAKU[self.ELKI["L270"]]:
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[8]:
             self.zmien_stan_pola(kolumna - 1, rzad, "!active")
             self.zmien_stan_pola(kolumna, rzad - 1, "!active")
 
@@ -460,7 +461,7 @@ class KontrolaAtaku(ttk.Frame):
     Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry.
     """
 
-    ORIENTACJE = ["x", "--", "||", "---", "|||", "L", "Г", "˥", "⅃"]
+    ORIENTACJE = ["•", "••", "||", "•••", "|||", "L", "Г", "˥", "⅃"]
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=(0, 0, 10, 0))
@@ -587,7 +588,7 @@ class KontrolaAtaku(ttk.Frame):
         event.widget.selection_clear()  # czyści tło pola tekstowego comboboksa
         indeks = event.widget.current()
         wybrany_statek = self.plansza_g.gracz.tura.statki[indeks]
-        self.plansza_g.zmien_statek(wybrany_statek)  # plansza zmienia też statek w rundzie
+        self.plansza_g.zmien_statek(wybrany_statek)  # plansza aktualizuje obiekt rundy
         self.ustaw_salwy(wybrany_statek)
 
     def na_wybor_salwy(self, event=None):
@@ -598,6 +599,7 @@ class KontrolaAtaku(ttk.Frame):
     def na_wybor_orientacji(self, event=None):
         """Callback comboboksa wyboru salwy uruchamiany po zmianie selekcji."""
         event.widget.selection_clear()
+        self.plansza_p.orientacja_ataku = event.widget.get()
 
     def ustaw_salwy(self, statek):
         """Ustawia salwy wybranego statku"""
@@ -617,6 +619,10 @@ class KontrolaAtaku(ttk.Frame):
         elif salwa == 3:
             self.combo_orientacji["values"] = self.ORIENTACJE[3:]
         self.combo_orientacji.set(self.combo_orientacji["values"][0])
+        # plansza przeciwnika
+        if not self.plansza_p.orientacja_ataku:
+            self.plansza_p.zmien_podswietlanie_nieodkrytych()
+        self.plansza_p.orientacja_ataku = self.combo_orientacji["values"][0]
 
 
 class KontrolaFloty(ttk.Frame):
@@ -676,9 +682,9 @@ class GraGUI(ttk.Frame):
         gracz = Gracz(Plansza(kolumny, rzedy))
         przeciwnik = Gracz(Plansza(kolumny, rzedy))
 
-        plansza_gracza = PlanszaGracza(self, gracz, "Gracz")
+        plansza_gracza = PlanszaGracza(self, gracz)
         plansza_gracza.grid(column=0, row=0)
-        plansza_przeciwnika = PlanszaPrzeciwnika(self, przeciwnik, "Przeciwnik")
+        plansza_przeciwnika = PlanszaPrzeciwnika(self, przeciwnik)
         plansza_przeciwnika.grid(column=1, row=0)
 
         # kontrolna sekcja po prawej stronie
@@ -705,7 +711,7 @@ def main():
     fnt = tkfont.Font(family="TkDefaultFont", size=8)
     root.option_add("*TCombobox*Listbox.font", fnt)
 
-    GraGUI(root, 25, 30)
+    GraGUI(root, 26, 30)
 
     root.resizable(False, False)
     root.mainloop()

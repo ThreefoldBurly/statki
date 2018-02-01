@@ -18,9 +18,8 @@ from copy import deepcopy
 
 class Gracz:
     """
-    Abstrakcyjna reprezentacja gracza. Śledzi kolejne tury danego gracza.
+    Abstrakcyjna reprezentacja gracza. Śledzi kolejne tury.
     """
-    # TODO: sprawdzić czy ta klasa jest w ogóle potrzebna (na razie wygląda na to, że zamiast niej wystarczyłoby w klasie Gra zamienić zmienne 'gracz' i 'przeciwnik' na listę tur gracza i listę tur przeciwnika)
 
     def __init__(self, plansza):
         self.plansza = plansza
