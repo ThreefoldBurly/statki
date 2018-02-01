@@ -461,6 +461,7 @@ class Statek:
         "krążownik": [3, 3],
         "pancernik": [3, 2, 2]
     }
+    ORDER = "★"
 
     def __init__(self, pola):
         self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # lista pól statku posortowana od pola najbardziej na NW (zapisanego w osobnej zmiennej: self.polozenie) do pola najbardziej na SE
@@ -491,7 +492,7 @@ class Statek:
             str(nietrafione),
             str(self.rozmiar)
         )
-        for gwiazdka in ["*" for ofiara in self.ofiary]:
+        for gwiazdka in [self.ORDER for ofiara in self.ofiary]:
             info += gwiazdka
         else:
             info = info[:-1]
