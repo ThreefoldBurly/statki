@@ -5,7 +5,6 @@ Graficzny interfejs użytkownika
 """
 
 import tkinter as tk
-import tkinter.font as tkfont
 from tkinter import ttk
 
 from plansza import Plansza, Pole
@@ -56,7 +55,6 @@ class PlanszaGUI(ttk.Frame):
         self.gracz = gracz
         self.tytul = tytul
         self.pola_gui = [[0 for kolumna in range(self.gracz.plansza.kolumny)] for rzad in range(self.gracz.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
-
         self.ustaw_style()
         self.ustaw_sie()
         self.buduj_etykiety()
@@ -459,10 +457,12 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
 class KontrolaAtaku(ttk.Frame):
     """
-    Graficzna reprezentacja sekcji kontroli ataku znajdującej się w prawym górnym rogu głównego interfejsu gry.
+    Sekcja kontroli ataku znajdująca się w prawym górnym rogu głównego interfejsu gry.
     """
+    # TODO: rozważyć zaimplementowania 4 orientacji dla salwy 2-polowej (tak by można nią było obracać we wszystkich kierunkach dookoła centralnego pola, tak jak to jest w przypadku salyw 3-polowej)
 
     ORIENTACJE = ["•", "••", "╏", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
+    CZCIONKA = ("TkDefaultFont", 8)
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=(0, 0, 10, 0))
@@ -482,7 +482,7 @@ class KontrolaAtaku(ttk.Frame):
         # etykiety
         self.styl.configure(
             "KA.TLabel",
-            font=("TkDefaultFont", 8)
+            font=self.CZCIONKA
         )
         # comboboksy
         self.styl.configure("KA.TCombobox")
@@ -533,9 +533,10 @@ class KontrolaAtaku(ttk.Frame):
     def buduj_comboboksy(self):
         """Buduje comboboksy."""
         # wybór statku
-        self.combo_statku = ttk.Combobox(
+        self.combo_statku = ComboAtaku(
             self.etyramka,
             styl="KA.TCombobox",
+            font=self.CZCIONKA,
             values=self.plansza_g.gracz.tura.statki,
             width=30
         )
@@ -545,14 +546,15 @@ class KontrolaAtaku(ttk.Frame):
             columnspan=2,
             sticky=tk.W
         )
-        self.combo_statku.configure(font=("TkDefaultFont", 8))  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
+        self.combo_statku.configure(font=self.CZCIONKA)  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
         self.combo_statku.state(["readonly"])
         self.combo_statku.bind("<<ComboboxSelected>>", self.na_wybor_statku)
 
         # wybór salwy
-        self.combo_salwy = ttk.Combobox(
+        self.combo_salwy = ComboAtaku(
             self.etyramka,
             styl="KA.TCombobox",
+            font=self.CZCIONKA,
             width=6
         )
         self.combo_salwy.grid(
@@ -561,14 +563,15 @@ class KontrolaAtaku(ttk.Frame):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_salwy.configure(font=("TkDefaultFont", 8))
+        self.combo_salwy.configure(font=self.CZCIONKA)
         self.combo_salwy.state(["readonly"])
         self.combo_salwy.bind("<<ComboboxSelected>>", self.na_wybor_salwy)
 
         # wybór orientacji
-        self.combo_orientacji = ttk.Combobox(
+        self.combo_orientacji = ComboAtaku(
             self.etyramka,
             styl="KA.TCombobox",
+            font=self.CZCIONKA,
             width=4
         )
         self.combo_orientacji.grid(
@@ -577,7 +580,7 @@ class KontrolaAtaku(ttk.Frame):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_orientacji.configure(font=("TkDefaultFont", 8))
+        self.combo_orientacji.configure(font=self.CZCIONKA)
         self.combo_orientacji.state(["readonly"])
         self.combo_orientacji.bind("<<ComboboxSelected>>", self.na_wybor_orientacji)
 
@@ -642,9 +645,23 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_orientacji.set(self.combo_orientacji["values"][indeks])
 
 
-class KontrolaFloty(ttk.Frame):
+class ComboAtaku(ttk.Combobox):
     """
-    Graficzna reprezentacja sekcji kontroli floty znajdującej się w środku po prawej stronie głównego interfejsu gry.
+    Combobox z możliwością zmiany fontu w liście rozwijanej. Wzięte stąd: https://stackoverflow.com/questions/43086378/how-to-modify-ttk-combobox-fonts/ .Standardowy combobox nie daje takiej możliwości.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bind("<Map>", self._obsluz_czcionke_listy_rozwijanej)
+
+    def _obsluz_czcionke_listy_rozwijanej(self, *args):
+        lista_rozwijana = self.tk.eval("ttk::combobox::PopdownWindow {}".format(self))
+        self.tk.call("{}.f.l".format(lista_rozwijana), 'configure', '-font', self['font'])
+
+
+class KontrolaZatopionych(ttk.Frame):
+    """
+    Sekcja kontroli zatopionej floty (gracza i przeciwnika) znajdująca się w środku po prawej stronie głównego interfejsu gry.
     """
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
@@ -660,7 +677,7 @@ class KontrolaFloty(ttk.Frame):
 
 class KontrolaGry(ttk.Frame):
     """
-    Graficzna reprezentacja sekcji kontroli gry znajdującej się w prawym dolnym rogu głównego interfejsu gry.
+    Sekcja kontroli gry znajdująca się w prawym dolnym rogu głównego interfejsu gry.
     """
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
@@ -677,7 +694,7 @@ class KontrolaGry(ttk.Frame):
 
 class PasekStanu(ttk.Frame):
     """
-    Graficzna reprezentacja paska stanu wyświetlającego komunikaty o grze na dole głównego interfejsu gry.
+    Pasek stanu wyświetlający komunikaty o grze na dole głównego interfejsu gry.
     """
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
@@ -690,7 +707,7 @@ class PasekStanu(ttk.Frame):
 
 
 class GraGUI(ttk.Frame):
-    """Graficzna reprezentacja głównego interfejsu gry"""
+    """Główny interfejs gry"""
 
     def __init__(self, rodzic, kolumny, rzedy):
         super().__init__(rodzic)
@@ -707,7 +724,7 @@ class GraGUI(ttk.Frame):
         # kontrolna sekcja po prawej stronie
         kontrola_ataku = KontrolaAtaku(self, plansza_gracza, plansza_przeciwnika)
         kontrola_ataku.grid(column=3, row=0)
-        kontrola_floty = KontrolaFloty(self, plansza_gracza, plansza_przeciwnika)
+        kontrola_floty = KontrolaZatopionych(self, plansza_gracza, plansza_przeciwnika)
         kontrola_floty.grid(column=3, row=1)
         kontrola_gry = KontrolaGry(self, plansza_gracza, plansza_przeciwnika)
         kontrola_gry.grid(column=3, row=2)
@@ -718,15 +735,9 @@ class GraGUI(ttk.Frame):
 
 
 def main():
-    """Uruchamia skrypt."""
+    """Uruchamia grę."""
     root = tk.Tk()
     root.title("Statki")
-    # zmiana rozmiaru fontu we wszystkich comboboksach aplikacji
-    # brzydki hack stąd: https://stackoverflow.com/questions/43086378/how-to-modify-ttk-combobox-fonts
-    # na poziomie pojedynczego widżeta się tego zrobić nie da
-    # co ciekawe nawet delegowanie tego kodu do osobnej funkcji powoduje, że hack przestaje działać
-    fnt = tkfont.Font(family="TkDefaultFont", size=8)
-    root.option_add("*TCombobox*Listbox.font", fnt)
 
     GraGUI(root, 26, 30)
 

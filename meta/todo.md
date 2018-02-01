@@ -5,7 +5,7 @@
 2. [ZROBIONE] <<del>W głównej ramce powinny znajdować się dwa obiekty PlanszaGUI - 1 dla własnych statków, drugi dla statków przeciwnika (jak w klasycznej grze).</del>
 
 3. Na prawo od obu plansz powinna znajdować się ramka z widgetami kontrolującymi przebieg gry i zwracającymi informację o nim. Składająca się z 3 sekcji:
-    * A.ramki ataku (układ minimum: 3 comboboksy: 1) wyboru statku, 2) wyboru salwy i 3) wyboru orientacji).
+    * A.[ZROBIONE] <del>ramki ataku (układ minimum: 3 comboboksy: 1) wyboru statku, 2) wyboru salwy i 3) wyboru orientacji).</del>
     * B.ramki floty (listy statków) - swojej i przeciwnika. Prawdopodobnie najlepszą implementacją będzie Treeview zamknięte w Notebooku.
     * C.ramki ogólnej informacji o grze (która tura/runda, kto wygrywa (np. procent nietrafionych pól każdego gracza) oraz przycisk Koniec Rundy - najprostsza implementacja, wystarczy kilka etykiet i jeden przycisk.
 
