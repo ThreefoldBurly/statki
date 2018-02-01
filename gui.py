@@ -189,8 +189,8 @@ class PlanszaGracza(PlanszaGUI):
         self.ustaw_style_gracza()
         self.rejestruj_callback()
         self.odkryj_wszystkie_pola()
+
         # testy
-        # self.oznacz_pudlo(self.podaj_pole_gui(5, 5))
         statek = self.gracz.plansza.statki[2]
         self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
         # statek = self.gracz.plansza.statki[3]
@@ -226,9 +226,10 @@ class PlanszaGracza(PlanszaGUI):
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
                 pole_gui.configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))  # lambda konieczna, bo nie da się tego obsłużyć tak jak niżej z bind() - w przypadku przypisywania callbacków opcją 'command' nie ma przekazywania obiektu zdarzenia, z którego można by pobrać współrzędne pola
 
+    # CALLBACK wszystkich pól
     def na_klikniecie(self, kolumna, rzad):
         """
-        Callback każdego pola uruchamiany po naciśnięciu. Wybiera kliknięty statek, kasując wybór poprzedniego. Zatopione statki nie są wybierane. Ten sam mechanizm jest uruchamiany po wyborze statku w sekcji Kontroli Ataku.
+        Wybiera kliknięty statek, kasując wybór poprzedniego. Zatopione statki nie są wybierane. Ten sam mechanizm jest uruchamiany po wyborze statku w sekcji Kontroli Ataku.
         """
         statek = self.gracz.plansza.podaj_statek(self.podaj_pole_gui(kolumna, rzad).pole)
         self.zmien_statek(statek)
@@ -252,7 +253,7 @@ class PlanszaGracza(PlanszaGUI):
 
         self.gracz.tura.runda.statek = statek
         self.kontrola_ataku.combo_statku.set(statek)
-        self.kontrola_ataku.ustaw_salwy(statek)
+        self.kontrola_ataku.zmien_salwy(statek)
 
     def kasuj_wybor_statku(self, statek):
         """Kasuje wybór statku na planszy"""
@@ -284,10 +285,10 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
     def __init__(self, rodzic, plansza, tytul="Przeciwnik"):
         super().__init__(rodzic, plansza, tytul)
-        self.orientacja_ataku = None  # zmieniane przez event (pierwszy wybór statku)
-
+        self.combo_orientacji = None  # widżet przekazywany przez Kontrolę Ataku pod koniec jej inicjalizacji
         self.ustaw_style_przeciwnika()
         self.rejestruj_callbacki()
+        self.zmien_podswietlanie_nieodkrytych()
 
     def ustaw_style_przeciwnika(self):
         """Definiuje style dla pól."""
@@ -312,49 +313,127 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 pole_gui.configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))
                 pole_gui.bind("<Enter>", self.na_wejscie)
                 pole_gui.bind("<Leave>", self.na_wyjscie)
-                # obracanie orientacją
+                # obracanie podświetlaniem
                 pole_gui.bind("<ButtonRelease-3>", self.na_wejscie)
                 pole_gui.bind("<ButtonPress-3>", self.na_wyjscie)
 
+    # CALLBACK wszystkich pól
     def na_klikniecie(self, kolumna, rzad):
         """
-        Callback każdego pola uruchamiany po naciśnięciu. W zależności od 9-stanowej flagi 'orientacja_ataku' odkrywa na planszy odpowiednie pola (lub pole).
+        W zależności od wybranej orientacji w Kontroli Ataku odkrywa na planszy odpowiednie pola (lub pole).
         """
         self.odkryj_pole(kolumna, rzad)
-        if self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[1]:
+        if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
             self.odkryj_pole(kolumna + 1, rzad)
 
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[2]:
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
             self.odkryj_pole(kolumna, rzad + 1)
 
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[3]:
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
             self.odkryj_pole(kolumna - 1, rzad)
             self.odkryj_pole(kolumna + 1, rzad)
 
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[4]:
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
             self.odkryj_pole(kolumna, rzad - 1)
             self.odkryj_pole(kolumna, rzad + 1)
 
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[5]:
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
             self.odkryj_pole(kolumna, rzad - 1)
             self.odkryj_pole(kolumna + 1, rzad)
 
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[6]:
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
             self.odkryj_pole(kolumna, rzad + 1)
             self.odkryj_pole(kolumna + 1, rzad)
 
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[7]:
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
             self.odkryj_pole(kolumna - 1, rzad)
             self.odkryj_pole(kolumna, rzad + 1)
 
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[8]:
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
             self.odkryj_pole(kolumna - 1, rzad)
             self.odkryj_pole(kolumna, rzad - 1)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
+    # CALLBACK wszustkich pól
+    def na_wejscie(self, event):
+        """
+        W zależności od wybranej orientacji w Kontroli Ataku podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji.
+        """
+        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+
+    # CALLBACK wszystkich pól
+    def na_wyjscie(self, event):
+        """
+        W zależności od wybranej orientacji w Kontroli Ataku kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniejszym uruchomieniem callbacka `na_wejscie()`.
+        """
+        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+
+    def zmien_stan_pola(self, kolumna, rzad, stan):
+        """Zmienia stan pola wg podanych współrzędnych."""
+        if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
+            self.podaj_pole_gui(kolumna, rzad).state([stan])
+
     def odkryj_pole(self, kolumna, rzad):
-        """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Zatapia trafiony statek (i odkrywa pola jego obwiedni), jeśli trzeba."""
+        """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Jeśli trzeba, zatapia trafiony statek (i odkrywa pola jego obwiedni)."""
         if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
             pole_gui = self.podaj_pole_gui(kolumna, rzad)
             if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
@@ -370,87 +449,12 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     def odkryj_obwiednie(self, statek):
         """Odkrywa na planszy obwiednie zatopionego statku."""
         for pole in statek.obwiednia:
-            # configure("style") zwraca krotkę, której ostatnim elementem jest nazwa stylu
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
+            # configure("style") zwraca krotkę, której ostatnim elementem jest nazwa stylu
             if pole_gui.configure("style")[-1] not in (PoleGUI.STYLE["woda"], PoleGUI.STYLE["pudło"]):
                 pole_gui.configure(style=PoleGUI.STYLE["woda"])
         # test
         print(statek.o_zatopieniu())
-
-    def na_wejscie(self, event):
-        """
-        Callback każdego pola uruchamiany po wejściu kursora w obręb pola. W zależności od 9-stanowej flagi 'orientacja_ataku' podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji.
-        """
-        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
-        if self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[1]:
-            self.zmien_stan_pola(kolumna + 1, rzad, "active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[2]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[3]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[4]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[5]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[6]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[7]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[8]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active")
-            self.zmien_stan_pola(kolumna, rzad - 1, "active")
-
-    def na_wyjscie(self, event):
-        """
-        Callback każdego pola uruchamiany po wyjściu kursora z obrębu pola. W zależności od 9-stanowej flagi 'orientacja_ataku' kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniej odpaleniem callbacka na_wejscie().
-        """
-        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
-        if self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[1]:
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[2]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[3]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[4]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[5]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[6]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[7]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
-
-        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[8]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
-
-    def zmien_stan_pola(self, kolumna, rzad, stan):
-        """Zmienia stan pola wg podanych współrzędnych."""
-        if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
-            self.podaj_pole_gui(kolumna, rzad).state([stan])
 
 
 class KontrolaAtaku(ttk.Frame):
@@ -464,17 +468,13 @@ class KontrolaAtaku(ttk.Frame):
         super().__init__(rodzic, padding=(0, 0, 10, 0))
         self.plansza_g = plansza_gracza
         self.plansza_p = plansza_przeciwnika
-
         self.ustaw_style()
         self.ustaw_sie()
         self.buduj_etykiety()
         self.buduj_comboboksy()
-
-        self.plansza_g.kontrola_ataku = self  # przekazanie do planszy dla jej event handlerów
-        # start z automatycznie wybranym największym statkiem - wywołanie tutaj, bo musi być gotowa zarówno plansza jak i kontrola ataku a KA inicjalizuje się po planszy
-        self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
-        # zarejestrowanie callbacka obrótu orientacji w głównym oknie gry
-        self.winfo_toplevel().bind("<Button-3>", self.na_prawy_przycisk_myszy)
+        self.przekaz_odnosniki()
+        self.ustaw_statek_startowy()
+        self.rejestruj_callback_obrotu_orientacji()
 
     def ustaw_style(self):
         """Ustawia style dla widżetów"""
@@ -581,31 +581,46 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_orientacji.state(["readonly"])
         self.combo_orientacji.bind("<<ComboboxSelected>>", self.na_wybor_orientacji)
 
+    def przekaz_odnosniki(self):
+        """Przekazuje własne odnośniki do event handlerów w planszach"""
+        self.plansza_g.kontrola_ataku = self
+        self.plansza_p.combo_orientacji = self.combo_orientacji
+
+    def ustaw_statek_startowy(self):
+        """Ustawia największy statek jako wybrany na starcie gry"""
+        self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
+
+    def rejestruj_callback_obrotu_orientacji(self):
+        """Rejestruje w głównym oknie gry callback obrotu orientacji"""
+        self.winfo_toplevel().bind("<Button-3>", self.na_prawy_przycisk_myszy)
+
+    # CALLBACK combo_statku
     def na_wybor_statku(self, event=None):
-        """Callback comboboksa wyboru statku uruchamiany po zmianie selekcji."""
+        """Zmienia statek na planszy i aktualizuje combo_salwy."""
         event.widget.selection_clear()  # czyści tło pola tekstowego comboboksa
         indeks = event.widget.current()
         wybrany_statek = self.plansza_g.gracz.tura.statki[indeks]
         self.plansza_g.zmien_statek(wybrany_statek)  # plansza aktualizuje obiekt rundy
-        self.ustaw_salwy(wybrany_statek)
+        self.zmien_salwy(wybrany_statek)
 
+    # CALLBACK combo_salwy
     def na_wybor_salwy(self, event=None):
-        """Callback comboboksa wyboru salwy uruchamiany po zmianie selekcji."""
+        """Aktualizuje combo_orientacji."""
         event.widget.selection_clear()
-        self.ustaw_orientacje(event.widget.get())
+        self.zmien_orientacje(event.widget.get())
 
+    # CALLBACK combo_orientacji
     def na_wybor_orientacji(self, event=None):
-        """Callback comboboksa wyboru salwy uruchamiany po zmianie selekcji."""
+        """Czyści pole tekstowe combo_orientacji"""
         event.widget.selection_clear()
-        self.plansza_p.orientacja_ataku = event.widget.get()
 
-    def ustaw_salwy(self, statek):
+    def zmien_salwy(self, statek):
         """Ustawia salwy wybranego statku."""
         self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in statek.salwy]
         self.combo_salwy.set(self.combo_salwy["values"][0])
-        self.ustaw_orientacje(self.combo_salwy["values"][0])
+        self.zmien_orientacje(self.combo_salwy["values"][0])
 
-    def ustaw_orientacje(self, salwa_tekst):
+    def zmien_orientacje(self, salwa_tekst):
         """Ustawia orientacje wybranej salwy."""
         salwa = int(salwa_tekst[0])
         if salwa == 1:
@@ -615,21 +630,15 @@ class KontrolaAtaku(ttk.Frame):
         elif salwa == 3:
             self.combo_orientacji["values"] = self.ORIENTACJE[3:]
         self.combo_orientacji.set(self.combo_orientacji["values"][0])
-        # plansza przeciwnika
-        if not self.plansza_p.orientacja_ataku:
-            self.plansza_p.zmien_podswietlanie_nieodkrytych()
-        self.plansza_p.orientacja_ataku = self.combo_orientacji["values"][0]
 
+    # CALLBACK okna głównego
     def na_prawy_przycisk_myszy(self, event=None):
-        """
-        Callback planszy uruchamiany po naciśnięciu prawego przycisku myszy. Rotuje wybraną orientację salw.
-        """
-        indeks = self.combo_orientacji["values"].index(self.plansza_p.orientacja_ataku)
+        """Rotuje wybraną orientacją salw."""
+        indeks = self.combo_orientacji.current()
         if indeks == len(self.combo_orientacji["values"]) - 1:
             indeks = 0
         else:
             indeks += 1
-        self.plansza_p.orientacja_ataku = self.combo_orientacji["values"][indeks]
         self.combo_orientacji.set(self.combo_orientacji["values"][indeks])
 
 

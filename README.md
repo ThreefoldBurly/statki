@@ -8,13 +8,13 @@ Podstawowe różnice względem klasycznej wersji:
 
 2. Statki mają rangi zależne od rozmiaru:
 
-* *1 pole*:     kuter (`T`)
-* *2-3 pola*:   patrolowiec (`L`)
-* *4-6 pól*:    korweta (`W`)
-* *7-9 pól*:    fregata (`F`)
-* *10-12 pól*:  niszczyciel (`N`)
-* *13-16 pól*:  krążownik (`K`)
-* *17-20 pól*:  pancernik (`P`)
+* 1 pole:     *kuter* (`T`)
+* 2-3 pola:   *patrolowiec* (`L`)
+* 4-6 pól:    *korweta* (`W`)
+* 7-9 pól:    *fregata* (`F`)
+* 10-12 pól:  *niszczyciel* (`N`)
+* 13-16 pól:  *krążownik* (`K`)
+* 17-20 pól:  *pancernik* (`P`)
 
     które decydują o sile rażenia w trakcie rundy gracza. Uwaga: ta siła rażenia *zmienia się* w trakcie rozgrywki! (w wyniku wrogich trafień).
 
