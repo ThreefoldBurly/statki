@@ -288,8 +288,6 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
         self.ustaw_style_przeciwnika()
         self.rejestruj_callbacki()
-        # test
-        # self.orientacja_ataku = KontrolaAtaku.ORIENTACJE[0]
 
     def ustaw_style_przeciwnika(self):
         """Definiuje style dla pól."""
@@ -314,42 +312,44 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 pole_gui.configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))
                 pole_gui.bind("<Enter>", self.na_wejscie)
                 pole_gui.bind("<Leave>", self.na_wyjscie)
+                # obracanie orientacją
+                pole_gui.bind("<ButtonRelease-3>", self.na_wejscie)
+                pole_gui.bind("<ButtonPress-3>", self.na_wyjscie)
 
     def na_klikniecie(self, kolumna, rzad):
         """
         Callback każdego pola uruchamiany po naciśnięciu. W zależności od 9-stanowej flagi 'orientacja_ataku' odkrywa na planszy odpowiednie pola (lub pole).
         """
-        if self.orientacja_ataku:
-            self.odkryj_pole(kolumna, rzad)
-            if self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[1]:
-                self.odkryj_pole(kolumna + 1, rzad)
+        self.odkryj_pole(kolumna, rzad)
+        if self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[1]:
+            self.odkryj_pole(kolumna + 1, rzad)
 
-            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[2]:
-                self.odkryj_pole(kolumna, rzad + 1)
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[2]:
+            self.odkryj_pole(kolumna, rzad + 1)
 
-            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[3]:
-                self.odkryj_pole(kolumna - 1, rzad)
-                self.odkryj_pole(kolumna + 1, rzad)
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[3]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna + 1, rzad)
 
-            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[4]:
-                self.odkryj_pole(kolumna, rzad - 1)
-                self.odkryj_pole(kolumna, rzad + 1)
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[4]:
+            self.odkryj_pole(kolumna, rzad - 1)
+            self.odkryj_pole(kolumna, rzad + 1)
 
-            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[5]:
-                self.odkryj_pole(kolumna, rzad - 1)
-                self.odkryj_pole(kolumna + 1, rzad)
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[5]:
+            self.odkryj_pole(kolumna, rzad - 1)
+            self.odkryj_pole(kolumna + 1, rzad)
 
-            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[6]:
-                self.odkryj_pole(kolumna, rzad + 1)
-                self.odkryj_pole(kolumna + 1, rzad)
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[6]:
+            self.odkryj_pole(kolumna, rzad + 1)
+            self.odkryj_pole(kolumna + 1, rzad)
 
-            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[7]:
-                self.odkryj_pole(kolumna - 1, rzad)
-                self.odkryj_pole(kolumna, rzad + 1)
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[7]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna, rzad + 1)
 
-            elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[8]:
-                self.odkryj_pole(kolumna - 1, rzad)
-                self.odkryj_pole(kolumna, rzad - 1)
+        elif self.orientacja_ataku == KontrolaAtaku.ORIENTACJE[8]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna, rzad - 1)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
@@ -473,6 +473,8 @@ class KontrolaAtaku(ttk.Frame):
         self.plansza_g.kontrola_ataku = self  # przekazanie do planszy dla jej event handlerów
         # start z automatycznie wybranym największym statkiem - wywołanie tutaj, bo musi być gotowa zarówno plansza jak i kontrola ataku a KA inicjalizuje się po planszy
         self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
+        # zarejestrowanie callbacka obrótu orientacji w głównym oknie gry
+        self.winfo_toplevel().bind("<Button-3>", self.na_prawy_przycisk_myszy)
 
     def ustaw_style(self):
         """Ustawia style dla widżetów"""
@@ -617,6 +619,18 @@ class KontrolaAtaku(ttk.Frame):
         if not self.plansza_p.orientacja_ataku:
             self.plansza_p.zmien_podswietlanie_nieodkrytych()
         self.plansza_p.orientacja_ataku = self.combo_orientacji["values"][0]
+
+    def na_prawy_przycisk_myszy(self, event=None):
+        """
+        Callback planszy uruchamiany po naciśnięciu prawego przycisku myszy. Rotuje wybraną orientację salw.
+        """
+        indeks = self.combo_orientacji["values"].index(self.plansza_p.orientacja_ataku)
+        if indeks == len(self.combo_orientacji["values"]) - 1:
+            indeks = 0
+        else:
+            indeks += 1
+        self.plansza_p.orientacja_ataku = self.combo_orientacji["values"][indeks]
+        self.combo_orientacji.set(self.combo_orientacji["values"][indeks])
 
 
 class KontrolaFloty(ttk.Frame):
