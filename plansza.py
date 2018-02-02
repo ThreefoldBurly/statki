@@ -357,6 +357,20 @@ class Plansza:
 
         print("\nWszystkich umieszczonych statków: {}. Ich sumaryczny rozmiar: [{}]".format(len(self.statki), sum_rozmiar))
 
+    def podaj_ilosc_niezatopionych_wg_rang(self):
+        """
+        Podaje zestawienie ilości niezatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
+        """
+        lista_rang = [statek.ranga for statek in self.niezatopione]
+        return dict([(ranga, lista_rang.count(ranga)) for ranga in Statek.RANGI])
+
+    def podaj_ilosc_zatopionych_wg_rang(self):
+        """
+        Podaje zestawienie ilości zatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
+        """
+        lista_rang = [statek.ranga for statek in self.zatopione]
+        return dict([(ranga, lista_rang.count(ranga)) for ranga in Statek.RANGI])
+
 
 class Pole:
     """
@@ -377,8 +391,8 @@ class Pole:
         self.znacznik = znacznik or self.ZNACZNIKI["puste"]  # zmienna stanu pola
 
     def __str__(self):
-        """Zwraca informację o polu w formacie: litera kolumny+cyfra rzędu np. (B9)"""
-        return "({}{})".format(Plansza.ALFABET[self.kolumna], self.rzad)
+        """Zwraca informację o polu w formacie: litera kolumny+cyfra rzędu np. B9"""
+        return "{}{}".format(Plansza.ALFABET[self.kolumna], self.rzad)
 
     # przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes) --> wrzucone dla ewentualnego porównywania pól, ale jak na razie wygląda na to, że niepotrzebne
     def __eq__(self, other):
@@ -484,13 +498,11 @@ class Statek:
         - [10/17] to pola nietrafione/wszystkie pola
         - ** - tyle gwiazdek ile dodatkowych salw za zatopienie przeciwnika
         """
-        nietrafione = self.rozmiar - self.ile_otrzymanych_trafien()
-        info = '{} "{}" {} [{}/{}] '.format(
+        info = '{} "{}" ({}) [{}] '.format(
             self.ranga,
             self.nazwa,
             str(self.polozenie),
-            str(nietrafione),
-            str(self.rozmiar)
+            self.podaj_nietrafione_na_rozmiar()
         )
         for gwiazdka in [self.ORDER for ofiara in self.ofiary]:
             info += gwiazdka
@@ -562,6 +574,11 @@ class Statek:
     def resetuj_salwy(self):
         """Resetuje listę salw, do wartości wynikającej z aktualnej rangi."""
         self.salwy = self.SALWY[self.ranga][:]
+
+    def podaj_nietrafione_na_rozmiar(self):
+        """Podaje informację o stosunku nietrafionych do wszystkich pól jako string w formacie: 16/20."""
+        nietrafione = self.rozmiar - self.ile_otrzymanych_trafien()
+        return str(nietrafione) + "/" + str(self.rozmiar)
 
 
 class Kuter(Statek):

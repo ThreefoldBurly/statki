@@ -7,7 +7,7 @@ Graficzny interfejs użytkownika
 import tkinter as tk
 from tkinter import ttk
 
-from plansza import Plansza, Pole
+from plansza import Plansza, Pole, Statek
 from mechanika import Gracz
 
 
@@ -62,7 +62,7 @@ class PlanszaGUI(ttk.Frame):
 
     def ustaw_sie(self):
         """Ustawia interfejs pod widżety."""
-        self.grid(rowspan=3)
+        self.grid(rowspan=10)
         self.etyramka = ttk.LabelFrame(self, text=self.tytul, padding=10)
         self.etyramka.grid()
 
@@ -462,10 +462,9 @@ class KontrolaAtaku(ttk.Frame):
     # TODO: rozważyć zaimplementowania 4 orientacji dla salwy 2-polowej (tak by można nią było obracać we wszystkich kierunkach dookoła centralnego pola, tak jak to jest w przypadku salyw 3-polowej)
 
     ORIENTACJE = ["•", "••", "╏", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
-    CZCIONKA = ("TkDefaultFont", 8)
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
-        super().__init__(rodzic, padding=(0, 0, 10, 0))
+        super().__init__(rodzic, padding=(0, 10, 10, 0))
         self.plansza_g = plansza_gracza
         self.plansza_p = plansza_przeciwnika
         self.ustaw_style()
@@ -482,7 +481,7 @@ class KontrolaAtaku(ttk.Frame):
         # etykiety
         self.styl.configure(
             "KA.TLabel",
-            font=self.CZCIONKA
+            font=GraGUI.CZCIONKA
         )
         # comboboksy
         self.styl.configure("KA.TCombobox")
@@ -493,8 +492,7 @@ class KontrolaAtaku(ttk.Frame):
 
     def ustaw_sie(self):
         """Ustawia interfejs pod widżety."""
-        self.grid()
-        self.etyramka = ttk.Labelframe(self, text="Atak", padding=5)
+        self.etyramka = ttk.Labelframe(self, text="Atak", padding=(5, 15, 5, 5))
         self.etyramka.grid()
 
     def buduj_etykiety(self):
@@ -536,9 +534,9 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_statku = ComboAtaku(
             self.etyramka,
             styl="KA.TCombobox",
-            font=self.CZCIONKA,
+            font=GraGUI.CZCIONKA,
             values=self.plansza_g.gracz.tura.statki,
-            width=30
+            width=37
         )
         self.combo_statku.grid(
             row=1,
@@ -546,7 +544,7 @@ class KontrolaAtaku(ttk.Frame):
             columnspan=2,
             sticky=tk.W
         )
-        self.combo_statku.configure(font=self.CZCIONKA)  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
+        self.combo_statku.configure(font=GraGUI.CZCIONKA)  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
         self.combo_statku.state(["readonly"])
         self.combo_statku.bind("<<ComboboxSelected>>", self.na_wybor_statku)
 
@@ -554,7 +552,7 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_salwy = ComboAtaku(
             self.etyramka,
             styl="KA.TCombobox",
-            font=self.CZCIONKA,
+            font=GraGUI.CZCIONKA,
             width=6
         )
         self.combo_salwy.grid(
@@ -563,7 +561,7 @@ class KontrolaAtaku(ttk.Frame):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_salwy.configure(font=self.CZCIONKA)
+        self.combo_salwy.configure(font=GraGUI.CZCIONKA)
         self.combo_salwy.state(["readonly"])
         self.combo_salwy.bind("<<ComboboxSelected>>", self.na_wybor_salwy)
 
@@ -571,7 +569,7 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_orientacji = ComboAtaku(
             self.etyramka,
             styl="KA.TCombobox",
-            font=self.CZCIONKA,
+            font=GraGUI.CZCIONKA,
             width=4
         )
         self.combo_orientacji.grid(
@@ -580,7 +578,7 @@ class KontrolaAtaku(ttk.Frame):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_orientacji.configure(font=self.CZCIONKA)
+        self.combo_orientacji.configure(font=GraGUI.CZCIONKA)
         self.combo_orientacji.state(["readonly"])
         self.combo_orientacji.bind("<<ComboboxSelected>>", self.na_wybor_orientacji)
 
@@ -659,20 +657,86 @@ class ComboAtaku(ttk.Combobox):
         self.tk.call("{}.f.l".format(lista_rozwijana), 'configure', '-font', self['font'])
 
 
-class KontrolaZatopionych(ttk.Frame):
+class KontrolaFloty(ttk.Frame):
     """
-    Sekcja kontroli zatopionej floty (gracza i przeciwnika) znajdująca się w środku po prawej stronie głównego interfejsu gry.
+    Sekcja kontroli floty (całej gracza i zatopionej przeciwnika) znajdująca się w środku po prawej stronie głównego interfejsu gry.
     """
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=(0, 0, 10, 0))
         self.plansza_g = plansza_gracza
         self.plansza_p = plansza_przeciwnika
-        # GUI
-        self.grid()
-        etyramka = ttk.Labelframe(self, text="Flota", padding=5)
-        etyramka.grid()
-        pass  # TODO
+        self.ustaw_style()
+        self.ustaw_sie()
+        self.buduj_drzewo()
+
+    def ustaw_style(self):
+        """Ustawia style dla drzewa"""
+        self.styl = ttk.Style()
+        self.styl.configure(
+            "KF.Treeview",
+            font=GraGUI.CZCIONKA,
+            rowheight=15
+        )
+        self.styl.configure(
+            "KF.Treeview.Heading",
+            font=GraGUI.CZCIONKA
+        )
+
+    def ustaw_sie(self):
+        """Ustawia interfejs pod widżety."""
+        self.etyramka = ttk.Labelframe(self, text="Flota", padding=(5, 0, 5, 5))
+        self.etyramka.grid()
+
+    def buduj_drzewo(self):
+        """Buduje widok drzewa floty."""
+        self.drzewo = ttk.Treeview(
+            self.etyramka,
+            style="KF.Treeview",
+            height=20,
+            columns=("statek", "gdzie", "rozmiar", "ofiary"),
+            displaycolumns="#all",
+            selectmode="browse"
+        )
+        self.drzewo.grid(column=0, row=0, sticky="news")
+        self.ustaw_kolumny()
+        self.wypelnij_statkami()
+
+    def ustaw_kolumny(self):
+        """Konfiguruje kolumny drzewa."""
+        self.drzewo.column("#0", stretch=False, width=80)
+        self.drzewo.heading("statek", text="Statek")
+        self.drzewo.column("statek", stretch=True, width=120)
+        self.drzewo.heading("gdzie", text="Poz")
+        self.drzewo.column("gdzie", stretch=False, width=35)
+        self.drzewo.heading("rozmiar", text="NT/R")
+        self.drzewo.column("rozmiar", stretch=False, width=40, anchor=tk.E)
+        self.drzewo.heading("ofiary", text=Statek.ORDER)
+        self.drzewo.column("ofiary", stretch=False, width=12)
+
+    def wypelnij_statkami(self):
+        """Wypełnia drzewo statkami."""
+        # TODO: poprawić logikę - coś nie tak z pobieraniem danych z planszy
+        self.drzewo.insert("", "0", "niezatopione", text="niezatopione", open=True)
+        self.drzewo.insert("", "1", "zatopione", text="zatopione", open=True)
+        # rangi
+        ilosc_wg_rang = self.plansza_g.gracz.plansza.podaj_ilosc_niezatopionych_wg_rang()
+        for ranga in Statek.RANGI[::-1]:
+            ranga_i_ilosc = ranga + " (" + str(ilosc_wg_rang[ranga]) + ")"
+            self.drzewo.insert("niezatopione", "end", ranga, text=ranga_i_ilosc, open=True)
+        # statki
+        for statek in self.plansza_p.gracz.plansza.niezatopione:
+            self.drzewo.insert(
+                statek.RANGA, "end",
+                statek.nazwa,
+                values=(
+                    '"' + statek.nazwa + '"',
+                    str(statek.polozenie),
+                    statek.podaj_nietrafione_na_rozmiar(),
+                    "".join([statek.ORDER for ofiara in statek.ofiary])
+                ),
+                tags="niezatopione"
+            )
 
 
 class KontrolaGry(ttk.Frame):
@@ -709,6 +773,8 @@ class PasekStanu(ttk.Frame):
 class GraGUI(ttk.Frame):
     """Główny interfejs gry"""
 
+    CZCIONKA = ("TkDefaultFont", 8)
+
     def __init__(self, rodzic, kolumny, rzedy):
         super().__init__(rodzic)
         self.grid()
@@ -723,11 +789,11 @@ class GraGUI(ttk.Frame):
 
         # kontrolna sekcja po prawej stronie
         kontrola_ataku = KontrolaAtaku(self, plansza_gracza, plansza_przeciwnika)
-        kontrola_ataku.grid(column=3, row=0)
-        kontrola_floty = KontrolaZatopionych(self, plansza_gracza, plansza_przeciwnika)
-        kontrola_floty.grid(column=3, row=1)
+        kontrola_ataku.grid(column=2, row=0, rowspan=1, sticky=tk.N)
+        kontrola_floty = KontrolaFloty(self, plansza_gracza, plansza_przeciwnika)
+        kontrola_floty.grid(column=2, row=1, rowspan=5, sticky="news")
         kontrola_gry = KontrolaGry(self, plansza_gracza, plansza_przeciwnika)
-        kontrola_gry.grid(column=3, row=2)
+        kontrola_gry.grid(column=2, row=2)
 
         # sekcja komunikatów na dole okna
         pasek_stanu = PasekStanu(self, plansza_gracza, plansza_przeciwnika)

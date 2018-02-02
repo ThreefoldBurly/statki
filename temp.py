@@ -1,26 +1,47 @@
 #!/usr/bin/env python3
 
+"""
+Graficzny interfejs użytkownika
+"""
+
 import tkinter as tk
 from tkinter import ttk
 
-
-class CustomBox(ttk.Combobox):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.bind('<Map>', self._handle_popdown_font)
-
-    def _handle_popdown_font(self, *args):
-        popdown = self.tk.eval('ttk::combobox::PopdownWindow %s' % combo_box)
-        self.tk.call('%s.f.l' % popdown, 'configure', '-font', self['font'])
+from plansza import Plansza, Pole
+from mechanika import Gracz
 
 
-root = tk.Tk()
-text_font = ('Courier New', '10')
-main_frame = tk.Frame(root, bg='gray')
-main_frame.grid()  # main frame
-combo_box = CustomBox(main_frame, font=text_font)  # apply font to combobox
-combo_box.grid(row=0, column=0)
-combo_box["values"] = ["Dupa Romana", "Jest jak śmietana", "Oj dana dana"]
-entry_box = ttk.Entry(main_frame, font=text_font)  # apply font to entry
-entry_box.grid(row=0, column=1)  # apply font to combobox
-root.mainloop()
+def main():
+    """Uruchamia grę."""
+    root = tk.Tk()
+    root.title("Statki")
+
+    gra_gui = ttk.Frame(root)
+    gra_gui.grid()
+    kf = ttk.Frame(gra_gui, padding=(0, 0, 10, 0))
+    kf.grid()
+    etyramka = ttk.Labelframe(kf, text="Flota", padding=5)
+    etyramka.grid()
+    # ttk.Label(
+    #     etyramka,
+    #     text="Wybierz statek:"
+    # ).grid(
+    # row=0,
+    # column=0,
+    # sticky=tk.W
+    # )
+
+    drzewo = ttk.Treeview(etyramka)
+    drzewo.grid(
+        row=0,
+        column=0,
+        sticky=tk.W
+    )
+    drzewo.insert("", "0", "item1", text="First Item")
+
+    root.resizable(False, False)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
