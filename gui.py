@@ -172,7 +172,7 @@ class PlanszaGUI(ttk.Frame):
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             pole_gui.configure(style=PoleGUI.STYLE["zatopione"])
             if symbole:
-                pole_gui.configure(text=statek.SYMBOL)
+                pole_gui.configure(text=statek.SYMBOLE[statek.RANGA])
 
         self.gracz.plansza.zatopione.append(statek)
         self.gracz.plansza.niezatopione.remove(statek)
@@ -185,7 +185,7 @@ class PlanszaGracza(PlanszaGUI):
         super().__init__(rodzic, plansza, tytul)
         self.kontrola_ataku = None  # Kontrola Ataku przekazuje tutaj odnośnik do siebie na koniec swojej inicjalizacji
         self.ustaw_style_gracza()
-        self.rejestruj_callback()
+        self.powiaz_callback()
         self.odkryj_wszystkie_pola()
 
         # testy
@@ -215,8 +215,8 @@ class PlanszaGracza(PlanszaGUI):
             background=[("active", PoleGUI.KOLORY["wybrane&trafione-active"]), ("disabled", "gray")]
         )
 
-    def rejestruj_callback(self):
-        """Rejestruje callback na_klikniecie() we wszystkich polach."""
+    def powiaz_callback(self):
+        """Wiąże na_klikniecie() we wszystkich polach."""
         for i in range(self.gracz.plansza.kolumny):
             for j in range(self.gracz.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
@@ -275,7 +275,7 @@ class PlanszaGracza(PlanszaGUI):
                 if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
                     pole_gui.configure(style=PoleGUI.STYLE["woda"])
                 else:
-                    pole_gui.configure(text=statek.SYMBOL)
+                    pole_gui.configure(text=statek.SYMBOLE[statek.RANGA])
 
 
 class PlanszaPrzeciwnika(PlanszaGUI):
@@ -285,7 +285,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         super().__init__(rodzic, plansza, tytul)
         self.combo_orientacji = None  # widżet przekazywany przez Kontrolę Ataku pod koniec jej inicjalizacji
         self.ustaw_style_przeciwnika()
-        self.rejestruj_callbacki()
+        self.powiaz_callbacki()
         self.zmien_podswietlanie_nieodkrytych()
 
     def ustaw_style_przeciwnika(self):
@@ -302,8 +302,8 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             for pole_gui in rzad:
                 pole_gui.configure(styl="Nieodkryte.TButton")
 
-    def rejestruj_callbacki(self):
-        """Rejestruje callbacki na_klikniecie(), na_wejscie() i na_wyjscie() we wszystkich polach."""
+    def powiaz_callbacki(self):
+        """Wiąże callbacki we wszystkich polach."""
         for i in range(self.gracz.plansza.kolumny):
             for j in range(self.gracz.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
@@ -471,9 +471,10 @@ class KontrolaAtaku(ttk.Frame):
         self.ustaw_sie()
         self.buduj_etykiety()
         self.buduj_comboboksy()
+        self.ustaw_combo_readonly()
         self.przekaz_odnosniki()
-        self.ustaw_statek_startowy()
-        self.rejestruj_callback_obrotu_orientacji()
+        self.powiaz_callbacki()
+        self.wybierz_statek_startowy()
 
     def ustaw_style(self):
         """Ustawia style dla widżetów"""
@@ -536,7 +537,7 @@ class KontrolaAtaku(ttk.Frame):
             styl="KA.TCombobox",
             font=GraGUI.CZCIONKA,
             values=self.plansza_g.gracz.tura.statki,
-            width=37
+            width=36
         )
         self.combo_statku.grid(
             row=1,
@@ -545,8 +546,6 @@ class KontrolaAtaku(ttk.Frame):
             sticky=tk.W
         )
         self.combo_statku.configure(font=GraGUI.CZCIONKA)  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
-        self.combo_statku.state(["readonly"])
-        self.combo_statku.bind("<<ComboboxSelected>>", self.na_wybor_statku)
 
         # wybór salwy
         self.combo_salwy = ComboAtaku(
@@ -562,8 +561,6 @@ class KontrolaAtaku(ttk.Frame):
             pady=(0, 10)
         )
         self.combo_salwy.configure(font=GraGUI.CZCIONKA)
-        self.combo_salwy.state(["readonly"])
-        self.combo_salwy.bind("<<ComboboxSelected>>", self.na_wybor_salwy)
 
         # wybór orientacji
         self.combo_orientacji = ComboAtaku(
@@ -579,20 +576,27 @@ class KontrolaAtaku(ttk.Frame):
             pady=(0, 10)
         )
         self.combo_orientacji.configure(font=GraGUI.CZCIONKA)
+
+    def ustaw_combo_readonly(self):
+        """Ustawia stan comboboksów jako `readonly`"""
+        self.combo_statku.state(["readonly"])
+        self.combo_salwy.state(["readonly"])
         self.combo_orientacji.state(["readonly"])
-        self.combo_orientacji.bind("<<ComboboxSelected>>", self.na_wybor_orientacji)
 
     def przekaz_odnosniki(self):
         """Przekazuje własne odnośniki do event handlerów w planszach"""
         self.plansza_g.kontrola_ataku = self
         self.plansza_p.combo_orientacji = self.combo_orientacji
 
-    def ustaw_statek_startowy(self):
-        """Ustawia największy statek jako wybrany na starcie gry"""
+    def wybierz_statek_startowy(self):
+        """Wybiera największy statek na start gry"""
         self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
 
-    def rejestruj_callback_obrotu_orientacji(self):
-        """Rejestruje w głównym oknie gry callback obrotu orientacji"""
+    def powiaz_callbacki(self):
+        """Wiąże callbacki"""
+        self.combo_statku.bind("<<ComboboxSelected>>", self.na_wybor_statku)
+        self.combo_salwy.bind("<<ComboboxSelected>>", self.na_wybor_salwy)
+        self.combo_orientacji.bind("<<ComboboxSelected>>", self.na_wybor_orientacji)
         self.winfo_toplevel().bind("<Button-3>", self.na_prawy_przycisk_myszy)
 
     # CALLBACK combo_statku
@@ -662,6 +666,10 @@ class KontrolaFloty(ttk.Frame):
     Sekcja kontroli floty (całej gracza i zatopionej przeciwnika) znajdująca się w środku po prawej stronie głównego interfejsu gry.
     """
 
+    KOLORY = {
+        "podświetlenie-rang": "LemonChiffon2"
+    }
+
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=(0, 0, 10, 0))
         self.plansza_g = plansza_gracza
@@ -669,6 +677,11 @@ class KontrolaFloty(ttk.Frame):
         self.ustaw_style()
         self.ustaw_sie()
         self.buduj_drzewo()
+        self.powiaz_callbacki()
+
+        # test
+        print(self.plansza_g.gracz.plansza.podaj_ilosc_niezatopionych_wg_rang())
+        print(self.plansza_g.gracz.plansza.podaj_ilosc_zatopionych_wg_rang())
 
     def ustaw_style(self):
         """Ustawia style dla drzewa"""
@@ -700,43 +713,79 @@ class KontrolaFloty(ttk.Frame):
         )
         self.drzewo.grid(column=0, row=0, sticky="news")
         self.ustaw_kolumny()
-        self.wypelnij_statkami()
+        self.dodaj_statki(self.plansza_g.gracz.plansza.niezatopione, "niezatopione")
+        self.ustaw_wyglad()
 
     def ustaw_kolumny(self):
         """Konfiguruje kolumny drzewa."""
-        self.drzewo.column("#0", stretch=False, width=80)
         self.drzewo.heading("statek", text="Statek")
-        self.drzewo.column("statek", stretch=True, width=120)
         self.drzewo.heading("gdzie", text="Poz")
-        self.drzewo.column("gdzie", stretch=False, width=35)
         self.drzewo.heading("rozmiar", text="NT/R")
-        self.drzewo.column("rozmiar", stretch=False, width=40, anchor=tk.E)
         self.drzewo.heading("ofiary", text=Statek.ORDER)
+        self.drzewo.column("#0", stretch=False, width=65)
+        self.drzewo.column("statek", stretch=True, width=110)
+        self.drzewo.column("gdzie", stretch=False, width=35)
+        self.drzewo.column("rozmiar", stretch=False, width=40, anchor=tk.E)
         self.drzewo.column("ofiary", stretch=False, width=12)
 
-    def wypelnij_statkami(self):
-        """Wypełnia drzewo statkami."""
-        # TODO: poprawić logikę - coś nie tak z pobieraniem danych z planszy
-        self.drzewo.insert("", "0", "niezatopione", text="niezatopione", open=True)
-        self.drzewo.insert("", "1", "zatopione", text="zatopione", open=True)
+    def dodaj_statki(self, statki, kategoria):
+        """
+        Dodaje podane (niezatopione/zatopione) statki do drzewa. Wartość parametru `kategoria` to albo 'niezatopione' albo 'zatopione'
+        """
+        # kategoria
+        self.drzewo.insert("", "0", kategoria,
+                           text=kategoria + " (" + str(len(statki)) + ")",
+                           open=True,
+                           tags="kategoria"
+                           )
         # rangi
         ilosc_wg_rang = self.plansza_g.gracz.plansza.podaj_ilosc_niezatopionych_wg_rang()
         for ranga in Statek.RANGI[::-1]:
-            ranga_i_ilosc = ranga + " (" + str(ilosc_wg_rang[ranga]) + ")"
-            self.drzewo.insert("niezatopione", "end", ranga, text=ranga_i_ilosc, open=True)
+            if ilosc_wg_rang[ranga] > 0:
+                ranga_i_ilosc = Statek.SYMBOLE[ranga] + " (" + str(ilosc_wg_rang[ranga]) + ")"
+                self.drzewo.insert(kategoria, "end",
+                                   ranga,
+                                   text=ranga_i_ilosc,
+                                   open=True,
+                                   tags="ranga"
+                                   )
         # statki
-        for statek in self.plansza_p.gracz.plansza.niezatopione:
+        for i in range(len(statki)):
+            statek = statki[i]
             self.drzewo.insert(
                 statek.RANGA, "end",
-                statek.nazwa,
+                str(i),  # index listy statków jako ID statku w drzewie - upraszcza późniejszą translację wybranego elementu drzewa z powrotem na statek na planszy. Zamiana na str() wynika z dziwnej obsługi zera (Tkinter zwraca później zamiast zera string 'I001' - prawdopodobnie traktuje podanie zera jako wartości dla ID jako nie podanie niczego i zamiast tego wpisuje wartość defaultową)
                 values=(
                     '"' + statek.nazwa + '"',
                     str(statek.polozenie),
                     statek.podaj_nietrafione_na_rozmiar(),
                     "".join([statek.ORDER for ofiara in statek.ofiary])
                 ),
-                tags="niezatopione"
+                tags=(kategoria, "statek")
             )
+
+    def ustaw_wyglad(self):
+        """Konfiguruje wygląd zawartości drzewa"""
+        self.drzewo.tag_configure("kategoria", font=GraGUI.CZCIONKA_BOLD)
+        self.drzewo.tag_configure("ranga", background=self.KOLORY["podświetlenie-rang"])
+
+    def powiaz_callbacki(self):
+        """Wiąże callbacki"""
+        self.drzewo.bind("<Escape>", self.na_escape)
+        self.drzewo.tag_bind("statek", "<Double-Button-1>", self.na_podwojne_klikniecie)
+
+    # CALLBACK całego drzewa
+    def na_escape(self, event=None):
+        """Kasuje selekcję"""
+        element_id = self.drzewo.focus()
+        if element_id != "":  # jeśli jakiś element był w ogóle wybrany
+            self.drzewo.selection_remove(element_id)
+
+    # CALLBACK elementów z tagiem `statek`
+    def na_podwojne_klikniecie(self, event=None):
+        """Wybiera kliknięty podwójnie statek na planszy gracza"""
+        statek = self.plansza_g.gracz.plansza.niezatopione[int(self.drzewo.focus())]
+        self.plansza_g.zmien_statek(statek)
 
 
 class KontrolaGry(ttk.Frame):
@@ -774,6 +823,7 @@ class GraGUI(ttk.Frame):
     """Główny interfejs gry"""
 
     CZCIONKA = ("TkDefaultFont", 8)
+    CZCIONKA_BOLD = ("TkDefaultFont", 8, "bold")
 
     def __init__(self, rodzic, kolumny, rzedy):
         super().__init__(rodzic)

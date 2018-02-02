@@ -465,7 +465,6 @@ class Statek:
     pula_nazw = Parser.sklonuj_nazwy(NAZWY_WG_RANGI)  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
     rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])  # słownik aktualnie dostępnych liczebników rzymskich, do wykorzystania na wypadek wyczerpania listy dostępnych nazw (użycie tego kiedykolwiek jest mało prawdopodobne)
 
-    RANGA = None  # implementacja w klasach potomnych
     SALWY = {
         "kuter": [1],
         "patrolowiec": [2],
@@ -475,6 +474,15 @@ class Statek:
         "krążownik": [3, 3],
         "pancernik": [3, 2, 2]
     }
+    SYMBOLE = {
+        "kuter": "T",
+        "patrolowiec": "L",
+        "korweta": "W",
+        "fregata": "F",
+        "niszczyciel": "N",
+        "krążownik": "K",
+        "pancernik": "P"
+    }
     ORDER = "★"
 
     def __init__(self, pola):
@@ -483,9 +491,6 @@ class Statek:
         self.polozenie = self.pola[0]
         self.rozmiar = len(pola)
         self.ofiary = []  # lista statków przeciwnika zatopionych przez ten statek
-        self.ranga = None  # implementacja w klasach potomnych
-        self.nazwa = None  # jw.
-        self.salwy = None  # jw.
 
     def __str__(self):
         """
@@ -585,7 +590,6 @@ class Kuter(Statek):
     """Statek o rozmiarze 1 pola."""
 
     RANGA = Statek.RANGI[0]
-    SYMBOL = "T"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -598,7 +602,6 @@ class Patrolowiec(Statek):
     """Statek o rozmiarze 2-3 pól."""
 
     RANGA = Statek.RANGI[1]
-    SYMBOL = "L"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -611,7 +614,6 @@ class Korweta(Statek):
     """Statek o rozmiarze 4-6 pól."""
 
     RANGA = Statek.RANGI[2]
-    SYMBOL = "W"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -624,7 +626,6 @@ class Fregata(Statek):
     """Statek o rozmiarze 7-9 pól."""
 
     RANGA = Statek.RANGI[3]
-    SYMBOL = "F"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -637,7 +638,6 @@ class Niszczyciel(Statek):
     """Statek o rozmiarze 10-12 pól."""
 
     RANGA = Statek.RANGI[4]
-    SYMBOL = "N"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -650,7 +650,6 @@ class Krazownik(Statek):
     """Statek o rozmiarze 13-16 pól."""
 
     RANGA = Statek.RANGI[5]
-    SYMBOL = "K"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -663,7 +662,6 @@ class Pancernik(Statek):
     """Statek o rozmiarze 17-20 pól."""
 
     RANGA = Statek.RANGI[6]
-    SYMBOL = "P"
 
     def __init__(self, pola):
         super().__init__(pola)
