@@ -31,6 +31,25 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
 8. Pola planszy (wszystkie: nieodkryte, wody, statków (niezatopionych i zatopionych), oddanych salw (trafień i pudeł)) powinny mieć tooltipy z informacjami, jednak pojawiające się tylko po określonym czasie bezruchu kursora (podobnie jak w Civ5).
 
+9. Plansza Gracza:
+
+    * [ZROBIONE] <<del>Przewijanie statków klawiszami '[',']'</del>
+
+9. Plansza Przeciwnika. Dokończyć obracanie podświetlaniem (dołożyć pełen obród 2-polowej salwy)
+
+10. Kontrola Floty:
+
+    * Scrollbary
+    * Etykiety pod drzewem
+    * Sortowanie kolumn
+    * Obsługa zatapiania (odpowiednie formatowanie tej sekcji)
+    * Notebook i obsługa statków przeciwnika
+    * [ZROBIONE] <<del>Prawidłowe ustawienie na gridzie.</del>
+
+11. Kontrola Gry. Dokładnie rozrysować.
+
+12. Pasek stanu.
+
 ## MECHANIKA
 
 Ogólna struktura OOP modułów:

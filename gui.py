@@ -62,7 +62,7 @@ class PlanszaGUI(ttk.Frame):
 
     def ustaw_sie(self):
         """Ustawia interfejs pod widżety."""
-        self.grid(rowspan=10)
+        self.grid(rowspan=3)
         self.etyramka = ttk.LabelFrame(self, text=self.tytul, padding=10)
         self.etyramka.grid()
 
@@ -184,8 +184,9 @@ class PlanszaGracza(PlanszaGUI):
     def __init__(self, rodzic, plansza, tytul="Gracz"):
         super().__init__(rodzic, plansza, tytul)
         self.kontrola_ataku = None  # Kontrola Ataku przekazuje tutaj odnośnik do siebie na koniec swojej inicjalizacji
+        self.drzewo = None  # Kontrola Floty jw.
         self.ustaw_style_gracza()
-        self.powiaz_callback()
+        self.powiaz_callbacki()
         self.odkryj_wszystkie_pola()
 
         # testy
@@ -215,14 +216,18 @@ class PlanszaGracza(PlanszaGUI):
             background=[("active", PoleGUI.KOLORY["wybrane&trafione-active"]), ("disabled", "gray")]
         )
 
-    def powiaz_callback(self):
-        """Wiąże na_klikniecie() we wszystkich polach."""
+    def powiaz_callbacki(self):
+        """Wiąże callbacki."""
+        # wszystkie pola
         for i in range(self.gracz.plansza.kolumny):
             for j in range(self.gracz.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 # lambda bez własnych argumentów (w formie: lambda: self.na_klikniecie(kolumna, rzad) nie zadziała prawidłowo w tym przypadku - zmienne przekazywane do każdej funkcji (anonimowej czy nie - bez różnicy) są zawsze ewaluowane dopiero w momencie wywołania tej funkcji, tak więc w tym przypadku w danej iteracji pętli zostają przekazane zmienne "i" i "j" (nazwy) a nie ich wartości - wartości zostaną ewaluowane dopiero w momencie wywołania callbacka (czyli naciśnięcia przycisku) i będzie to wartość z ostatniej iteracji dla wszystkich przycisków, więcej tutaj: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126))
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
                 pole_gui.configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))  # lambda konieczna, bo nie da się tego obsłużyć tak jak niżej z bind() - w przypadku przypisywania callbacków opcją 'command' nie ma przekazywania obiektu zdarzenia, z którego można by pobrać współrzędne pola
+        # okno główne
+        self.winfo_toplevel().bind("[", self.na_nawias_kw_lewy)
+        self.winfo_toplevel().bind("]", self.na_nawias_kw_prawy)
 
     # CALLBACK wszystkich pól
     def na_klikniecie(self, kolumna, rzad):
@@ -233,6 +238,32 @@ class PlanszaGracza(PlanszaGUI):
         self.zmien_statek(statek)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
+
+    # CALLBACK okna głównego
+    def na_nawias_kw_lewy(self, event=None):
+        """
+        Przewija wybrany statek do tyłu.
+        """
+        if len(self.gracz.tura.statki) > 1:  # jeśli jest co przewijać
+            indeks = self.gracz.tura.statki.index(self.gracz.tura.runda.statek)
+            if indeks > 0:  # jeśli nie jesteśmy na początku kolejki
+                statek = self.gracz.tura.statki[indeks - 1]
+            else:
+                statek = self.gracz.tura.statki[len(self.gracz.tura.statki) - 1]
+            self.zmien_statek(statek)
+
+    # CALLBACK okna głównego
+    def na_nawias_kw_prawy(self, event=None):
+        """
+        Przewija wybrany statek do przodu.
+        """
+        if len(self.gracz.tura.statki) > 1:  # jeśli jest co przewijać
+            indeks = self.gracz.tura.statki.index(self.gracz.tura.runda.statek)
+            if indeks < len(self.gracz.tura.statki) - 1:  # jeśli nie jesteśmy na końcu kolejki
+                statek = self.gracz.tura.statki[indeks + 1]
+            else:
+                statek = self.gracz.tura.statki[0]
+            self.zmien_statek(statek)
 
     def zmien_statek(self, statek):
         """Zmienia wybrany statek"""
@@ -248,10 +279,13 @@ class PlanszaGracza(PlanszaGUI):
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane&trafione"])
             else:
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane"])
-
+        # kontrola widgetów innych sekcjach
         self.gracz.tura.runda.statek = statek
         self.kontrola_ataku.combo_statku.set(statek)
         self.kontrola_ataku.zmien_salwy(statek)
+        if len(self.drzewo.selection()) > 0:
+            self.drzewo.selection_remove(self.drzewo.selection()[0])
+        self.drzewo.selection_add(str(self.gracz.plansza.niezatopione.index(statek)))
 
     def kasuj_wybor_statku(self, statek):
         """Kasuje wybór statku na planszy"""
@@ -474,7 +508,6 @@ class KontrolaAtaku(ttk.Frame):
         self.ustaw_combo_readonly()
         self.przekaz_odnosniki()
         self.powiaz_callbacki()
-        self.wybierz_statek_startowy()
 
     def ustaw_style(self):
         """Ustawia style dla widżetów"""
@@ -588,10 +621,6 @@ class KontrolaAtaku(ttk.Frame):
         self.plansza_g.kontrola_ataku = self
         self.plansza_p.combo_orientacji = self.combo_orientacji
 
-    def wybierz_statek_startowy(self):
-        """Wybiera największy statek na start gry"""
-        self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
-
     def powiaz_callbacki(self):
         """Wiąże callbacki"""
         self.combo_statku.bind("<<ComboboxSelected>>", self.na_wybor_statku)
@@ -671,17 +700,15 @@ class KontrolaFloty(ttk.Frame):
     }
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
-        super().__init__(rodzic, padding=(0, 0, 10, 0))
+        super().__init__(rodzic, padding=(0, 0, 10, 360))
         self.plansza_g = plansza_gracza
         self.plansza_p = plansza_przeciwnika
         self.ustaw_style()
         self.ustaw_sie()
         self.buduj_drzewo()
         self.powiaz_callbacki()
-
-        # test
-        print(self.plansza_g.gracz.plansza.podaj_ilosc_niezatopionych_wg_rang())
-        print(self.plansza_g.gracz.plansza.podaj_ilosc_zatopionych_wg_rang())
+        self.przekaz_odnosniki()
+        self.wybierz_statek_startowy()
 
     def ustaw_style(self):
         """Ustawia style dla drzewa"""
@@ -698,7 +725,7 @@ class KontrolaFloty(ttk.Frame):
 
     def ustaw_sie(self):
         """Ustawia interfejs pod widżety."""
-        self.etyramka = ttk.Labelframe(self, text="Flota", padding=(5, 0, 5, 5))
+        self.etyramka = ttk.Labelframe(self, text="Flota", padding=(5, 7, 5, 13))
         self.etyramka.grid()
 
     def buduj_drzewo(self):
@@ -711,7 +738,7 @@ class KontrolaFloty(ttk.Frame):
             displaycolumns="#all",
             selectmode="browse"
         )
-        self.drzewo.grid(column=0, row=0, sticky="news")
+        self.drzewo.grid()
         self.ustaw_kolumny()
         self.dodaj_statki(self.plansza_g.gracz.plansza.niezatopione, "niezatopione")
         self.ustaw_wyglad()
@@ -722,7 +749,7 @@ class KontrolaFloty(ttk.Frame):
         self.drzewo.heading("gdzie", text="Poz")
         self.drzewo.heading("rozmiar", text="NT/R")
         self.drzewo.heading("ofiary", text=Statek.ORDER)
-        self.drzewo.column("#0", stretch=False, width=65)
+        self.drzewo.column("#0", stretch=False, width=70)
         self.drzewo.column("statek", stretch=True, width=110)
         self.drzewo.column("gdzie", stretch=False, width=35)
         self.drzewo.column("rozmiar", stretch=False, width=40, anchor=tk.E)
@@ -747,7 +774,7 @@ class KontrolaFloty(ttk.Frame):
                                    ranga,
                                    text=ranga_i_ilosc,
                                    open=True,
-                                   tags="ranga"
+                                   tags=(kategoria, "ranga")
                                    )
         # statki
         for i in range(len(statki)):
@@ -786,6 +813,14 @@ class KontrolaFloty(ttk.Frame):
         """Wybiera kliknięty podwójnie statek na planszy gracza"""
         statek = self.plansza_g.gracz.plansza.niezatopione[int(self.drzewo.focus())]
         self.plansza_g.zmien_statek(statek)
+
+    def przekaz_odnosniki(self):
+        """Przekazuje własne odnośniki do event handlerów w planszach"""
+        self.plansza_g.drzewo = self.drzewo
+
+    def wybierz_statek_startowy(self):
+        """Wybiera największy statek na start gry"""
+        self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
 
 
 class KontrolaGry(ttk.Frame):
@@ -839,9 +874,9 @@ class GraGUI(ttk.Frame):
 
         # kontrolna sekcja po prawej stronie
         kontrola_ataku = KontrolaAtaku(self, plansza_gracza, plansza_przeciwnika)
-        kontrola_ataku.grid(column=2, row=0, rowspan=1, sticky=tk.N)
+        kontrola_ataku.grid(column=2, row=0, rowspan=3, sticky=tk.N)
         kontrola_floty = KontrolaFloty(self, plansza_gracza, plansza_przeciwnika)
-        kontrola_floty.grid(column=2, row=1, rowspan=5, sticky="news")
+        kontrola_floty.grid(column=2, row=1, rowspan=3, sticky=tk.N)
         kontrola_gry = KontrolaGry(self, plansza_gracza, plansza_przeciwnika)
         kontrola_gry.grid(column=2, row=2)
 
@@ -852,13 +887,13 @@ class GraGUI(ttk.Frame):
 
 def main():
     """Uruchamia grę."""
-    root = tk.Tk()
-    root.title("Statki")
+    okno_glowne = tk.Tk()
+    okno_glowne.title("Statki")
 
-    GraGUI(root, 26, 30)
+    GraGUI(okno_glowne, 26, 30)
 
-    root.resizable(False, False)
-    root.mainloop()
+    okno_glowne.resizable(False, False)
+    okno_glowne.mainloop()
 
 
 if __name__ == "__main__":
