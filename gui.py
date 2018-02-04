@@ -11,6 +11,9 @@ from plansza import Plansza, Pole, Statek
 from mechanika import Gracz
 
 
+# ****************************************** SEKCJA PLANSZ **************************************************
+
+
 class PoleGUI(ttk.Button):
     """Graficzna reprezentacja pola planszy."""
 
@@ -279,7 +282,7 @@ class PlanszaGracza(PlanszaGUI):
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane&trafione"])
             else:
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane"])
-        # kontrola widgetów innych sekcjach
+        # kontrola widżetów w innych sekcjach
         self.gracz.tura.runda.statek = statek
         self.kontrola_ataku.combo_statku.set(statek)
         self.kontrola_ataku.zmien_salwy(statek)
@@ -354,72 +357,87 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """
         W zależności od wybranej orientacji w Kontroli Ataku odkrywa na planszy odpowiednie pola (lub pole).
         """
+        # 1 pole
         self.odkryj_pole(kolumna, rzad)
+        # 2 pola w prawo
         if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
             self.odkryj_pole(kolumna + 1, rzad)
-
+        # 2 pola w dół
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
             self.odkryj_pole(kolumna, rzad + 1)
-
+        # 2 pola w lewo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
             self.odkryj_pole(kolumna - 1, rzad)
-            self.odkryj_pole(kolumna + 1, rzad)
-
+        # 2 pola w górę
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
             self.odkryj_pole(kolumna, rzad - 1)
-            self.odkryj_pole(kolumna, rzad + 1)
-
+        # 3 pola poziomo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+            self.odkryj_pole(kolumna - 1, rzad)
+            self.odkryj_pole(kolumna + 1, rzad)
+        # 3 pola pionowo
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+            self.odkryj_pole(kolumna, rzad - 1)
+            self.odkryj_pole(kolumna, rzad + 1)
+        # 3 pola L
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
             self.odkryj_pole(kolumna, rzad - 1)
             self.odkryj_pole(kolumna + 1, rzad)
-
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+        # 3 pola Г
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
             self.odkryj_pole(kolumna, rzad + 1)
             self.odkryj_pole(kolumna + 1, rzad)
-
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+        # 3 pola Ꞁ
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
             self.odkryj_pole(kolumna - 1, rzad)
             self.odkryj_pole(kolumna, rzad + 1)
-
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+        # 3 pola ⅃
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
             self.odkryj_pole(kolumna - 1, rzad)
             self.odkryj_pole(kolumna, rzad - 1)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
-    # CALLBACK wszustkich pól
+    # CALLBACK wszystkich pól
     def na_wejscie(self, event):
         """
         W zależności od wybranej orientacji w Kontroli Ataku podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji.
         """
         kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        # 2 pola w prawo
         if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
             self.zmien_stan_pola(kolumna + 1, rzad, "active")
-
+        # 2 pola w dół
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
             self.zmien_stan_pola(kolumna, rzad + 1, "active")
-
+        # 2 pola w lewo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
             self.zmien_stan_pola(kolumna - 1, rzad, "active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active")
-
+        # 2 pola w górę
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
             self.zmien_stan_pola(kolumna, rzad - 1, "active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "active")
-
+        # 3 pola poziomo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+        # 3 pola pionowo
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+        # 3 pola L
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
             self.zmien_stan_pola(kolumna, rzad - 1, "active")
             self.zmien_stan_pola(kolumna + 1, rzad, "active")
-
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+        # 3 pola Г
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
             self.zmien_stan_pola(kolumna, rzad + 1, "active")
             self.zmien_stan_pola(kolumna + 1, rzad, "active")
-
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+        # 3 pola Ꞁ
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
             self.zmien_stan_pola(kolumna - 1, rzad, "active")
             self.zmien_stan_pola(kolumna, rzad + 1, "active")
-
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+        # 3 pola ⅃
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
             self.zmien_stan_pola(kolumna - 1, rzad, "active")
             self.zmien_stan_pola(kolumna, rzad - 1, "active")
 
@@ -429,33 +447,40 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         W zależności od wybranej orientacji w Kontroli Ataku kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniejszym uruchomieniem callbacka `na_wejscie()`.
         """
         kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        # 2 pola w prawo
         if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
             self.zmien_stan_pola(kolumna + 1, rzad, "!active")
-
+        # 2 pola w dół
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
             self.zmien_stan_pola(kolumna, rzad + 1, "!active")
-
+        # 2 pola w lewo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
             self.zmien_stan_pola(kolumna - 1, rzad, "!active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
-
+        # 2 pola w górę
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
             self.zmien_stan_pola(kolumna, rzad - 1, "!active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
-
+        # 3 pola poziomo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+        # 3 pola pionowo
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+        # 3 pola L
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
             self.zmien_stan_pola(kolumna, rzad - 1, "!active")
             self.zmien_stan_pola(kolumna + 1, rzad, "!active")
-
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+        # 3 pola Г
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
             self.zmien_stan_pola(kolumna, rzad + 1, "!active")
             self.zmien_stan_pola(kolumna + 1, rzad, "!active")
-
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+        # 3 pola Ꞁ
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
             self.zmien_stan_pola(kolumna - 1, rzad, "!active")
             self.zmien_stan_pola(kolumna, rzad + 1, "!active")
-
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+        # 3 pola ⅃
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
             self.zmien_stan_pola(kolumna - 1, rzad, "!active")
             self.zmien_stan_pola(kolumna, rzad - 1, "!active")
 
@@ -489,13 +514,16 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         print(statek.o_zatopieniu())
 
 
+# ***************************************** SEKCJA KONTROLI *************************************************
+
+
 class KontrolaAtaku(ttk.Frame):
     """
     Sekcja kontroli ataku znajdująca się w prawym górnym rogu głównego interfejsu gry.
     """
     # TODO: rozważyć zaimplementowania 4 orientacji dla salwy 2-polowej (tak by można nią było obracać we wszystkich kierunkach dookoła centralnego pola, tak jak to jest w przypadku salyw 3-polowej)
 
-    ORIENTACJE = ["•", "••", "╏", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
+    ORIENTACJE = ["•", "•• prawo", "╏ dół", "•• lewo", "╏ góra", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=(0, 10, 10, 0))
@@ -565,7 +593,7 @@ class KontrolaAtaku(ttk.Frame):
     def buduj_comboboksy(self):
         """Buduje comboboksy."""
         # wybór statku
-        self.combo_statku = ComboAtaku(
+        self.combo_statku = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
             font=GraGUI.CZCIONKA,
@@ -581,7 +609,7 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_statku.configure(font=GraGUI.CZCIONKA)  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
 
         # wybór salwy
-        self.combo_salwy = ComboAtaku(
+        self.combo_salwy = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
             font=GraGUI.CZCIONKA,
@@ -596,11 +624,11 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_salwy.configure(font=GraGUI.CZCIONKA)
 
         # wybór orientacji
-        self.combo_orientacji = ComboAtaku(
+        self.combo_orientacji = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
             font=GraGUI.CZCIONKA,
-            width=4
+            width=7
         )
         self.combo_orientacji.grid(
             row=3,
@@ -617,7 +645,7 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_orientacji.state(["readonly"])
 
     def przekaz_odnosniki(self):
-        """Przekazuje własne odnośniki do event handlerów w planszach"""
+        """Przekazuje własne odnośniki dla event handlerów w planszach"""
         self.plansza_g.kontrola_ataku = self
         self.plansza_p.combo_orientacji = self.combo_orientacji
 
@@ -660,9 +688,9 @@ class KontrolaAtaku(ttk.Frame):
         if salwa == 1:
             self.combo_orientacji["values"] = [self.ORIENTACJE[0]]
         elif salwa == 2:
-            self.combo_orientacji["values"] = self.ORIENTACJE[1:3]
+            self.combo_orientacji["values"] = self.ORIENTACJE[1:5]
         elif salwa == 3:
-            self.combo_orientacji["values"] = self.ORIENTACJE[3:]
+            self.combo_orientacji["values"] = self.ORIENTACJE[5:]
         self.combo_orientacji.set(self.combo_orientacji["values"][0])
 
     # CALLBACK okna głównego
@@ -676,9 +704,9 @@ class KontrolaAtaku(ttk.Frame):
         self.combo_orientacji.set(self.combo_orientacji["values"][indeks])
 
 
-class ComboAtaku(ttk.Combobox):
+class ComboZeZmianaCzcionki(ttk.Combobox):
     """
-    Combobox z możliwością zmiany fontu w liście rozwijanej. Wzięte stąd: https://stackoverflow.com/questions/43086378/how-to-modify-ttk-combobox-fonts/ .Standardowy combobox nie daje takiej możliwości.
+    Combobox z możliwością zmiany czcionki w liście rozwijanej. Wzięte stąd: https://stackoverflow.com/questions/43086378/how-to-modify-ttk-combobox-fonts/ .Standardowy combobox nie daje takiej możliwości.
     """
 
     def __init__(self, *args, **kwargs):
@@ -708,7 +736,6 @@ class KontrolaFloty(ttk.Frame):
         self.buduj_drzewo()
         self.powiaz_callbacki()
         self.przekaz_odnosniki()
-        self.wybierz_statek_startowy()
 
     def ustaw_style(self):
         """Ustawia style dla drzewa"""
@@ -818,10 +845,6 @@ class KontrolaFloty(ttk.Frame):
         """Przekazuje własne odnośniki do event handlerów w planszach"""
         self.plansza_g.drzewo = self.drzewo
 
-    def wybierz_statek_startowy(self):
-        """Wybiera największy statek na start gry"""
-        self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
-
 
 class KontrolaGry(ttk.Frame):
     """
@@ -840,6 +863,9 @@ class KontrolaGry(ttk.Frame):
         pass  # TODO
 
 
+# ****************************************** SEKCJA STANU ***************************************************
+
+
 class PasekStanu(ttk.Frame):
     """
     Pasek stanu wyświetlający komunikaty o grze na dole głównego interfejsu gry.
@@ -852,6 +878,9 @@ class PasekStanu(ttk.Frame):
         # GUI
         self.grid(columnspan=3)
         pass  # TODO
+
+
+# ******************************************** OKNO GŁÓWNE **************************************************
 
 
 class GraGUI(ttk.Frame):
@@ -867,22 +896,28 @@ class GraGUI(ttk.Frame):
         gracz = Gracz(Plansza(kolumny, rzedy))
         przeciwnik = Gracz(Plansza(kolumny, rzedy))
 
-        plansza_gracza = PlanszaGracza(self, gracz)
-        plansza_gracza.grid(column=0, row=0)
-        plansza_przeciwnika = PlanszaPrzeciwnika(self, przeciwnik)
-        plansza_przeciwnika.grid(column=1, row=0)
+        self.plansza_g = PlanszaGracza(self, gracz)
+        self.plansza_g.grid(column=0, row=0)
+        plansza_p = PlanszaPrzeciwnika(self, przeciwnik)
+        plansza_p.grid(column=1, row=0)
 
         # kontrolna sekcja po prawej stronie
-        kontrola_ataku = KontrolaAtaku(self, plansza_gracza, plansza_przeciwnika)
+        kontrola_ataku = KontrolaAtaku(self, self.plansza_g, plansza_p)
         kontrola_ataku.grid(column=2, row=0, rowspan=3, sticky=tk.N)
-        kontrola_floty = KontrolaFloty(self, plansza_gracza, plansza_przeciwnika)
+        kontrola_floty = KontrolaFloty(self, self.plansza_g, plansza_p)
         kontrola_floty.grid(column=2, row=1, rowspan=3, sticky=tk.N)
-        kontrola_gry = KontrolaGry(self, plansza_gracza, plansza_przeciwnika)
+        kontrola_gry = KontrolaGry(self, self.plansza_g, plansza_p)
         kontrola_gry.grid(column=2, row=2)
 
         # sekcja komunikatów na dole okna
-        pasek_stanu = PasekStanu(self, plansza_gracza, plansza_przeciwnika)
+        pasek_stanu = PasekStanu(self, self.plansza_g, plansza_p)
         pasek_stanu.grid(column=0, row=3)
+
+        self.wybierz_statek_startowy()
+
+    def wybierz_statek_startowy(self):
+        """Wybiera największy statek na start gry"""
+        self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
 
 
 def main():
@@ -890,6 +925,7 @@ def main():
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
 
+    # GraGUI(okno_glowne, 26, 30)
     GraGUI(okno_glowne, 26, 30)
 
     okno_glowne.resizable(False, False)

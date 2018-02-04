@@ -40,6 +40,7 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 10. Kontrola Floty:
 
     * Scrollbary
+    * Automatyczne przesuwanie widoku na wybrany element (teraz jeśli przewijając wybierze się statek poza widokiem to pozostaje niewidoczny)
     * Etykiety pod drzewem
     * Sortowanie kolumn
     * Obsługa zatapiania (odpowiednie formatowanie tej sekcji)
@@ -49,6 +50,8 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 11. Kontrola Gry. Dokładnie rozrysować.
 
 12. Pasek stanu.
+
+13. Grid - całość. Aktualnie jest w miarę OK, ale wystarczy zmienić rozmiar na mniejszy od maksymalnego i cała Kontrola Ataku znika.
 
 ## MECHANIKA
 
