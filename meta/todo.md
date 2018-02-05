@@ -35,23 +35,39 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
     * [ZROBIONE] <<del>Przewijanie statków klawiszami '[',']'</del>
 
-9. Plansza Przeciwnika. Dokończyć obracanie podświetlaniem (dołożyć pełen obród 2-polowej salwy)
+9. Plansza Przeciwnika.
+
+    * [ZROBIONE] <del>Dokończyć obracanie podświetlaniem (dołożyć pełen obród 2-polowej salwy)</del>
+    * wyróżnianie zatopionych statków po wyborze w drzewie Kontroli Floty
 
 10. Kontrola Floty:
 
-    * [ZROBIONE] <del>Scrollbary</del>
-    * [ZROBIONE] <del>Automatyczne przesuwanie widoku na wybrany element (teraz jeśli przewijając wybierze się statek poza widokiem to pozostaje niewidoczny)</del>
-    * Etykiety pod drzewem
-    * Sortowanie kolumn
-    * Obsługa zatapiania (odpowiednie formatowanie tej sekcji)
-    * Notebook i obsługa statków przeciwnika
-    * [ZROBIONE] <<del>Prawidłowe ustawienie na gridzie.</del>
+    1. Drzewo.
+        * [ZROBIONE] <del>Scrollbary</del>
+        * [ZROBIONE] <del>Automatyczne przesuwanie widoku na wybrany element (teraz jeśli przewijając wybierze się statek poza widokiem to pozostaje niewidoczny)</del>
+        * [ZROBIONE] <del>Prawidłowe ustawienie na gridzie</del>
+        * [ZROBIONE] <del>Przesunięcie drzewa do osobnej klasy</del>
+        * Notebook i drzewo statków przeciwnika
+        * Sortowanie kolumn - wg nazwy, wg pozycji i wg ilości nietrafionych pól (każde sortowanie odbywa się osobno w każdej kategorii)
+        * Obsługa możliwości wyboru tylko statków, które jeszcze nie miały swojej rundy w danej turze
+        * Obsługa zatapiania (odpowiednie formatowanie tej sekcji) ==> do dołożenia później, w trakcie prac nad mechaniką
+        * Obsługa dodawania zatopionych statków (odpowiednie formatowanie tej sekcji) ==> do dołożenia później, w trakcie prac nad mechaniką
+        * Etykiety pod drzewem ==> decyzja czy potrzebne później
+
+    2. Przyciski Poprzedni/Kolejny Statek + Etykieta Wyboru
 
 11. Kontrola Gry. Dokładnie rozrysować.
 
 12. Pasek stanu.
 
+    * wyświetlanie w jednej linii zmieniającego się położenia kursora na każdej z plansz
+
+
 13. Grid - całość. Aktualnie jest w miarę OK, ale wystarczy zmienić rozmiar na mniejszy od maksymalnego i cała Kontrola Ataku znika.
+
+14. Całość - drobne.
+
+    * przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego
 
 ## MECHANIKA
 
