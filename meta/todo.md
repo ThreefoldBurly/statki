@@ -39,8 +39,8 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
 10. Kontrola Floty:
 
-    * Scrollbary
-    * Automatyczne przesuwanie widoku na wybrany element (teraz jeśli przewijając wybierze się statek poza widokiem to pozostaje niewidoczny)
+    * [ZROBIONE] <del>Scrollbary</del>
+    * [ZROBIONE] <del>Automatyczne przesuwanie widoku na wybrany element (teraz jeśli przewijając wybierze się statek poza widokiem to pozostaje niewidoczny)</del>
     * Etykiety pod drzewem
     * Sortowanie kolumn
     * Obsługa zatapiania (odpowiednie formatowanie tej sekcji)

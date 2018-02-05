@@ -288,7 +288,10 @@ class PlanszaGracza(PlanszaGUI):
         self.kontrola_ataku.zmien_salwy(statek)
         if len(self.drzewo.selection()) > 0:
             self.drzewo.selection_remove(self.drzewo.selection()[0])
-        self.drzewo.selection_add(str(self.gracz.plansza.niezatopione.index(statek)))
+        iid = str(self.gracz.plansza.niezatopione.index(statek))
+        self.drzewo.selection_add(iid)
+        if self.drzewo.bbox(iid, column="statek") == "":
+            self.drzewo.see(iid)
 
     def kasuj_wybor_statku(self, statek):
         """Kasuje wybór statku na planszy"""
@@ -598,7 +601,7 @@ class KontrolaAtaku(ttk.Frame):
             styl="KA.TCombobox",
             font=GraGUI.CZCIONKA,
             values=self.plansza_g.gracz.tura.statki,
-            width=36
+            width=35
         )
         self.combo_statku.grid(
             row=1,
@@ -738,7 +741,7 @@ class KontrolaFloty(ttk.Frame):
         self.przekaz_odnosniki()
 
     def ustaw_style(self):
-        """Ustawia style dla drzewa"""
+        """Ustawia style dla drzewa."""
         self.styl = ttk.Style()
         self.styl.configure(
             "KF.Treeview",
@@ -760,14 +763,15 @@ class KontrolaFloty(ttk.Frame):
         self.drzewo = ttk.Treeview(
             self.etyramka,
             style="KF.Treeview",
-            height=20,
+            height=19,
             columns=("statek", "gdzie", "rozmiar", "ofiary"),
             displaycolumns="#all",
             selectmode="browse"
         )
-        self.drzewo.grid()
+        self.drzewo.grid(column=0, row=0, sticky="news")
         self.ustaw_kolumny()
         self.dodaj_statki(self.plansza_g.gracz.plansza.niezatopione, "niezatopione")
+        self.wstaw_suwaki()
         self.ustaw_wyglad()
 
     def ustaw_kolumny(self):
@@ -776,15 +780,23 @@ class KontrolaFloty(ttk.Frame):
         self.drzewo.heading("gdzie", text="Poz")
         self.drzewo.heading("rozmiar", text="NT/R")
         self.drzewo.heading("ofiary", text=Statek.ORDER)
-        self.drzewo.column("#0", stretch=False, width=70)
-        self.drzewo.column("statek", stretch=True, width=110)
-        self.drzewo.column("gdzie", stretch=False, width=35)
-        self.drzewo.column("rozmiar", stretch=False, width=40, anchor=tk.E)
-        self.drzewo.column("ofiary", stretch=False, width=12)
+        self.drzewo.column("#0", stretch=True, minwidth=70, width=49)
+        self.drzewo.column("statek", stretch=True, minwidth=97, width=49)
+        self.drzewo.column("gdzie", stretch=True, minwidth=35, width=49)
+        self.drzewo.column("rozmiar", stretch=True, minwidth=40, width=49, anchor=tk.E)
+        self.drzewo.column("ofiary", stretch=True, minwidth=12, width=49)
+
+    def wstaw_suwaki(self):
+        """Wstawia w drzewo suwaki."""
+        suwak_pionowy = ttk.Scrollbar(self.etyramka, orient=tk.VERTICAL, command=self.drzewo.yview)
+        suwak_pionowy.grid(column=1, row=0, sticky="ns")
+        suwak_poziomy = ttk.Scrollbar(self.etyramka, orient=tk.HORIZONTAL, command=self.drzewo.xview)
+        suwak_poziomy.grid(column=0, row=1, sticky="we")
+        self.drzewo.configure(yscrollcommand=suwak_pionowy.set, xscrollcommand=suwak_poziomy.set)
 
     def dodaj_statki(self, statki, kategoria):
         """
-        Dodaje podane (niezatopione/zatopione) statki do drzewa. Wartość parametru `kategoria` to albo 'niezatopione' albo 'zatopione'
+        Dodaje podane (niezatopione/zatopione) statki do drzewa. Wartość parametru `kategoria` to albo 'niezatopione' albo 'zatopione'.
         """
         # kategoria
         self.drzewo.insert("", "0", kategoria,
@@ -819,30 +831,30 @@ class KontrolaFloty(ttk.Frame):
             )
 
     def ustaw_wyglad(self):
-        """Konfiguruje wygląd zawartości drzewa"""
+        """Konfiguruje wygląd zawartości drzewa."""
         self.drzewo.tag_configure("kategoria", font=GraGUI.CZCIONKA_BOLD)
         self.drzewo.tag_configure("ranga", background=self.KOLORY["podświetlenie-rang"])
 
     def powiaz_callbacki(self):
-        """Wiąże callbacki"""
+        """Wiąże callbacki."""
         self.drzewo.bind("<Escape>", self.na_escape)
         self.drzewo.tag_bind("statek", "<Double-Button-1>", self.na_podwojne_klikniecie)
 
     # CALLBACK całego drzewa
     def na_escape(self, event=None):
-        """Kasuje selekcję"""
+        """Kasuje selekcję."""
         element_id = self.drzewo.focus()
         if element_id != "":  # jeśli jakiś element był w ogóle wybrany
             self.drzewo.selection_remove(element_id)
 
     # CALLBACK elementów z tagiem `statek`
     def na_podwojne_klikniecie(self, event=None):
-        """Wybiera kliknięty podwójnie statek na planszy gracza"""
+        """Wybiera kliknięty podwójnie statek na planszy gracza."""
         statek = self.plansza_g.gracz.plansza.niezatopione[int(self.drzewo.focus())]
         self.plansza_g.zmien_statek(statek)
 
     def przekaz_odnosniki(self):
-        """Przekazuje własne odnośniki do event handlerów w planszach"""
+        """Przekazuje własne odnośniki do event handlerów w planszach."""
         self.plansza_g.drzewo = self.drzewo
 
 
@@ -904,8 +916,8 @@ class GraGUI(ttk.Frame):
         # kontrolna sekcja po prawej stronie
         kontrola_ataku = KontrolaAtaku(self, self.plansza_g, plansza_p)
         kontrola_ataku.grid(column=2, row=0, rowspan=3, sticky=tk.N)
-        kontrola_floty = KontrolaFloty(self, self.plansza_g, plansza_p)
-        kontrola_floty.grid(column=2, row=1, rowspan=3, sticky=tk.N)
+        self.kontrola_floty = KontrolaFloty(self, self.plansza_g, plansza_p)
+        self.kontrola_floty.grid(column=2, row=1, rowspan=3, sticky=tk.N)
         kontrola_gry = KontrolaGry(self, self.plansza_g, plansza_p)
         kontrola_gry.grid(column=2, row=2)
 
@@ -918,6 +930,7 @@ class GraGUI(ttk.Frame):
     def wybierz_statek_startowy(self):
         """Wybiera największy statek na start gry"""
         self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
+        self.kontrola_floty.drzewo.see("niezatopione")
 
 
 def main():
