@@ -5,7 +5,7 @@
 2. [ZROBIONE] <<del>W głównej ramce powinny znajdować się dwa obiekty PlanszaGUI - 1 dla własnych statków, drugi dla statków przeciwnika (jak w klasycznej grze).</del>
 
 3. Na prawo od obu plansz powinna znajdować się ramka z widgetami kontrolującymi przebieg gry i zwracającymi informację o nim. Składająca się z 3 sekcji:
-    * A.ramki ataku (układ minimum: 3 comboboksy: 1) wyboru statku, 2) wyboru salwy i 3) wyboru orientacji).
+    * A.[ZROBIONE] <del>ramki ataku (układ minimum: 3 comboboksy: 1) wyboru statku, 2) wyboru salwy i 3) wyboru orientacji).</del>
     * B.ramki floty (listy statków) - swojej i przeciwnika. Prawdopodobnie najlepszą implementacją będzie Treeview zamknięte w Notebooku.
     * C.ramki ogólnej informacji o grze (która tura/runda, kto wygrywa (np. procent nietrafionych pól każdego gracza) oraz przycisk Koniec Rundy - najprostsza implementacja, wystarczy kilka etykiet i jeden przycisk.
 
@@ -30,6 +30,48 @@
 Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko na polach zatopionych statków.</del>
 
 8. Pola planszy (wszystkie: nieodkryte, wody, statków (niezatopionych i zatopionych), oddanych salw (trafień i pudeł)) powinny mieć tooltipy z informacjami, jednak pojawiające się tylko po określonym czasie bezruchu kursora (podobnie jak w Civ5).
+
+9. Plansza Gracza:
+
+    * [ZROBIONE] <<del>Przewijanie statków klawiszami '[',']'</del>
+
+9. Plansza Przeciwnika.
+
+    * [ZROBIONE] <del>Dokończyć obracanie podświetlaniem (dołożyć pełen obród 2-polowej salwy)</del>
+    * wyróżnianie zatopionych statków po wyborze w drzewie Kontroli Floty
+
+10. Kontrola Floty:
+
+    1. Drzewo.
+        * [ZROBIONE] <del>Scrollbary</del>
+        * [ZROBIONE] <del>Automatyczne przesuwanie widoku na wybrany element (teraz jeśli przewijając wybierze się statek poza widokiem to pozostaje niewidoczny)</del>
+        * [ZROBIONE] <del>Prawidłowe ustawienie na gridzie</del>
+        * [ZROBIONE] <del>Przesunięcie drzewa do osobnej klasy</del>
+        * Notebook i drzewo statków przeciwnika
+        * Sortowanie kolumn - wg nazwy, wg pozycji i wg ilości nietrafionych pól (każde sortowanie odbywa się osobno w każdej kategorii)
+        * Obsługa możliwości wyboru tylko statków, które jeszcze nie miały swojej rundy w danej turze
+        * Obsługa zatapiania (odpowiednie formatowanie tej sekcji) ==> do dołożenia później, w trakcie prac nad mechaniką
+        * Obsługa dodawania zatopionych statków (odpowiednie formatowanie tej sekcji) ==> do dołożenia później, w trakcie prac nad mechaniką
+        * Etykiety pod drzewem ==> decyzja czy potrzebne później
+
+    2. Przyciski Poprzedni/Kolejny Statek + Etykieta Wyboru
+
+    3. Schemat zagnieżdżonego layoutu:
+
+        [1] Okno Główne (Tk) >> [2] GraGUI (Frame) >> [3] Kontrola Floty (Frame) >> [4] etyramka (LabelFrame) >> [5] notes (Notebook) >> [6] ramka (Frame) >> [7] drzewo (Treeview)
+
+11. Kontrola Gry. Dokładnie rozrysować.
+
+12. Pasek stanu.
+
+    * wyświetlanie w jednej linii zmieniającego się położenia kursora na każdej z plansz
+
+
+13. Grid - całość. Aktualnie jest w miarę OK, ale wystarczy zmienić rozmiar na mniejszy od maksymalnego i cała Kontrola Ataku znika.
+
+14. Całość - drobne.
+
+    * przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego
 
 ## MECHANIKA
 

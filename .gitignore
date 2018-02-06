@@ -5,7 +5,4 @@
 # Python compiled files
 *.pyc
 
-# kopie robocze
-*.cpy
-
-battleship.py
+temp*.py

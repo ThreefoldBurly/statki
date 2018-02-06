@@ -25,6 +25,7 @@ class Gracz:
         self.plansza = plansza
         self.tura = Tura(self.plansza)
         self.tury = [self.tura]
+        self.ofiary = []  # zatopione statki przeciwnika
 
     def dodaj_ture(self):
         """Tworzy nową turę i dodaje do listy tur"""

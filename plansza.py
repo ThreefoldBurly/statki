@@ -7,6 +7,8 @@ Plansza gry wraz z jej podstawowymi elementami.
 import codecs
 from random import randint, choice, gauss
 
+from pamiec import Parser
+
 
 class Plansza:
     """
@@ -357,6 +359,20 @@ class Plansza:
 
         print("\nWszystkich umieszczonych statków: {}. Ich sumaryczny rozmiar: [{}]".format(len(self.statki), sum_rozmiar))
 
+    def podaj_ilosc_niezatopionych_wg_rang(self):
+        """
+        Podaje zestawienie ilości niezatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
+        """
+        lista_rang = [statek.ranga for statek in self.niezatopione]
+        return dict([(ranga, lista_rang.count(ranga)) for ranga in Statek.RANGI])
+
+    def podaj_ilosc_zatopionych_wg_rang(self):
+        """
+        Podaje zestawienie ilości zatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
+        """
+        lista_rang = [statek.ranga for statek in self.zatopione]
+        return dict([(ranga, lista_rang.count(ranga)) for ranga in Statek.RANGI])
+
 
 class Pole:
     """
@@ -377,8 +393,8 @@ class Pole:
         self.znacznik = znacznik or self.ZNACZNIKI["puste"]  # zmienna stanu pola
 
     def __str__(self):
-        """Zwraca informację o polu w formacie: litera kolumny+cyfra rzędu np. (B9)"""
-        return "({}{})".format(Plansza.ALFABET[self.kolumna], self.rzad)
+        """Zwraca informację o polu w formacie: litera kolumny+cyfra rzędu np. B9"""
+        return "{}{}".format(Plansza.ALFABET[self.kolumna], self.rzad)
 
     # przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes) --> wrzucone dla ewentualnego porównywania pól, ale jak na razie wygląda na to, że niepotrzebne
     def __eq__(self, other):
@@ -394,52 +410,6 @@ class Pole:
         return (self.kolumna, self.rzad)
 
 
-class Parser:
-    """Parsuje nazwy statków z 'dane/nazwy.sti'."""
-
-    @staticmethod
-    def sparsuj_nazwy(rangi):
-        """Parsuje z pliku tekstowego 'dane/nazwy.sti' listę nazw dla każdej rangi statku (całość jako słownik)"""
-        nazwy = {}
-
-        def parsuj_wg_rangi(linie, ranga):  # funkcja pomocnicza dla bloku poniżej
-            lista_nazw = []
-            for linia in linie:
-                if ranga in linia:
-                    linia = linia.rstrip('\n')
-                    lista_nazw.append(linia.split(':::')[0])
-            return lista_nazw
-
-        linie = []
-        with codecs.open('dane/nazwy.sti', encoding='utf-8') as plik:
-            for linia in plik:
-                linie.append(linia)
-
-        for ranga in rangi:
-            lista_nazw = parsuj_wg_rangi(linie, ranga)
-            print("\nRanga: {}. Dodano nazw: [{}]".format(ranga, len(lista_nazw)))  # test
-            nazwy[ranga] = lista_nazw
-
-        def czy_nazwy_OK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
-            czy_OK = True
-            for ranga in nazwy:
-                if len(nazwy[ranga]) == 0:
-                    czy_OK = False
-            return czy_OK
-
-        assert czy_nazwy_OK(), "Nieudane parsowanie nazw statków. Brak pliku 'dane/nazwy.sti' lub plik nie zawiera danych w prawidłowym formacie"
-
-        return nazwy
-
-    @staticmethod
-    def sklonuj_nazwy(nazwy_wg_rangi):
-        """Klonuje słownik nazw wg rangi, wykonując kopię każdej składowej listy."""
-        nazwy = {}
-        for klucz in nazwy_wg_rangi:
-            nazwy[klucz] = nazwy_wg_rangi[klucz][:]
-        return nazwy
-
-
 class Statek:
     """
     Abstrakcyjna reprezentacja statku (kolekcji pól planszy o określonych parametrach).
@@ -451,7 +421,6 @@ class Statek:
     pula_nazw = Parser.sklonuj_nazwy(NAZWY_WG_RANGI)  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
     rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])  # słownik aktualnie dostępnych liczebników rzymskich, do wykorzystania na wypadek wyczerpania listy dostępnych nazw (użycie tego kiedykolwiek jest mało prawdopodobne)
 
-    RANGA = None  # implementacja w klasach potomnych
     SALWY = {
         "kuter": [1],
         "patrolowiec": [2],
@@ -461,6 +430,15 @@ class Statek:
         "krążownik": [3, 3],
         "pancernik": [3, 2, 2]
     }
+    SYMBOLE = {
+        "kuter": "T",
+        "patrolowiec": "L",
+        "korweta": "W",
+        "fregata": "F",
+        "niszczyciel": "N",
+        "krążownik": "K",
+        "pancernik": "P"
+    }
     ORDER = "★"
 
     def __init__(self, pola):
@@ -469,9 +447,6 @@ class Statek:
         self.polozenie = self.pola[0]
         self.rozmiar = len(pola)
         self.ofiary = []  # lista statków przeciwnika zatopionych przez ten statek
-        self.ranga = None  # implementacja w klasach potomnych
-        self.nazwa = None  # jw.
-        self.salwy = None  # jw.
 
     def __str__(self):
         """
@@ -484,13 +459,11 @@ class Statek:
         - [10/17] to pola nietrafione/wszystkie pola
         - ** - tyle gwiazdek ile dodatkowych salw za zatopienie przeciwnika
         """
-        nietrafione = self.rozmiar - self.ile_otrzymanych_trafien()
-        info = '{} "{}" {} [{}/{}] '.format(
+        info = '{} "{}" ({}) [{}] '.format(
             self.ranga,
             self.nazwa,
             str(self.polozenie),
-            str(nietrafione),
-            str(self.rozmiar)
+            self.podaj_nietrafione_na_rozmiar()
         )
         for gwiazdka in [self.ORDER for ofiara in self.ofiary]:
             info += gwiazdka
@@ -563,12 +536,16 @@ class Statek:
         """Resetuje listę salw, do wartości wynikającej z aktualnej rangi."""
         self.salwy = self.SALWY[self.ranga][:]
 
+    def podaj_nietrafione_na_rozmiar(self):
+        """Podaje informację o stosunku nietrafionych do wszystkich pól jako string w formacie: 16/20."""
+        nietrafione = self.rozmiar - self.ile_otrzymanych_trafien()
+        return str(nietrafione) + "/" + str(self.rozmiar)
+
 
 class Kuter(Statek):
     """Statek o rozmiarze 1 pola."""
 
     RANGA = Statek.RANGI[0]
-    SYMBOL = "T"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -581,7 +558,6 @@ class Patrolowiec(Statek):
     """Statek o rozmiarze 2-3 pól."""
 
     RANGA = Statek.RANGI[1]
-    SYMBOL = "L"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -594,7 +570,6 @@ class Korweta(Statek):
     """Statek o rozmiarze 4-6 pól."""
 
     RANGA = Statek.RANGI[2]
-    SYMBOL = "W"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -607,7 +582,6 @@ class Fregata(Statek):
     """Statek o rozmiarze 7-9 pól."""
 
     RANGA = Statek.RANGI[3]
-    SYMBOL = "F"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -620,7 +594,6 @@ class Niszczyciel(Statek):
     """Statek o rozmiarze 10-12 pól."""
 
     RANGA = Statek.RANGI[4]
-    SYMBOL = "N"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -633,7 +606,6 @@ class Krazownik(Statek):
     """Statek o rozmiarze 13-16 pól."""
 
     RANGA = Statek.RANGI[5]
-    SYMBOL = "K"
 
     def __init__(self, pola):
         super().__init__(pola)
@@ -646,7 +618,6 @@ class Pancernik(Statek):
     """Statek o rozmiarze 17-20 pól."""
 
     RANGA = Statek.RANGI[6]
-    SYMBOL = "P"
 
     def __init__(self, pola):
         super().__init__(pola)
