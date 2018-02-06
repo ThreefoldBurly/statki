@@ -774,28 +774,26 @@ class KontrolaFloty(ttk.Frame):
         """Buduje przyciski przewijania statków."""
         # przycisk do tyłu
         ikona_do_tylu = ImageTk.PhotoImage(Image.open("zasoby/ikona_statku/statek-w-lewo_32x32.png"))
-        print("Ikona w lewo:", ikona_do_tylu)
-        self.przycisk_do_tylu = ttk.Button(
+        przycisk_do_tylu = ttk.Button(
             self.etyramka,
             # text="Poprzedni",
             # compound=tk.LEFT,
             image=ikona_do_tylu,
             command=self.plansza_g.na_nawias_kw_lewy
         )
-        self.przycisk_do_tylu.image = ikona_do_tylu  # konieczne ze względu na bug Tkintera (https://stackoverflow.com/questions/22200003/tkinter-button-not-showing-image)
-        self.przycisk_do_tylu.grid(row=1, column=0, sticky=tk.W, pady=(13, 0), padx=50)
+        przycisk_do_tylu.image = ikona_do_tylu  # konieczne ze względu na bug Tkintera (https://stackoverflow.com/questions/22200003/tkinter-button-not-showing-image)
+        przycisk_do_tylu.grid(row=1, column=0, sticky=tk.W, pady=(13, 0), padx=45)
         # przycisk do przodu
         ikona_do_przodu = ImageTk.PhotoImage(Image.open("zasoby/ikona_statku/statek-w-prawo_32x32.png"))
-        print("Ikona w prawo:", ikona_do_przodu)
-        self.przycisk_do_przodu = ttk.Button(
+        przycisk_do_przodu = ttk.Button(
             self.etyramka,
             # text="Kolejny",
             # compound=tk.LEFT,
             image=ikona_do_przodu,
             command=self.plansza_g.na_nawias_kw_prawy
         )
-        self.przycisk_do_przodu.image = ikona_do_przodu
-        self.przycisk_do_przodu.grid(row=1, column=1, sticky=tk.E, pady=(13, 0), padx=50)
+        przycisk_do_przodu.image = ikona_do_przodu
+        przycisk_do_przodu.grid(row=1, column=1, sticky=tk.E, pady=(13, 0), padx=45)
 
     def przekaz_odnosniki(self):
         """Przekazuje własne odnośniki do event handlerów w planszach."""
