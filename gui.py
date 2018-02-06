@@ -190,6 +190,7 @@ class PlanszaGracza(PlanszaGUI):
         super().__init__(rodzic, plansza, tytul)
         self.kontrola_ataku = None  # Kontrola Ataku przekazuje tutaj odnośnik do siebie na koniec swojej inicjalizacji
         self.drzewo_floty = None  # Kontrola Floty jw.
+        self.pozycja_pola = None  # Kontrola Floty jw.
         self.ustaw_style_gracza()
         self.powiaz_callbacki()
         self.odkryj_wszystkie_pola()
@@ -230,6 +231,8 @@ class PlanszaGracza(PlanszaGUI):
                 # lambda bez własnych argumentów (w formie: lambda: self.na_klikniecie(kolumna, rzad) nie zadziała prawidłowo w tym przypadku - zmienne przekazywane do każdej funkcji (anonimowej czy nie - bez różnicy) są zawsze ewaluowane dopiero w momencie wywołania tej funkcji, tak więc w tym przypadku w danej iteracji pętli zostają przekazane zmienne "i" i "j" (nazwy) a nie ich wartości - wartości zostaną ewaluowane dopiero w momencie wywołania callbacka (czyli naciśnięcia przycisku) i będzie to wartość z ostatniej iteracji dla wszystkich przycisków, więcej tutaj: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126))
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
                 pole_gui.configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))  # lambda konieczna, bo nie da się tego obsłużyć tak jak niżej z bind() - w przypadku przypisywania callbacków opcją 'command' nie ma przekazywania obiektu zdarzenia, z którego można by pobrać współrzędne pola
+                pole_gui.bind("<Enter>", self.na_wejscie)
+                pole_gui.bind("<Leave>", self.na_wyjscie)
         # okno główne
         self.winfo_toplevel().bind("[", self.na_nawias_kw_lewy)
         self.winfo_toplevel().bind("]", self.na_nawias_kw_prawy)
@@ -243,6 +246,20 @@ class PlanszaGracza(PlanszaGUI):
         self.zmien_statek(statek)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
+
+    # CALLBACK wszystkich pól
+    def na_wejscie(self, event=None):
+        """
+        Wyświetla pozycję pola w sekcji kontroli floty.
+        """
+        self.pozycja_pola.set(event.widget.pole)
+
+    # CALLBACK wszystkich pól
+    def na_wyjscie(self, event=None):
+        """
+        Kasuje wyświetlaną pozycję pola w sekcji kontroli floty.
+        """
+        self.pozycja_pola.set("")
 
     # CALLBACK okna głównego
     def na_nawias_kw_lewy(self, event=None):
@@ -729,13 +746,19 @@ class KontrolaFloty(ttk.Frame):
     Sekcja kontroli floty (całej gracza i zatopionej przeciwnika) znajdująca się w środku po prawej stronie głównego interfejsu gry. Dopuszcza powiększanie w poziomie i w pionie.
     """
 
+    KOLORY = {
+        "pozycja-pola": "LemonChiffon2"
+    }
+
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=(0, 0, 10, 260))
         self.plansza_g = plansza_gracza
         self.plansza_p = plansza_przeciwnika
+        self.sprawdz_tlo_sytemowe()
         self.ustaw_sie()
         self.buduj_drzewa()
         self.buduj_przyciski()
+        self.buduj_pozycje_pola()
         self.przekaz_odnosniki()
 
     def ustaw_sie(self):
@@ -765,7 +788,7 @@ class KontrolaFloty(ttk.Frame):
         ramka_drzewa_p.columnconfigure(0, weight=1)
         notes.add(ramka_drzewa_g, text="Gracz")
         notes.add(ramka_drzewa_p, text="Przeciwnik")
-        notes.grid(row=0, column=0, columnspan=2, sticky="nsew")
+        notes.grid(row=0, column=0, columnspan=3, sticky="nsew")
         # zgłasza wyżej powiększanie w poziomie i w pionie
         notes.rowconfigure(0, weight=1)
         notes.columnconfigure(0, weight=1)
@@ -782,7 +805,7 @@ class KontrolaFloty(ttk.Frame):
             command=self.plansza_g.na_nawias_kw_lewy
         )
         przycisk_do_tylu.image = ikona_do_tylu  # konieczne ze względu na bug Tkintera (https://stackoverflow.com/questions/22200003/tkinter-button-not-showing-image)
-        przycisk_do_tylu.grid(row=1, column=0, sticky=tk.W, pady=(13, 0), padx=45)
+        przycisk_do_tylu.grid(row=1, column=0, sticky=tk.W, pady=(13, 0), padx=35)
         # przycisk do przodu
         ikona_do_przodu = ImageTk.PhotoImage(Image.open("zasoby/ikona_statku/statek-w-prawo_32x32.png"))
         przycisk_do_przodu = ttk.Button(
@@ -793,11 +816,37 @@ class KontrolaFloty(ttk.Frame):
             command=self.plansza_g.na_nawias_kw_prawy
         )
         przycisk_do_przodu.image = ikona_do_przodu
-        przycisk_do_przodu.grid(row=1, column=1, sticky=tk.E, pady=(13, 0), padx=45)
+        przycisk_do_przodu.grid(row=1, column=2, sticky=tk.E, pady=(13, 0), padx=35)
+
+    def buduj_pozycje_pola(self):
+        """Buduje etykietę wyświetlającą pozycję pola planszy gracza wskazywanego aktualnie przez kursor."""
+        self.pozycja_pola = tk.StringVar()
+        self.etykieta_pozycji_pola = ttk.Label(
+            self.etyramka,
+            background=self.KOLORY["pozycja-pola"],
+            text="",
+            anchor=tk.CENTER,
+            textvariable=self.pozycja_pola,
+            width=4
+        )
+        self.etykieta_pozycji_pola.grid(row=1, column=1, sticky="we", pady=(13, 0))
+        self.pozycja_pola.trace("w", self.na_zmiane_pozycji_pola)
+
+    def sprawdz_tlo_sytemowe(self):
+        """Sprawdza kolor tla systemowego i zapisuje w stałej klasy."""
+        self.KOLORY.update({"tło-systemowe": self.winfo_toplevel().cget("bg")})
+
+    def na_zmiane_pozycji_pola(self, *args):
+        """Zmienia tło etykiety pozycji pola."""
+        if self.pozycja_pola.get() == "":
+            self.etykieta_pozycji_pola.configure(background=self.KOLORY["tło-systemowe"])
+        else:
+            self.etykieta_pozycji_pola.configure(background=self.KOLORY["pozycja-pola"])
 
     def przekaz_odnosniki(self):
         """Przekazuje własne odnośniki do event handlerów w planszach."""
         self.plansza_g.drzewo_floty = self.drzewo_g
+        self.plansza_g.pozycja_pola = self.pozycja_pola
 
 
 class DrzewoFloty(ttk.Treeview):
@@ -1062,7 +1111,6 @@ def main():
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
 
-    # GraGUI(okno_glowne, 26, 30)
     GraGUI(okno_glowne, 26, 30)
 
     okno_glowne.resizable(False, False)

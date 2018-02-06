@@ -47,14 +47,15 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
         * [ZROBIONE] <del>Automatyczne przesuwanie widoku na wybrany element (teraz jeśli przewijając wybierze się statek poza widokiem to pozostaje niewidoczny)</del>
         * [ZROBIONE] <del>Prawidłowe ustawienie na gridzie</del>
         * [ZROBIONE] <del>Przesunięcie drzewa do osobnej klasy</del>
-        * Notebook i drzewo statków przeciwnika
-        * Sortowanie kolumn - wg nazwy, wg pozycji i wg ilości nietrafionych pól (każde sortowanie odbywa się osobno w każdej kategorii)
-        * Obsługa możliwości wyboru tylko statków, które jeszcze nie miały swojej rundy w danej turze
-        * Obsługa zatapiania (odpowiednie formatowanie tej sekcji) ==> do dołożenia później, w trakcie prac nad mechaniką
-        * Obsługa dodawania zatopionych statków (odpowiednie formatowanie tej sekcji) ==> do dołożenia później, w trakcie prac nad mechaniką
-        * Etykiety pod drzewem ==> decyzja czy potrzebne później
+        * [ZROBIONE] <del>Notebook i drzewo statków przeciwnika</del>
+        * Sortowanie kolumn - wg nazwy, wg pozycji i wg ilości nietrafionych pól (każde sortowanie odbywa się osobno w każdej kategorii) ==> TODO
+        * Obsługa możliwości wyboru tylko statków, które jeszcze nie miały swojej rundy w danej turze ==> TODO w trakcie prac nad mechaniką
+        * Obsługa zatapiania (odpowiednie formatowanie tej sekcji) ==> TODO w trakcie prac nad mechaniką
+        * Obsługa dodawania zatopionych statków (odpowiednie formatowanie tej sekcji) ==> TODO w trakcie prac nad mechaniką
 
-    2. Przyciski Poprzedni/Kolejny Statek + Etykieta Wyboru
+
+    2. [ZROBIONE] <del>Przyciski Poprzedni/Kolejny Statek</del>
+        * wyświetlanie zmieniającego się położenia kursora na planszy gracza - najlepiej na etykiecie pomiędzy przyciskami przewijania
 
     3. Schemat zagnieżdżonego layoutu:
 
@@ -62,9 +63,10 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
 11. Kontrola Gry. Dokładnie rozrysować.
 
+
+
 12. Pasek stanu.
 
-    * wyświetlanie w jednej linii zmieniającego się położenia kursora na każdej z plansz
 
 
 13. Grid - całość. Aktualnie jest w miarę OK, ale wystarczy zmienić rozmiar na mniejszy od maksymalnego i cała Kontrola Ataku znika.
