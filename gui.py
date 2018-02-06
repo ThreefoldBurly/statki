@@ -730,11 +730,12 @@ class KontrolaFloty(ttk.Frame):
     """
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
-        super().__init__(rodzic, padding=(0, 0, 10, 360))
+        super().__init__(rodzic, padding=(0, 0, 10, 260))
         self.plansza_g = plansza_gracza
         self.plansza_p = plansza_przeciwnika
         self.ustaw_sie()
         self.buduj_drzewa()
+        self.buduj_przyciski()
         self.przekaz_odnosniki()
 
     def ustaw_sie(self):
@@ -771,20 +772,30 @@ class KontrolaFloty(ttk.Frame):
 
     def buduj_przyciski(self):
         """Buduje przyciski przewijania statków."""
-        ikona_do_przodu = ImageTk.PhotoImage(Image.open("zasoby/ikona_statku/statek-w-prawo_48x48.png"))
-        ikona_do_tylu = ImageTk.PhotoImage(Image.open("zasoby/ikona_statku/statek-w-lewo_48x48.png"))
-        self.przycisk_do_przodu = ttk.Button(
-            self.etyramka,
-            text="Kolejny",
-            image=ikona_do_przodu,
-            command=self.plansza_g.na_nawias_kw_prawy
-        )
+        # przycisk do tyłu
+        ikona_do_tylu = ImageTk.PhotoImage(Image.open("zasoby/ikona_statku/statek-w-lewo_32x32.png"))
+        print("Ikona w lewo:", ikona_do_tylu)
         self.przycisk_do_tylu = ttk.Button(
             self.etyramka,
-            text="Poprzedni",
+            # text="Poprzedni",
+            # compound=tk.LEFT,
             image=ikona_do_tylu,
             command=self.plansza_g.na_nawias_kw_lewy
         )
+        self.przycisk_do_tylu.image = ikona_do_tylu  # konieczne ze względu na bug Tkintera (https://stackoverflow.com/questions/22200003/tkinter-button-not-showing-image)
+        self.przycisk_do_tylu.grid(row=1, column=0, sticky=tk.W, pady=(13, 0), padx=50)
+        # przycisk do przodu
+        ikona_do_przodu = ImageTk.PhotoImage(Image.open("zasoby/ikona_statku/statek-w-prawo_32x32.png"))
+        print("Ikona w prawo:", ikona_do_przodu)
+        self.przycisk_do_przodu = ttk.Button(
+            self.etyramka,
+            # text="Kolejny",
+            # compound=tk.LEFT,
+            image=ikona_do_przodu,
+            command=self.plansza_g.na_nawias_kw_prawy
+        )
+        self.przycisk_do_przodu.image = ikona_do_przodu
+        self.przycisk_do_przodu.grid(row=1, column=1, sticky=tk.E, pady=(13, 0), padx=50)
 
     def przekaz_odnosniki(self):
         """Przekazuje własne odnośniki do event handlerów w planszach."""

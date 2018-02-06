@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Plansza gry wraz z jej podstawowymi elementami.
+Zapis i odczyt danych do pamięci zewnętrznej.
 """
 
 import codecs
