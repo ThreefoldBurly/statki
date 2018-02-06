@@ -56,6 +56,10 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
     2. Przyciski Poprzedni/Kolejny Statek + Etykieta Wyboru
 
+    3. Schemat zagnieżdżonego layoutu:
+
+        [1] Okno Główne (Tk) >> [2] GraGUI (Frame) >> [3] Kontrola Floty (Frame) >> [4] etyramka (LabelFrame) >> [5] notes (Notebook) >> [6] ramka (Frame) >> [7] drzewo (Treeview)
+
 11. Kontrola Gry. Dokładnie rozrysować.
 
 12. Pasek stanu.
