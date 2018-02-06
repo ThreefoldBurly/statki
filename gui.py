@@ -16,7 +16,7 @@ from mechanika import Gracz
 
 
 class PoleGUI(ttk.Button):
-    """Graficzna reprezentacja pola planszy."""
+    """Graficzna reprezentacja pola planszy. Nie dopuszcza powiększania na ekranie."""
 
     GLIFY = {
         "pudło": "•",
@@ -52,7 +52,7 @@ class PoleGUI(ttk.Button):
 
 
 class PlanszaGUI(ttk.Frame):
-    """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych."""
+    """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych. Nie dopuszcza powiększania."""
 
     def __init__(self, rodzic, gracz, tytul):
         super().__init__(rodzic, padding=10)
@@ -524,7 +524,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
 class KontrolaAtaku(ttk.Frame):
     """
-    Sekcja kontroli ataku znajdująca się w prawym górnym rogu głównego interfejsu gry.
+    Sekcja kontroli ataku znajdująca się w prawym górnym rogu głównego interfejsu gry. Dopuszcza powiększanie w poziomie.
     """
 
     ORIENTACJE = ["•", "•• prawo", "╏ dół", "•• lewo", "╏ góra", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
@@ -560,7 +560,8 @@ class KontrolaAtaku(ttk.Frame):
         """Ustawia interfejs pod widżety."""
         etykieta = ttk.Label(text="Atak", style="Bold.TLabel")
         self.etyramka = ttk.Labelframe(self, labelwidget=etykieta, padding=(5, 15, 5, 5))
-        self.etyramka.grid()
+        self.etyramka.grid(sticky="we")
+        self.etyramka.columnconfigure(0, weight=1)  # zgłasza wyżej powiększanie w poziomie
 
     def buduj_etykiety(self):
         """Buduje etykiety."""
@@ -725,7 +726,7 @@ class ComboZeZmianaCzcionki(ttk.Combobox):
 
 class KontrolaFloty(ttk.Frame):
     """
-    Sekcja kontroli floty (całej gracza i zatopionej przeciwnika) znajdująca się w środku po prawej stronie głównego interfejsu gry.
+    Sekcja kontroli floty (całej gracza i zatopionej przeciwnika) znajdująca się w środku po prawej stronie głównego interfejsu gry. Dopuszcza powiększanie w poziomie i w pionie.
     """
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
@@ -740,11 +741,33 @@ class KontrolaFloty(ttk.Frame):
         """Ustawia interfejs pod widżety."""
         etykieta = ttk.Label(text="Flota", style="Bold.TLabel")
         self.etyramka = ttk.Labelframe(self, labelwidget=etykieta, padding=(5, 7, 5, 13))
-        self.etyramka.grid()
+        self.etyramka.grid(sticky="nsew")
+        # zgłasza wyżej powiększanie w poziomie i w pionie
+        self.etyramka.rowconfigure(0, weight=1)
+        self.etyramka.columnconfigure(0, weight=1)
 
     def buduj_drzewa(self):
-        """Buduje drzewa floty (gracz i przeciwnika) umieszczone w notesie."""
-        self.drzewo_g = DrzewoFlotyGracza(self.etyramka, self.plansza_g)
+        """Buduje drzewa floty (gracza i przeciwnika) umieszczone w notesie."""
+        notes = ttk.Notebook(self.etyramka)
+        # drzewa nie mogą być bezpośrednio umieszczane w notesie - potrzebne ramki pośrednie
+        ramka_drzewa_g = ttk.Frame(notes)
+        ramka_drzewa_p = ttk.Frame(notes)
+        self.drzewo_g = DrzewoFlotyGracza(ramka_drzewa_g, self.plansza_g)
+        self.drzewo_p = DrzewoFlotyPrzeciwnika(ramka_drzewa_p, self.plansza_p)
+        ramka_drzewa_g.grid(sticky="nsew")
+        # zgłasza wyżej powiększanie w poziomie i w pionie
+        ramka_drzewa_g.rowconfigure(0, weight=1)
+        ramka_drzewa_g.columnconfigure(0, weight=1)
+        ramka_drzewa_p.grid(sticky="nsew")
+        # zgłasza wyżej powiększanie w poziomie i w pionie
+        ramka_drzewa_p.rowconfigure(0, weight=1)
+        ramka_drzewa_p.columnconfigure(0, weight=1)
+        notes.add(ramka_drzewa_g, text="Gracz")
+        notes.add(ramka_drzewa_p, text="Przeciwnik")
+        notes.grid(row=0, column=0, columnspan=2, sticky="nsew")
+        # zgłasza wyżej powiększanie w poziomie i w pionie
+        notes.rowconfigure(0, weight=1)
+        notes.columnconfigure(0, weight=1)
 
     def buduj_przyciski(self):
         """Buduje przyciski przewijania statków."""
@@ -810,7 +833,7 @@ class DrzewoFloty(ttk.Treeview):
             displaycolumns="#all",
             selectmode="browse"
         )
-        self.grid(column=0, row=0, sticky="news")
+        self.grid(sticky="nsew")
 
     def wstaw_suwaki(self, rodzic):
         """Wstawia w drzewo suwaki."""
@@ -915,10 +938,10 @@ class DrzewoFlotyPrzeciwnika(DrzewoFloty):
     Pokazuje zatopione statki przeciwnika. Kolumny: `Kategoria` (bez nagłówka), `Statek`, `Poz` (pozycja), `Roz` (rozmiar), `★` (ilość gwiazdek = ilość ofiar danego statku).
     """
 
-    def __init__(self, rodzic, planszaui):
+    def __init__(self, rodzic, plansza_gui):
         super().__init__(rodzic, plansza_gui)
 
-        self.ustaw_kolumny("Roz")
+        self.ustaw_kolumny("Rozm")
 
     def dodaj_statek(self):
         """
@@ -929,7 +952,7 @@ class DrzewoFlotyPrzeciwnika(DrzewoFloty):
 
 class KontrolaGry(ttk.Frame):
     """
-    Sekcja kontroli gry znajdująca się w prawym dolnym rogu głównego interfejsu gry.
+    Sekcja kontroli gry znajdująca się w prawym dolnym rogu głównego interfejsu gry. Dopuszcza powiększanie w poziomie.
     """
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
@@ -938,9 +961,10 @@ class KontrolaGry(ttk.Frame):
         self.plansza_p = plansza_przeciwnika
         # GUI
         self.tytul = None  # string w formacie `Tura #[liczba]/Runda #[liczba]`
-        self.grid()
         etyramka = ttk.Labelframe(self, text=self.tytul, padding=5)
-        etyramka.grid()
+        etyramka.grid(sticky="we")
+        # zgłasza wyżej powiększanie w poziomie
+        etyramka.columnconfigure(0, weight=1)
         pass  # TODO
 
 
@@ -949,15 +973,13 @@ class KontrolaGry(ttk.Frame):
 
 class PasekStanu(ttk.Frame):
     """
-    Pasek stanu wyświetlający komunikaty o grze na dole głównego interfejsu gry.
+    Pasek stanu wyświetlający komunikaty o grze na dole głównego interfejsu gry. Dopuszcza powiększanie w poziomie i w pionie.
     """
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=10)
         self.plansza_g = plansza_gracza
         self.plansza_p = plansza_przeciwnika
-        # GUI
-        self.grid(columnspan=3)
         pass  # TODO
 
 
@@ -982,6 +1004,7 @@ class GraGUI(ttk.Frame):
         self.buduj_plansze(gracz, przeciwnik)
         self.buduj_sekcje_kontroli()
         self.buduj_pasek_stanu()
+        self.ustaw_grid()
 
         self.wybierz_statek_startowy()
 
@@ -996,23 +1019,28 @@ class GraGUI(ttk.Frame):
     def buduj_plansze(self, gracz, przeciwnik):
         """Buduje plansze gracza i przeciwnika"""
         self.plansza_g = PlanszaGracza(self, gracz)
-        self.plansza_g.grid(column=0, row=0)
+        self.plansza_g.grid(column=0, row=0, rowspan=3)
         self.plansza_p = PlanszaPrzeciwnika(self, przeciwnik)
-        self.plansza_p.grid(column=1, row=0)
+        self.plansza_p.grid(column=1, row=0, rowspan=3)
 
     def buduj_sekcje_kontroli(self):
         """Buduje sekcje kontroli: ataku, floty i gry po prawej stronie okna głównego"""
         self.kontrola_ataku = KontrolaAtaku(self, self.plansza_g, self.plansza_p)
-        self.kontrola_ataku.grid(column=2, row=0, rowspan=3, sticky=tk.N)
+        self.kontrola_ataku.grid(column=2, row=0, sticky=tk.N)
         self.kontrola_floty = KontrolaFloty(self, self.plansza_g, self.plansza_p)
-        self.kontrola_floty.grid(column=2, row=1, rowspan=3, sticky=tk.N)
+        self.kontrola_floty.grid(column=2, row=1, sticky="nsew")
         self.kontrola_gry = KontrolaGry(self, self.plansza_g, self.plansza_p)
         self.kontrola_gry.grid(column=2, row=2)
 
     def buduj_pasek_stanu(self):
         """Buduje pasek stanu na dole okna głównego"""
         self.pasek_stanu = PasekStanu(self, self.plansza_g, self.plansza_p)
-        self.pasek_stanu.grid(column=0, row=3)
+        self.pasek_stanu.grid(column=0, row=3, columnspan=3)
+
+    def ustaw_grid(self):
+        """Konfiguruje layout managera. Dopuszcza powiększanie trzeciej kolumny (w poziomie) i czwartego rzędu (w pionie)."""
+        self.columnconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
 
     def wybierz_statek_startowy(self):
         """Wybiera największy statek na start gry."""
