@@ -49,7 +49,7 @@ class Tura:
     def dodaj_runde(self):
         """Tworzy nową rundę i dodaje do listy rund"""
         self.statki.remove(self.runda.statek)
-        self.runda.zrob_migawke()
+        self.zrob_migawke()
         self.runda = Runda(self.statki[0])
         self.rundy.append(self.runda)
 

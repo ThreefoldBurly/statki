@@ -58,11 +58,12 @@ class Sekcja(ttk.Frame):
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul):
         super().__init__(rodzic, padding=odstep_zewn)
+        self.tytul = tk.StringVar(value=tytul)
         self.ustaw_sie(odstep_wewn, tytul)
 
     def ustaw_sie(self, odstep_wewn, tytul):
         """Ustawia interfejs pod widżety."""
-        etykieta = ttk.Label(text=tytul, style="Bold.TLabel")
+        etykieta = ttk.Label(textvariable=self.tytul, style="Bold.TLabel")
         self.etyramka = ttk.LabelFrame(self, labelwidget=etykieta, padding=odstep_wewn)
         self.etyramka.grid()
 
@@ -73,7 +74,7 @@ class PlanszaGUI(Sekcja):
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
         self.gracz = kwargs["gracz"]
-        self.tytul = tytul
+        # self.tytul = tytul
         self.pola_gui = [[0 for kolumna in range(self.gracz.plansza.kolumny)] for rzad in range(self.gracz.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
         self.ustaw_style()
         self.buduj_etykiety()
@@ -586,12 +587,6 @@ class KontrolaAtaku(Sekcja):
     def ustaw_style(self):
         """Ustawia style dla widżetów"""
         self.styl = ttk.Style()
-        # etykiety
-        self.styl.configure(
-            "KA.TLabel",
-            font=GraGUI.CZCIONKA_MALA
-        )
-        # comboboksy
         self.styl.configure("KA.TCombobox")
         self.styl.map(
             "KA.TCombobox",
@@ -614,7 +609,7 @@ class KontrolaAtaku(Sekcja):
         ttk.Label(
             self.etyramka,
             text="Wybierz statek:",
-            style="KA.TLabel"
+            style="Mała.TLabel"
         ).grid(
             row=0,
             column=0,
@@ -624,7 +619,7 @@ class KontrolaAtaku(Sekcja):
         ttk.Label(
             self.etyramka,
             text="Wybierz salwę:",
-            style="KA.TLabel"
+            style="Mała.TLabel"
         ).grid(
             row=2,
             column=0,
@@ -634,7 +629,7 @@ class KontrolaAtaku(Sekcja):
         ttk.Label(
             self.etyramka,
             text="Wybierz orientację:",
-            style="KA.TLabel"
+            style="Mała.TLabel"
         ).grid(
             row=2,
             column=1,
@@ -815,20 +810,20 @@ class PozycjeSalwy(ttk.Frame):
 
     def buduj_etykiety(self):
         """Buduje etykiety."""
-        self.numer_pierwszej = ttk.Label(self, style="KA.TLabel", text="#1:")
+        self.numer_pierwszej = ttk.Label(self, style="Mała.TLabel", text="#1:")
         self.numer_pierwszej.grid(
             row=0,
             column=0,
             sticky=tk.W
         )
-        self.numer_drugiej = ttk.Label(self, style="KA.TLabel", text="#2:")
+        self.numer_drugiej = ttk.Label(self, style="Mała.TLabel", text="#2:")
         self.numer_drugiej.grid(
             row=0,
             column=2,
             sticky=tk.W,
             padx=(25,0)
         )
-        self.numer_trzeciej = ttk.Label(self, style="KA.TLabel", text="#3:")
+        self.numer_trzeciej = ttk.Label(self, style="Mała.TLabel", text="#3:")
         self.numer_trzeciej.grid(
             row=0,
             column=4,
@@ -1142,22 +1137,133 @@ class DrzewoFlotyPrzeciwnika(DrzewoFloty):
         pass
 
 
-class KontrolaGry(ttk.Frame):
+class KontrolaGry(Sekcja):
     """
     Sekcja kontroli gry znajdująca się w prawym dolnym rogu głównego interfejsu gry. Dopuszcza powiększanie w poziomie.
     """
 
-    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
-        super().__init__(rodzic, padding=(0, 0, 10, 0))
-        self.plansza_g = plansza_gracza
-        self.plansza_p = plansza_przeciwnika
-        # GUI
-        self.tytul = None  # string w formacie `Tura #[liczba]/Runda #[liczba]`
-        etyramka = ttk.Labelframe(self, text=self.tytul, padding=5)
-        etyramka.grid(sticky="we")
-        # zgłasza wyżej powiększanie w poziomie
-        etyramka.columnconfigure(0, weight=1)
-        pass  # TODO
+    KOLORY = {
+        # "stan-gry-g": "OliveDrab4",
+        # "stan-gry-p": "salmon4"
+        "stan-gry-g": "LemonChiffon4",
+        "stan-gry-p": "LemonChiffon4"
+    }
+
+    def __init__(self,  rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
+        super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
+        self.plansza_g = kwargs["plansza_gracza"]
+        self.plansza_p = kwargs["plansza_przeciwnika"]
+        self.ustaw_style()
+        self.ustaw_etyramke()
+        self.ustaw_tytul()
+        self.buduj_etykiety()
+        self.buduj_przycisk()
+
+    def ustaw_etyramke(self):
+        """Ustawia etyramkę pod widżety."""
+        self.etyramka.grid(sticky="we")
+        self.etyramka.columnconfigure(0, weight=1)  # zgłasza wyżej powiększanie w poziomie
+
+    def ustaw_tytul(self):
+        """Ustawia tytuł sekcji. Format tytułu: Tura #[liczba]/Runda #[liczba]"""
+        tekst = "Tura #" + str(len(self.plansza_g.gracz.tury)) + " / Runda #" + str(len(self.plansza_g.gracz.tura.rundy))
+        self.tytul.set(tekst)
+
+    def ustaw_style(self):
+        """Ustawia style dla sekcji."""
+        self.styl = ttk.Style()
+        self.styl.configure(
+            "GraczKG.TLabel",
+            font=GraGUI.CZCIONKA_DUZA_BOLD,
+            # background=GraGUI.KOLORY["pozycja-pola"],
+            foreground=self.KOLORY["stan-gry-g"]
+        )
+        self.styl.configure(
+            "PrzeciwnikKG.TLabel",
+            font=GraGUI.CZCIONKA_DUZA_BOLD,
+            # background=GraGUI.KOLORY["pozycja-pola"],
+            foreground=self.KOLORY["stan-gry-p"]
+        )
+        self.styl.configure(
+            "KG.TButton",
+            font=GraGUI.CZCIONKA_BOLD
+        )
+
+    def buduj_etykiety(self):
+        """Buduje etykiety stanu gry dla gracza i przeciwnika."""
+        # gracz
+        etykieta_g = ttk.Label(
+            self.etyramka,
+            style="Mała.TLabel",
+            text=self.plansza_g.tytul.get() + ":"
+        ).grid(
+            row=0,
+            column=0,
+            sticky=tk.W,
+            padx=(28, 13),
+            pady=(0, 5)
+        )
+        tekst_g = self.podaj_tekst_stanu(self.plansza_g.gracz)
+        self.stan_g = ttk.Label(self.etyramka, style="GraczKG.TLabel", text=tekst_g)
+        self.stan_g.grid(
+            row=0,
+            column=1,
+            sticky=tk.E,
+            padx=(0, 28),
+            pady=(0, 5)
+        )
+        # przeciwnik
+        etykieta_p = ttk.Label(
+            self.etyramka,
+            style="Mała.TLabel",
+            text=self.plansza_p.tytul.get() + ":"
+        ).grid(
+            row=1,
+            column=0,
+            sticky=tk.W,
+            padx=(28, 13),
+            pady=(5, 5)
+        )
+        tekst_p = self.podaj_tekst_stanu(self.plansza_p.gracz)
+        self.stan_p = ttk.Label(self.etyramka, style="PrzeciwnikKG.TLabel", text=tekst_p)
+        self.stan_p.grid(
+            row=1,
+            column=1,
+            sticky=tk.E,
+            padx=(0, 28),
+            pady=(5, 5)
+        )
+
+    def podaj_tekst_stanu(self, gracz):
+        """Podaje tekst stanu gry dla danego gracza."""
+        tekst = str(gracz.plansza.podaj_ilosc_nietrafionych_pol()) + "/"
+        tekst += str(gracz.plansza.ilosc_pol_statkow) + " ("
+        tekst += gracz.plansza.podaj_procent_nietrafionych_pol() + ")"
+        return tekst
+
+    def buduj_przycisk(self):
+        """Buduje przycisk KONIEC RUNDY."""
+        self.koniec_rundy = ttk.Button(
+            self.etyramka,
+            text="KONIEC RUNDY",
+            style="KG.TButton",
+            command=self.na_koniec_rundy
+        )
+        self.koniec_rundy.grid(
+            row=2,
+            column=1,
+            sticky=tk.E,
+            padx=(0, 28),
+            pady=10
+        )
+
+    # CALLBACK przycisku KONIEC RUNDY
+    def na_koniec_rundy(self):
+        """Kończy rundę."""
+        # TODO: ustawienie pozostałych sekcji na początek rundy
+        self.plansza_g.gracz.tura.dodaj_runde()
+        self.plansza_p.gracz.tura.dodaj_runde()
+        self.ustaw_tytul()
 
 
 # ****************************************** SEKCJA STANU ***************************************************
@@ -1184,6 +1290,7 @@ class GraGUI(ttk.Frame):
     # TODO: zebrać czcionki w słowniku
     CZCIONKA_MALA = ("TkDefaultFont", 8)
     CZCIONKA_MALA_BOLD = ("TkDefaultFont", 8, "bold")
+    CZCIONKA_DUZA_BOLD = ("TkDefaultFont", 10, "bold")
     CZCIONKA_BOLD = ("TkDefaultFont", 9, "bold")
     KOLORY = {
         "pozycja-pola": "LemonChiffon2"
@@ -1211,6 +1318,10 @@ class GraGUI(ttk.Frame):
             "Bold.TLabel",
             font=self.CZCIONKA_BOLD
         )
+        self.styl.configure(
+            "Mała.TLabel",
+            font=GraGUI.CZCIONKA_MALA
+        )
 
     def buduj_plansze(self, gracz, przeciwnik):
         """Buduje plansze gracza i przeciwnika"""
@@ -1220,24 +1331,32 @@ class GraGUI(ttk.Frame):
         self.plansza_p.grid(column=1, row=0, rowspan=3)
 
     def buduj_sekcje_kontroli(self):
-        """Buduje sekcje kontroli: ataku, floty i gry po prawej stronie okna głównego"""
+        """Buduje sekcje kontroli: ataku, floty i gry po prawej stronie okna głównego."""
         self.kontrola_ataku = KontrolaAtaku(
             self,
-            (0, 10, 10, 0),
-            (5, 10, 5, 5),
+            (0, 10, 10, 15),  # odstęp zewnętrzny (lewo, góra, prawo, dół)
+            (5, 10, 5, 5),  # odstęp wewnętrzny
             plansza_gracza=self.plansza_g,
             plansza_przeciwnika=self.plansza_p
         )
         self.kontrola_ataku.grid(column=2, row=0, sticky=tk.N)
         self.kontrola_floty = KontrolaFloty(
             self,
-            (0, 0, 10, 260),
+            (0, 0, 10, 15),
             (5, 7, 5, 13),
             plansza_gracza=self.plansza_g,
             plansza_przeciwnika=self.plansza_p
         )
         self.kontrola_floty.grid(column=2, row=1, sticky="nsew")
-        self.kontrola_gry = KontrolaGry(self, self.plansza_g, self.plansza_p)
+        # self.kontrola_gry = KontrolaGry(self, self.plansza_g, self.plansza_p)
+        self.kontrola_gry = KontrolaGry(
+            self,
+            (0, 0, 10, 10),
+            (5, 10, 5, 5),
+            "",
+            plansza_gracza=self.plansza_g,
+            plansza_przeciwnika=self.plansza_p
+        )
         self.kontrola_gry.grid(column=2, row=2)
 
     def buduj_pasek_stanu(self):

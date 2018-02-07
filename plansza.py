@@ -6,6 +6,7 @@ Plansza gry wraz z jej podstawowymi elementami.
 
 import codecs
 from random import randint, choice, gauss
+from decimal import Decimal as D
 
 from pamiec import Parser
 
@@ -70,6 +71,7 @@ class Plansza:
         self.wypelnij_statkami()
         self.o_statkach()  # test
         self.drukuj_sie()  # test
+        self.ilosc_pol_statkow = sum([statek.rozmiar for statek in self.statki])
         # kontrola 2 poniższych zmiennych via GUI
         self.zatopione = []  # lista zatopionych statków (na tej planszy - dla kontroli końca gry)
         self.niezatopione = self.statki[:]  # lista niezatopionych statków (na tej planszy)
@@ -372,6 +374,24 @@ class Plansza:
         """
         lista_rang = [statek.ranga for statek in self.zatopione]
         return dict([(ranga, lista_rang.count(ranga)) for ranga in Statek.RANGI])
+
+    def podaj_ilosc_nietrafionych_pol(self):
+        """Podaje ilość nietrafionych pól statków. Pola zatopione zalicza do trafionych."""
+        licznik = 0
+        for statek in self.statki:
+            for pole in statek.pola:
+                if pole in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
+                    licznik += 1
+        return self.ilosc_pol_statkow - licznik  # int
+
+    def podaj_procent_nietrafionych_pol(self):
+        """
+        Podaje stosunek nietrafionych pól statków do wszystkich pól zajętych przez statki w procentach. Zwraca string w formacie 00.0%
+        """
+        nietrafione = D(self.podaj_ilosc_nietrafionych_pol())
+        wszystkie = D(self.ilosc_pol_statkow)
+        procent = round(nietrafione * 100 / wszystkie, 1)
+        return str(procent) + "%"
 
 
 class Pole:
