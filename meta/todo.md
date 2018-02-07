@@ -43,6 +43,7 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 10. Kontrola Floty:
 
     1. Drzewo.
+
         * [ZROBIONE] <del>Scrollbary</del>
         * [ZROBIONE] <del>Automatyczne przesuwanie widoku na wybrany element (teraz jeśli przewijając wybierze się statek poza widokiem to pozostaje niewidoczny)</del>
         * [ZROBIONE] <del>Prawidłowe ustawienie na gridzie</del>
@@ -52,10 +53,11 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
         * Obsługa możliwości wyboru tylko statków, które jeszcze nie miały swojej rundy w danej turze ==> TODO w trakcie prac nad mechaniką
         * Obsługa zatapiania (odpowiednie formatowanie tej sekcji) ==> TODO w trakcie prac nad mechaniką
         * Obsługa dodawania zatopionych statków (odpowiednie formatowanie tej sekcji) ==> TODO w trakcie prac nad mechaniką
+        * WAŻNE: dodać kolumnę SALWY (ilość salw danego statku zmienia się w trakcie gry - jak na razie informacja jest śledzona tylko przez sekcje Kontroli Ataku)
 
 
     2. [ZROBIONE] <del>Przyciski Poprzedni/Kolejny Statek</del>
-        * wyświetlanie zmieniającego się położenia kursora na planszy gracza - najlepiej na etykiecie pomiędzy przyciskami przewijania
+        * [ZROBIONE] <del>wyświetlanie zmieniającego się położenia kursora na planszy gracza - najlepiej na etykiecie pomiędzy przyciskami przewijania</del>
 
     3. Schemat zagnieżdżonego layoutu:
 

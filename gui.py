@@ -343,6 +343,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     def __init__(self, rodzic, plansza, tytul="Przeciwnik"):
         super().__init__(rodzic, plansza, tytul)
         self.combo_orientacji = None  # widżet przekazywany przez Kontrolę Ataku pod koniec jej inicjalizacji
+        self.pozycje_salwy = None # jw.
         self.ustaw_style_przeciwnika()
         self.powiaz_callbacki()
         self.zmien_podswietlanie_nieodkrytych()
@@ -426,42 +427,43 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         W zależności od wybranej orientacji w Kontroli Ataku podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji.
         """
         kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        self.pozycje_salwy.pierwsza.set(event.widget.pole)
         # 2 pola w prawo
         if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
-            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active", "druga")
         # 2 pola w dół
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active", "druga")
         # 2 pola w lewo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active")
+            self.zmien_stan_pola(kolumna - 1, rzad, "active", "druga")
         # 2 pola w górę
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "active", "druga")
         # 3 pola poziomo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+            self.zmien_stan_pola(kolumna - 1, rzad, "active", "druga")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active", "trzecia")
         # 3 pola pionowo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "active", "druga")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active", "trzecia")
         # 3 pola L
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "active", "druga")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active", "trzecia")
         # 3 pola Г
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active", "druga")
+            self.zmien_stan_pola(kolumna + 1, rzad, "active", "trzecia")
         # 3 pola Ꞁ
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "active")
+            self.zmien_stan_pola(kolumna - 1, rzad, "active", "druga")
+            self.zmien_stan_pola(kolumna, rzad + 1, "active", "trzecia")
         # 3 pola ⅃
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active")
-            self.zmien_stan_pola(kolumna, rzad - 1, "active")
+            self.zmien_stan_pola(kolumna - 1, rzad, "active", "druga")
+            self.zmien_stan_pola(kolumna, rzad - 1, "active", "trzecia")
 
     # CALLBACK wszystkich pól
     def na_wyjscie(self, event):
@@ -469,47 +471,62 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         W zależności od wybranej orientacji w Kontroli Ataku kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniejszym uruchomieniem callbacka `na_wejscie()`.
         """
         kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        self.pozycje_salwy.pierwsza.set("")
         # 2 pola w prawo
         if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active", "druga")
         # 2 pola w dół
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active", "druga")
         # 2 pola w lewo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active", "druga")
         # 2 pola w górę
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active", "druga")
         # 3 pola poziomo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active", "druga")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active", "trzecia")
         # 3 pola pionowo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active", "druga")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active", "trzecia")
         # 3 pola L
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active", "druga")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active", "trzecia")
         # 3 pola Г
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active", "druga")
+            self.zmien_stan_pola(kolumna + 1, rzad, "!active", "trzecia")
         # 3 pola Ꞁ
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active")
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active", "druga")
+            self.zmien_stan_pola(kolumna, rzad + 1, "!active", "trzecia")
         # 3 pola ⅃
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active")
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active")
+            self.zmien_stan_pola(kolumna - 1, rzad, "!active", "druga")
+            self.zmien_stan_pola(kolumna, rzad - 1, "!active", "trzecia")
 
-    def zmien_stan_pola(self, kolumna, rzad, stan):
-        """Zmienia stan pola wg podanych współrzędnych."""
+    def zmien_stan_pola(self, kolumna, rzad, stan, pozycja):
+        """
+        Zmienia stan pola wg podanych współrzędnych. Aktualizuje treść pozycji pól w sekcji kontroli ataku."""
         if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
-            self.podaj_pole_gui(kolumna, rzad).state([stan])
+            pole_gui = self.podaj_pole_gui(kolumna, rzad)
+            pole_gui.state([stan])
+            # pozycje pól
+            if stan == "active":
+                if pozycja == "druga":
+                    self.pozycje_salwy.druga.set(pole_gui.pole)
+                elif pozycja == "trzecia":
+                    self.pozycje_salwy.trzecia.set(pole_gui.pole)
+            elif stan == "!active":
+                if pozycja == "druga":
+                    self.pozycje_salwy.druga.set("")
+                elif pozycja == "trzecia":
+                    self.pozycje_salwy.trzecia.set("")
+
 
     def odkryj_pole(self, kolumna, rzad):
         """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Jeśli trzeba, zatapia trafiony statek (i odkrywa pola jego obwiedni)."""
@@ -555,6 +572,7 @@ class KontrolaAtaku(ttk.Frame):
         self.buduj_etykiety()
         self.buduj_comboboksy()
         self.ustaw_combo_readonly()
+        self.pozycje_salwy = PozycjeSalwy(self.etyramka)
         self.przekaz_odnosniki()
         self.powiaz_callbacki()
 
@@ -572,11 +590,17 @@ class KontrolaAtaku(ttk.Frame):
             "KA.TCombobox",
             fieldbackground=[("readonly", "white")]
         )
+        self.styl.configure(
+            "PozycjaPolaKA.TLabel",
+            anchor=tk.CENTER,
+            font=GraGUI.CZCIONKA_MALA,
+            width=4
+        )
 
     def ustaw_sie(self):
         """Ustawia interfejs pod widżety."""
         etykieta = ttk.Label(text="Atak", style="Bold.TLabel")
-        self.etyramka = ttk.Labelframe(self, labelwidget=etykieta, padding=(5, 15, 5, 5))
+        self.etyramka = ttk.Labelframe(self, labelwidget=etykieta, padding=(5, 10, 5, 5))
         self.etyramka.grid(sticky="we")
         self.etyramka.columnconfigure(0, weight=1)  # zgłasza wyżej powiększanie w poziomie
 
@@ -671,6 +695,7 @@ class KontrolaAtaku(ttk.Frame):
         """Przekazuje własne odnośniki dla event handlerów w planszach"""
         self.plansza_g.kontrola_ataku = self
         self.plansza_p.combo_orientacji = self.combo_orientacji
+        self.plansza_p.pozycje_salwy = self.pozycje_salwy
 
     def powiaz_callbacki(self):
         """Wiąże callbacki"""
@@ -710,11 +735,35 @@ class KontrolaAtaku(ttk.Frame):
         salwa = int(salwa_tekst[0])
         if salwa == 1:
             self.combo_orientacji["values"] = [self.ORIENTACJE[0]]
+            self.wylacz_pozycje_salwy("druga")
+            self.wylacz_pozycje_salwy("trzecia")
         elif salwa == 2:
             self.combo_orientacji["values"] = self.ORIENTACJE[1:5]
+            self.wlacz_pozycje_salwy("druga")
+            self.wylacz_pozycje_salwy("trzecia")
         elif salwa == 3:
             self.combo_orientacji["values"] = self.ORIENTACJE[5:]
+            self.wlacz_pozycje_salwy("druga")
+            self.wlacz_pozycje_salwy("trzecia")
         self.combo_orientacji.set(self.combo_orientacji["values"][0])
+
+    def wylacz_pozycje_salwy(self, pozycja):
+        """Wyłącza podaną pozycję salwy"""
+        if pozycja == "druga":
+            self.pozycje_salwy.numer_drugiej.grid_remove()
+            self.pozycje_salwy.etykieta_drugiej.grid_remove()
+        elif pozycja == "trzecia":
+            self.pozycje_salwy.numer_trzeciej.grid_remove()
+            self.pozycje_salwy.etykieta_trzeciej.grid_remove()
+
+    def wlacz_pozycje_salwy(self, pozycja):
+        """Włącza podaną pozycję salwy"""
+        if pozycja == "druga":
+            self.pozycje_salwy.numer_drugiej.grid()
+            self.pozycje_salwy.etykieta_drugiej.grid()
+        elif pozycja == "trzecia":
+            self.pozycje_salwy.numer_trzeciej.grid()
+            self.pozycje_salwy.etykieta_trzeciej.grid()
 
     # CALLBACK okna głównego
     def na_prawy_przycisk_myszy(self, event=None):
@@ -741,25 +790,108 @@ class ComboZeZmianaCzcionki(ttk.Combobox):
         self.tk.call("{}.f.l".format(lista_rozwijana), 'configure', '-font', self['font'])
 
 
+class PozycjeSalwy(ttk.Frame):
+    """
+    Podsekcja kontroli ataku pokazująca aktualne pozycje pól wybranej salwy.
+    """
+
+    def __init__(self, rodzic):
+        super().__init__(rodzic)
+        self.pierwsza = tk.StringVar()
+        self.druga = tk.StringVar()
+        self.trzecia = tk.StringVar()
+        self.sprawdz_tlo_sytemowe()
+        self.ustaw_sie()
+        self.buduj_etykiety()
+
+    def ustaw_sie(self):
+        """Ustawia interfejs pod widżety."""
+        self.grid(row=4, column=0, columnspan=2, sticky="we", pady=(0, 10))
+
+    def buduj_etykiety(self):
+        """Buduje etykiety."""
+        self.numer_pierwszej = ttk.Label(self, style="KA.TLabel", text="#1:")
+        self.numer_pierwszej.grid(
+            row=0,
+            column=0,
+            sticky=tk.W
+        )
+        self.numer_drugiej = ttk.Label(self, style="KA.TLabel", text="#2:")
+        self.numer_drugiej.grid(
+            row=0,
+            column=2,
+            sticky=tk.W,
+            padx=(25,0)
+        )
+        self.numer_trzeciej = ttk.Label(self, style="KA.TLabel", text="#3:")
+        self.numer_trzeciej.grid(
+            row=0,
+            column=4,
+            sticky=tk.W,
+            padx=(25,0)
+        )
+        self.etykieta_pierwszej = ttk.Label(
+            self,
+            style="PozycjaPolaKA.TLabel",
+            text="",
+            textvariable=self.pierwsza
+        )
+        self.etykieta_pierwszej.grid(row=0, column=1, sticky=tk.W)
+        self.etykieta_drugiej = ttk.Label(
+            self,
+            style="PozycjaPolaKA.TLabel",
+            text="",
+            textvariable=self.druga
+        )
+        self.etykieta_drugiej.grid(row=0, column=3, sticky=tk.W)
+        self.etykieta_trzeciej = ttk.Label(
+            self,
+            style="PozycjaPolaKA.TLabel",
+            text="",
+            textvariable=self.trzecia
+        )
+        self.etykieta_trzeciej.grid(row=0, column=5, sticky=tk.W)
+        self.pierwsza.trace("w", lambda n, i, m, poz=self.pierwsza, et=self.etykieta_pierwszej: self.na_zmiane(poz, et))
+        self.druga.trace("w", lambda n, i, m, poz=self.druga, et=self.etykieta_drugiej: self.na_zmiane(poz, et))
+        self.trzecia.trace("w", lambda n, i, m, poz=self.trzecia, et=self.etykieta_trzeciej: self.na_zmiane(poz, et))
+
+    def sprawdz_tlo_sytemowe(self):
+        """Sprawdza kolor tla systemowego i zapisuje w stałej"""
+        self.TLO_SYSTEMOWE = self.winfo_toplevel().cget("bg")
+
+    # CALLBACK każdej pozycji pola
+    def na_zmiane(self, pozycja, etykieta):
+        """Zmienia tło etykiety pozycji pola."""
+        if pozycja.get() == "":
+            etykieta.configure(background=self.TLO_SYSTEMOWE)
+        else:
+            etykieta.configure(background=GraGUI.KOLORY["pozycja-pola"])
+
 class KontrolaFloty(ttk.Frame):
     """
     Sekcja kontroli floty (całej gracza i zatopionej przeciwnika) znajdująca się w środku po prawej stronie głównego interfejsu gry. Dopuszcza powiększanie w poziomie i w pionie.
     """
-
-    KOLORY = {
-        "pozycja-pola": "LemonChiffon2"
-    }
 
     def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
         super().__init__(rodzic, padding=(0, 0, 10, 260))
         self.plansza_g = plansza_gracza
         self.plansza_p = plansza_przeciwnika
         self.sprawdz_tlo_sytemowe()
+        self.ustaw_style()
         self.ustaw_sie()
         self.buduj_drzewa()
         self.buduj_przyciski()
         self.buduj_pozycje_pola()
         self.przekaz_odnosniki()
+
+    def ustaw_style(self):
+        """Ustawia style dla widżetów"""
+        self.styl = ttk.Style()
+        self.styl.configure(
+            "PozycjaPolaKF.TLabel",
+            anchor=tk.CENTER,
+            width=4
+        )
 
     def ustaw_sie(self):
         """Ustawia interfejs pod widżety."""
@@ -823,25 +955,24 @@ class KontrolaFloty(ttk.Frame):
         self.pozycja_pola = tk.StringVar()
         self.etykieta_pozycji_pola = ttk.Label(
             self.etyramka,
-            background=self.KOLORY["pozycja-pola"],
+            style="PozycjaPolaKF.TLabel",
             text="",
-            anchor=tk.CENTER,
-            textvariable=self.pozycja_pola,
-            width=4
+            textvariable=self.pozycja_pola
         )
         self.etykieta_pozycji_pola.grid(row=1, column=1, sticky="we", pady=(13, 0))
         self.pozycja_pola.trace("w", self.na_zmiane_pozycji_pola)
 
     def sprawdz_tlo_sytemowe(self):
-        """Sprawdza kolor tla systemowego i zapisuje w stałej klasy."""
-        self.KOLORY.update({"tło-systemowe": self.winfo_toplevel().cget("bg")})
+        """Sprawdza kolor tla systemowego i zapisuje w stałej"""
+        self.TLO_SYSTEMOWE = self.winfo_toplevel().cget("bg")
 
+    # CALLBACK pozycji pola
     def na_zmiane_pozycji_pola(self, *args):
         """Zmienia tło etykiety pozycji pola."""
         if self.pozycja_pola.get() == "":
-            self.etykieta_pozycji_pola.configure(background=self.KOLORY["tło-systemowe"])
+            self.etykieta_pozycji_pola.configure(background=self.TLO_SYSTEMOWE)
         else:
-            self.etykieta_pozycji_pola.configure(background=self.KOLORY["pozycja-pola"])
+            self.etykieta_pozycji_pola.configure(background=GraGUI.KOLORY["pozycja-pola"])
 
     def przekaz_odnosniki(self):
         """Przekazuje własne odnośniki do event handlerów w planszach."""
@@ -1050,6 +1181,9 @@ class GraGUI(ttk.Frame):
     CZCIONKA_MALA = ("TkDefaultFont", 8)
     CZCIONKA_MALA_BOLD = ("TkDefaultFont", 8, "bold")
     CZCIONKA_BOLD = ("TkDefaultFont", 9, "bold")
+    KOLORY = {
+        "pozycja-pola": "LemonChiffon2"
+    }
 
     def __init__(self, rodzic, kolumny, rzedy):
         super().__init__(rodzic)
