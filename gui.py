@@ -51,25 +51,33 @@ class PoleGUI(ttk.Button):
         self.pole = pole
 
 
-class PlanszaGUI(ttk.Frame):
+class Sekcja(ttk.Frame):
+    """
+    Sekcja okna głównego z obramowaniem, wytłuszczoną etykietą i odstępem zewnętrznym (na zewnątrz obramowania) i wewnętrznym (od wewnątrz obramowania). Odstęp przyjmuje wartości akceptowane przez opcje `padding` Tkintera.
+    """
+
+    def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul):
+        super().__init__(rodzic, padding=odstep_zewn)
+        self.ustaw_sie(odstep_wewn, tytul)
+
+    def ustaw_sie(self, odstep_wewn, tytul):
+        """Ustawia interfejs pod widżety."""
+        etykieta = ttk.Label(text=tytul, style="Bold.TLabel")
+        self.etyramka = ttk.LabelFrame(self, labelwidget=etykieta, padding=odstep_wewn)
+        self.etyramka.grid()
+
+
+class PlanszaGUI(Sekcja):
     """Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych. Nie dopuszcza powiększania."""
 
-    def __init__(self, rodzic, gracz, tytul):
-        super().__init__(rodzic, padding=10)
-        self.gracz = gracz
+    def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
+        super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
+        self.gracz = kwargs["gracz"]
         self.tytul = tytul
         self.pola_gui = [[0 for kolumna in range(self.gracz.plansza.kolumny)] for rzad in range(self.gracz.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
         self.ustaw_style()
-        self.ustaw_sie()
         self.buduj_etykiety()
         self.buduj_pola()
-
-    def ustaw_sie(self):
-        """Ustawia interfejs pod widżety."""
-        self.grid(rowspan=3)
-        etykieta = ttk.Label(text=self.tytul, style="Bold.TLabel")
-        self.etyramka = ttk.LabelFrame(self, labelwidget=etykieta, padding=10)
-        self.etyramka.grid()
 
     def ustaw_style(self):
         """Definiuje style dla pól."""
@@ -186,8 +194,8 @@ class PlanszaGUI(ttk.Frame):
 class PlanszaGracza(PlanszaGUI):
     """Graficzna reprezentacja planszy gracza."""
 
-    def __init__(self, rodzic, plansza, tytul="Gracz"):
-        super().__init__(rodzic, plansza, tytul)
+    def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Gracz", **kwargs):
+        super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs)
         self.kontrola_ataku = None  # Kontrola Ataku przekazuje tutaj odnośnik do siebie na koniec swojej inicjalizacji
         self.drzewo_floty = None  # Kontrola Floty jw.
         self.pozycja_pola = None  # Kontrola Floty jw.
@@ -340,10 +348,10 @@ class PlanszaGracza(PlanszaGUI):
 class PlanszaPrzeciwnika(PlanszaGUI):
     """Graficzna reprezentacja planszy przeciwnika."""
 
-    def __init__(self, rodzic, plansza, tytul="Przeciwnik"):
-        super().__init__(rodzic, plansza, tytul)
+    def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Przeciwnik", **kwargs):
+        super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs)
         self.combo_orientacji = None  # widżet przekazywany przez Kontrolę Ataku pod koniec jej inicjalizacji
-        self.pozycje_salwy = None # jw.
+        self.pozycje_salwy = None  # jw.
         self.ustaw_style_przeciwnika()
         self.powiaz_callbacki()
         self.zmien_podswietlanie_nieodkrytych()
@@ -527,7 +535,6 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 elif pozycja == "trzecia":
                     self.pozycje_salwy.trzecia.set("")
 
-
     def odkryj_pole(self, kolumna, rzad):
         """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Jeśli trzeba, zatapia trafiony statek (i odkrywa pola jego obwiedni)."""
         if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
@@ -556,19 +563,19 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 # ***************************************** SEKCJA KONTROLI *************************************************
 
 
-class KontrolaAtaku(ttk.Frame):
+class KontrolaAtaku(Sekcja):
     """
     Sekcja kontroli ataku znajdująca się w prawym górnym rogu głównego interfejsu gry. Dopuszcza powiększanie w poziomie.
     """
 
     ORIENTACJE = ["•", "•• prawo", "╏ dół", "•• lewo", "╏ góra", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
 
-    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
-        super().__init__(rodzic, padding=(0, 10, 10, 0))
-        self.plansza_g = plansza_gracza
-        self.plansza_p = plansza_przeciwnika
+    def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Atak", **kwargs):
+        super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
+        self.plansza_g = kwargs["plansza_gracza"]
+        self.plansza_p = kwargs["plansza_przeciwnika"]
         self.ustaw_style()
-        self.ustaw_sie()
+        self.ustaw_etyramke()
         self.buduj_etykiety()
         self.buduj_comboboksy()
         self.ustaw_combo_readonly()
@@ -597,10 +604,8 @@ class KontrolaAtaku(ttk.Frame):
             width=4
         )
 
-    def ustaw_sie(self):
-        """Ustawia interfejs pod widżety."""
-        etykieta = ttk.Label(text="Atak", style="Bold.TLabel")
-        self.etyramka = ttk.Labelframe(self, labelwidget=etykieta, padding=(5, 10, 5, 5))
+    def ustaw_etyramke(self):
+        """Ustawia etyramkę pod widżety."""
         self.etyramka.grid(sticky="we")
         self.etyramka.columnconfigure(0, weight=1)  # zgłasza wyżej powiększanie w poziomie
 
@@ -867,18 +872,18 @@ class PozycjeSalwy(ttk.Frame):
         else:
             etykieta.configure(background=GraGUI.KOLORY["pozycja-pola"])
 
-class KontrolaFloty(ttk.Frame):
+class KontrolaFloty(Sekcja):
     """
     Sekcja kontroli floty (całej gracza i zatopionej przeciwnika) znajdująca się w środku po prawej stronie głównego interfejsu gry. Dopuszcza powiększanie w poziomie i w pionie.
     """
 
-    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
-        super().__init__(rodzic, padding=(0, 0, 10, 260))
-        self.plansza_g = plansza_gracza
-        self.plansza_p = plansza_przeciwnika
+    def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Flota", **kwargs):
+        super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
+        self.plansza_g = kwargs["plansza_gracza"]
+        self.plansza_p = kwargs["plansza_przeciwnika"]
         self.sprawdz_tlo_sytemowe()
         self.ustaw_style()
-        self.ustaw_sie()
+        self.ustaw_etyramke()
         self.buduj_drzewa()
         self.buduj_przyciski()
         self.buduj_pozycje_pola()
@@ -893,10 +898,8 @@ class KontrolaFloty(ttk.Frame):
             width=4
         )
 
-    def ustaw_sie(self):
-        """Ustawia interfejs pod widżety."""
-        etykieta = ttk.Label(text="Flota", style="Bold.TLabel")
-        self.etyramka = ttk.Labelframe(self, labelwidget=etykieta, padding=(5, 7, 5, 13))
+    def ustaw_etyramke(self):
+        """Ustawia etyramkę pod widżety."""
         self.etyramka.grid(sticky="nsew")
         # zgłasza wyżej powiększanie w poziomie i w pionie
         self.etyramka.rowconfigure(0, weight=1)
@@ -1178,6 +1181,7 @@ class PasekStanu(ttk.Frame):
 class GraGUI(ttk.Frame):
     """Główny interfejs gry"""
 
+    # TODO: zebrać czcionki w słowniku
     CZCIONKA_MALA = ("TkDefaultFont", 8)
     CZCIONKA_MALA_BOLD = ("TkDefaultFont", 8, "bold")
     CZCIONKA_BOLD = ("TkDefaultFont", 9, "bold")
@@ -1210,16 +1214,28 @@ class GraGUI(ttk.Frame):
 
     def buduj_plansze(self, gracz, przeciwnik):
         """Buduje plansze gracza i przeciwnika"""
-        self.plansza_g = PlanszaGracza(self, gracz)
+        self.plansza_g = PlanszaGracza(self, 10, 10, gracz=gracz)
         self.plansza_g.grid(column=0, row=0, rowspan=3)
-        self.plansza_p = PlanszaPrzeciwnika(self, przeciwnik)
+        self.plansza_p = PlanszaPrzeciwnika(self, 10, 10, gracz=przeciwnik)
         self.plansza_p.grid(column=1, row=0, rowspan=3)
 
     def buduj_sekcje_kontroli(self):
         """Buduje sekcje kontroli: ataku, floty i gry po prawej stronie okna głównego"""
-        self.kontrola_ataku = KontrolaAtaku(self, self.plansza_g, self.plansza_p)
+        self.kontrola_ataku = KontrolaAtaku(
+            self,
+            (0, 10, 10, 0),
+            (5, 10, 5, 5),
+            plansza_gracza=self.plansza_g,
+            plansza_przeciwnika=self.plansza_p
+        )
         self.kontrola_ataku.grid(column=2, row=0, sticky=tk.N)
-        self.kontrola_floty = KontrolaFloty(self, self.plansza_g, self.plansza_p)
+        self.kontrola_floty = KontrolaFloty(
+            self,
+            (0, 0, 10, 260),
+            (5, 7, 5, 13),
+            plansza_gracza=self.plansza_g,
+            plansza_przeciwnika=self.plansza_p
+        )
         self.kontrola_floty.grid(column=2, row=1, sticky="nsew")
         self.kontrola_gry = KontrolaGry(self, self.plansza_g, self.plansza_p)
         self.kontrola_gry.grid(column=2, row=2)
@@ -1230,7 +1246,9 @@ class GraGUI(ttk.Frame):
         self.pasek_stanu.grid(column=0, row=3, columnspan=3)
 
     def ustaw_grid(self):
-        """Konfiguruje layout managera. Dopuszcza powiększanie trzeciej kolumny (w poziomie) i czwartego rzędu (w pionie)."""
+        """
+        Konfiguruje layout managera. Dopuszcza powiększanie trzeciej kolumny (w poziomie) i czwartego rzędu (w pionie).
+        """
         self.columnconfigure(2, weight=1)
         self.rowconfigure(3, weight=1)
 

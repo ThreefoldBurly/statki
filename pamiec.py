@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Zapis i odczyt danych do pamięci zewnętrznej.
+Zapis i odczyt danych z pamięci zewnętrznej.
 """
 
 import codecs
