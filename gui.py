@@ -7,6 +7,7 @@ Graficzny interfejs użytkownika
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+import math
 
 from plansza import Plansza, Pole, Statek
 from mechanika import Gracz
@@ -991,7 +992,8 @@ class DrzewoFloty(ttk.Treeview):
 
     def __init__(self, rodzic, plansza_gui):
         super().__init__(rodzic)
-        self.plansza = plansza_gui
+        self.plansza_gui = plansza_gui
+        self.wys_wiersza = 15
 
         self.ustaw_style()
         self.ustaw_sie()
@@ -1004,7 +1006,8 @@ class DrzewoFloty(ttk.Treeview):
         self.styl.configure(
             "KF.Treeview",
             font=GraGUI.CZCIONKA_MALA,
-            rowheight=15
+            rowheight=self.wys_wiersza
+            # rowheight=13
         )
         self.styl.configure(
             "KF.Treeview.Heading",
@@ -1013,14 +1016,33 @@ class DrzewoFloty(ttk.Treeview):
 
     def ustaw_sie(self):
         """Konfiguruje to drzewo."""
+
         self.configure(
             style="KF.Treeview",
-            height=19,
+            height=self.podaj_wysokosc(),
+            # height=22,
             columns=("statek", "gdzie", "rozmiar", "ofiary"),
             displaycolumns="#all",
             selectmode="browse"
         )
         self.grid(sticky="nsew")
+
+    def podaj_wysokosc(self):
+        """
+        Podaje wysokość (w wierszach) obliczaną na podstawie rozmiaru planszy.
+
+        Punktem wyjścia do obliczeń były testy, z których wynika, że dla planszy w rozmiarze 26x26 idealna wysokość to 19 wierszy (przy wysokości wiersza równej 15 px - taka wysokość wiersza jest optymalna dla czytelności i wyglądu drzewa, ale dla prostego przeliczania względem planszy lepsza byłaby wysokość równa 13 px (ponieważ pole planszy ma 26 px)).
+        """
+        bazowe_wiersze, bazowe_rzedy, wys_pola = 19, 26, 26
+        rzedy_planszy = self.plansza_gui.gracz.plansza.rzedy
+        delta_planszy = (rzedy_planszy - bazowe_rzedy) * wys_pola
+        if delta_planszy < 0:
+            wysokosc = bazowe_wiersze - math.ceil(abs(delta_planszy) / self.wys_wiersza)
+            if wysokosc < 4:
+                wysokosc = 4
+            return wysokosc
+        else:
+            return bazowe_wiersze + math.floor(abs(delta_planszy) / self.wys_wiersza)
 
     def wstaw_suwaki(self, rodzic):
         """Wstawia w drzewo suwaki."""
@@ -1063,7 +1085,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
         super().__init__(rodzic, plansza_gui)
 
         self.ustaw_kolumny("NT/R")
-        self.dodaj_statki(self.plansza.gracz.plansza.niezatopione, "niezatopione")
+        self.dodaj_statki(self.plansza_gui.gracz.plansza.niezatopione, "niezatopione")
         self.ustaw_wyglad()
         self.powiaz_podwojne_klikniecie()
 
@@ -1078,7 +1100,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
                     tags="kategoria"
                     )
         # rangi
-        ilosc_wg_rang = self.plansza.gracz.plansza.podaj_ilosc_niezatopionych_wg_rang()
+        ilosc_wg_rang = self.plansza_gui.gracz.plansza.podaj_ilosc_niezatopionych_wg_rang()
         for ranga in Statek.RANGI[::-1]:
             if ilosc_wg_rang[ranga] > 0:
                 ranga_i_ilosc = Statek.SYMBOLE[ranga] + " (" + str(ilosc_wg_rang[ranga]) + ")"
@@ -1116,8 +1138,8 @@ class DrzewoFlotyGracza(DrzewoFloty):
     def na_podwojne_klikniecie(self, event=None):
         """Wybiera kliknięty podwójnie statek na planszy gracza."""
         # TODO: w drzewie nie może dać się wybierać statków które już miały swoją rundę w tej turze!
-        statek = self.plansza.gracz.tura.statki[int(self.focus())]
-        self.plansza.zmien_statek(statek)
+        statek = self.plansza_gui.gracz.tura.statki[int(self.focus())]
+        self.plansza_gui.zmien_statek(statek)
 
 
 class DrzewoFlotyPrzeciwnika(DrzewoFloty):
@@ -1153,6 +1175,7 @@ class KontrolaGry(Sekcja):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
         self.plansza_g = kwargs["plansza_gracza"]
         self.plansza_p = kwargs["plansza_przeciwnika"]
+        self.szer_stanu = 15  # szerokość stanu gry (etykiety) w znakach
         self.ustaw_style()
         self.ustaw_etyramke()
         self.ustaw_tytul()
@@ -1166,7 +1189,9 @@ class KontrolaGry(Sekcja):
 
     def ustaw_tytul(self):
         """Ustawia tytuł sekcji. Format tytułu: Tura #[liczba]/Runda #[liczba]"""
-        tekst = "Tura #" + str(len(self.plansza_g.gracz.tury)) + " / Runda #" + str(len(self.plansza_g.gracz.tura.rundy))
+        tekst = "Tura #" + str(len(self.plansza_g.gracz.tury))
+        tekst += " / Runda #" + str(len(self.plansza_g.gracz.tura.rundy))
+        tekst += " (" + str(len(self.plansza_g.gracz.tura.statki)) + ")"
         self.tytul.set(tekst)
 
     def ustaw_style(self):
@@ -1204,12 +1229,18 @@ class KontrolaGry(Sekcja):
             pady=(0, 5)
         )
         tekst_g = self.podaj_tekst_stanu(self.plansza_g.gracz)
-        self.stan_g = ttk.Label(self.etyramka, style="GraczKG.TLabel", text=tekst_g)
+        self.stan_g = ttk.Label(
+            self.etyramka,
+            style="GraczKG.TLabel",
+            text=tekst_g,
+            anchor=tk.E,
+            width=self.szer_stanu
+        )
         self.stan_g.grid(
             row=0,
             column=1,
             sticky=tk.E,
-            padx=(0, 28),
+            padx=(0, 23),
             pady=(0, 5)
         )
         # przeciwnik
@@ -1225,12 +1256,18 @@ class KontrolaGry(Sekcja):
             pady=(5, 5)
         )
         tekst_p = self.podaj_tekst_stanu(self.plansza_p.gracz)
-        self.stan_p = ttk.Label(self.etyramka, style="PrzeciwnikKG.TLabel", text=tekst_p)
+        self.stan_p = ttk.Label(
+            self.etyramka,
+            style="PrzeciwnikKG.TLabel",
+            text=tekst_p,
+            anchor=tk.E,
+            width=self.szer_stanu
+        )
         self.stan_p.grid(
             row=1,
             column=1,
             sticky=tk.E,
-            padx=(0, 28),
+            padx=(0, 23),
             pady=(5, 5)
         )
 
@@ -1253,7 +1290,7 @@ class KontrolaGry(Sekcja):
             row=2,
             column=1,
             sticky=tk.E,
-            padx=(0, 28),
+            padx=(0, 23),
             pady=10
         )
 
@@ -1334,7 +1371,7 @@ class GraGUI(ttk.Frame):
         """Buduje sekcje kontroli: ataku, floty i gry po prawej stronie okna głównego."""
         self.kontrola_ataku = KontrolaAtaku(
             self,
-            (0, 10, 10, 15),  # odstęp zewnętrzny (lewo, góra, prawo, dół)
+            (0, 10, 10, 10),  # odstęp zewnętrzny (lewo, góra, prawo, dół)
             (5, 10, 5, 5),  # odstęp wewnętrzny
             plansza_gracza=self.plansza_g,
             plansza_przeciwnika=self.plansza_p
@@ -1342,7 +1379,7 @@ class GraGUI(ttk.Frame):
         self.kontrola_ataku.grid(column=2, row=0, sticky=tk.N)
         self.kontrola_floty = KontrolaFloty(
             self,
-            (0, 0, 10, 15),
+            (0, 0, 10, 10),
             (5, 7, 5, 13),
             plansza_gracza=self.plansza_g,
             plansza_przeciwnika=self.plansza_p
@@ -1357,12 +1394,12 @@ class GraGUI(ttk.Frame):
             plansza_gracza=self.plansza_g,
             plansza_przeciwnika=self.plansza_p
         )
-        self.kontrola_gry.grid(column=2, row=2)
+        self.kontrola_gry.grid(column=2, row=2, rowspan=2)
 
     def buduj_pasek_stanu(self):
         """Buduje pasek stanu na dole okna głównego"""
         self.pasek_stanu = PasekStanu(self, self.plansza_g, self.plansza_p)
-        self.pasek_stanu.grid(column=0, row=3, columnspan=3)
+        self.pasek_stanu.grid(column=0, row=3, columnspan=2)
 
     def ustaw_grid(self):
         """
@@ -1382,7 +1419,7 @@ def main():
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
 
-    GraGUI(okno_glowne, 26, 30)
+    GraGUI(okno_glowne, 15, 14)  # rozmiar 26x26 daje idealny układ sekcji w 3ciej kolumnie (przy wysokości drzewa: 19 wierszy i wysokości wiersza równej 15 px)
 
     okno_glowne.resizable(False, False)
     okno_glowne.mainloop()

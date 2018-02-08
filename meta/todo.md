@@ -63,15 +63,17 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
         [1] Okno Główne (Tk) >> [2] GraGUI (Frame) >> [3] Kontrola Floty (Frame) >> [4] etyramka (LabelFrame) >> [5] notes (Notebook) >> [6] ramka (Frame) >> [7] drzewo (Treeview)
 
-11. Kontrola Gry. Dokładnie rozrysować.
+11. Kontrola Gry.
 
-
+    * [ZROBIONE] <del>Podstawowy wygląd</del>
+    * Powiązanie z mechanika.py
+    * Kontrola pozostałych sekcji
 
 12. Pasek stanu.
 
+13. Grid - całość.
 
-
-13. Grid - całość. Aktualnie jest w miarę OK, ale wystarczy zmienić rozmiar na mniejszy od maksymalnego i cała Kontrola Ataku znika.
+    * Ustawienie kolumny prawej (sekcje kontroli) tak by o rozmieszczeniu wzajemnym sekcji decydowała głównie wysokość sekcji kontroli floty - uzależniona od wybranego rozmiaru planszy
 
 14. Całość - drobne.
 
