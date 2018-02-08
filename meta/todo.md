@@ -73,11 +73,12 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
 13. Grid - całość.
 
-    * Ustawienie kolumny prawej (sekcje kontroli) tak by o rozmieszczeniu wzajemnym sekcji decydowała głównie wysokość sekcji kontroli floty - uzależniona od wybranego rozmiaru planszy
+    * [ZROBIONE] <del>Ustawienie kolumny prawej (sekcje kontroli) tak by o rozmieszczeniu wzajemnym sekcji decydowała głównie wysokość sekcji kontroli floty - uzależniona od wybranego rozmiaru planszy</del>
+    * Testy pod Windowsem
 
 14. Całość - drobne.
 
-    * przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego
+    * Przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego
 
 ## MECHANIKA
 

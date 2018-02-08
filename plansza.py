@@ -7,6 +7,7 @@ Plansza gry wraz z jej podstawowymi elementami.
 import codecs
 from random import randint, choice, gauss
 from decimal import Decimal as D
+import math
 
 from pamiec import Parser
 
@@ -284,16 +285,16 @@ class Plansza:
                 return statek
         return None
 
-    def wypelnij_statkami(self, zapelnienie=15, odch_st=9, prz_mediany=-7):
+    def wypelnij_statkami(self, zapelnienie=20, odch_st=9.5, prz_mediany=12):
         """
         Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry metody.
         """
         # zapelnienie to wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych
-        # statków do rozmiaru planszy
+        # statków do rozmiaru planszy - w klasycznych `Statkach` zapełnienie wynosi: 20
         #
         # odch_st to odchylenie standardowe w rozkładzie Gaussa, z którego losowany
-        # jest rozmiar statku
-        # czym wyższa wartość, tym większy rozrzut rozmiarów
+        # jest rozmiar statku, czym wyższa wartość, tym większy rozrzut rozmiarów
+        # standardowa wartość: 9.5 (mediana - minimum przedziału losowania)
         #
         # prz_mediany to przesunięcie mediany w rozkładzie Gaussa, z którego losowany
         # jest rozmiar statku
@@ -303,23 +304,19 @@ class Plansza:
         # gdzie mediana jest średnią arytmetyczną przedziału losowania
         #
         # wartości domyślne parametrów zostały ustalone po testach
-        # większa granulacja rozmiarów statków (z zapewnieniem sporadycznego występowania dużych
-        # statków) zapewnia ciekawszą grę
+        #
+        # UWAGA: wpływ użytkownika na rodzaj floty jaki dostanie na planszy (od dużo małych statków do dużo
+        # dużych statków) powinień sprowadzać się do manipulacji tylko jednym parametrem: PRZESUNIĘCIEM
+        # MEDIANY
 
         def podaj_int_z_rozkladu_Gaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
             """
-            Podaje losowy int wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany. Liczby spoza zadanego przedziału zwracane przez random.gauss() są odbijane proporcjonalnie do wewnątrz przedziału. PRZYKŁAD: dla przedziału <1, 20>, jeśli random.gauss() zwraca -2, to zwróconą liczbą będzie 3, jeśli -5, to 6 jeśli random.gauss() zwraca 22, to zwróconą liczbą, będzie 19, jeśli 27, to 14.
+            Podaje losową liczbę całkowitą wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany. Liczby losowane spoza żądanego przedziału są ignorowane.
             """
-            i = int(round(gauss(mediana + prz_mediany, odch_st)))
-            if i < minimum:
-                i = minimum - i
-                if i > maximum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite minimum- miałoby wyjść poza zadany przedział, jest przycinane do maximum bez odbicia)
-                    i = maximum
-            if i > maximum:
-                i = maximum - (i - maximum) + 1
-                if i < minimum:  # odbicie do wewnątrz przedziału jest jednokrotne (jeśli odbite maximum+ miałoby wyjść poza zadany przedział, jest przycinane do minimum bez odbicia)
-                    i = minimum
-            return i
+            while True:
+                i = int(round(gauss(mediana + prz_mediany, odch_st)))
+                if i in range(1, 21):
+                    return i
 
         mediana = (self.MIN_ROZMIAR_STATKU + self.MAX_ROZMIAR_STATKU) / 2.0  # 10.5
 

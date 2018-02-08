@@ -206,7 +206,7 @@ class PlanszaGracza(PlanszaGUI):
         self.odkryj_wszystkie_pola()
 
         # testy
-        statek = self.gracz.plansza.statki[2]
+        statek = self.gracz.plansza.statki[1]
         self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
         # statek = self.gracz.plansza.statki[3]
         # self.zatop_statek(statek)
@@ -1033,16 +1033,30 @@ class DrzewoFloty(ttk.Treeview):
 
         Punktem wyjścia do obliczeń były testy, z których wynika, że dla planszy w rozmiarze 26x26 idealna wysokość to 19 wierszy (przy wysokości wiersza równej 15 px - taka wysokość wiersza jest optymalna dla czytelności i wyglądu drzewa, ale dla prostego przeliczania względem planszy lepsza byłaby wysokość równa 13 px (ponieważ pole planszy ma 26 px)).
         """
+        # TODO: testy pod Windowsem
+
+        def skoryguj_wysokosc_pod_pasek_stanu(wysokosc):
+            # po decyzji o tym, że pasek stanu będzie umiejscowiony tylko pod planszami a nie pod całym oknem głównym, kolumna sekcji kontroli musi być odpowiednio wyższa, co oznacza konieczność korekty wysokości drzewa
+            # potrzebna korekta, która przy minimalnej wysokości drzewa (4 wiersze) zwiększy ją o drugie tyle a przy wielkości zbliżającej się do maksymalnej (24 wiersze) zwiększy ją o 1/4 (4 wiersze)
+            korekta = math.ceil(wysokosc * 6 / wysokosc)
+            # test
+            # print("Podana wysokość: ", wysokosc, "wierszy")
+            # print("Korekta: ", korekta, "wierszy")
+            # print("Wysokość skorygowana:", wysokosc + korekta, "wierszy")
+            return wysokosc + korekta
+
         bazowe_wiersze, bazowe_rzedy, wys_pola = 19, 26, 26
         rzedy_planszy = self.plansza_gui.gracz.plansza.rzedy
         delta_planszy = (rzedy_planszy - bazowe_rzedy) * wys_pola
         if delta_planszy < 0:
             wysokosc = bazowe_wiersze - math.ceil(abs(delta_planszy) / self.wys_wiersza)
-            if wysokosc < 4:
-                wysokosc = 4
-            return wysokosc
+            if wysokosc < 1:
+                wysokosc = 1
+            return skoryguj_wysokosc_pod_pasek_stanu(wysokosc)
         else:
-            return bazowe_wiersze + math.floor(abs(delta_planszy) / self.wys_wiersza)
+            wysokosc = bazowe_wiersze + math.floor(abs(delta_planszy) / self.wys_wiersza)
+            return skoryguj_wysokosc_pod_pasek_stanu(wysokosc)
+
 
     def wstaw_suwaki(self, rodzic):
         """Wstawia w drzewo suwaki."""
@@ -1419,7 +1433,7 @@ def main():
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
 
-    GraGUI(okno_glowne, 15, 14)  # rozmiar 26x26 daje idealny układ sekcji w 3ciej kolumnie (przy wysokości drzewa: 19 wierszy i wysokości wiersza równej 15 px)
+    GraGUI(okno_glowne, 26, 26)
 
     okno_glowne.resizable(False, False)
     okno_glowne.mainloop()
