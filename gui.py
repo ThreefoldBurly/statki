@@ -1035,10 +1035,16 @@ class DrzewoFloty(ttk.Treeview):
         """
         # TODO: testy pod Windowsem
 
-        def skoryguj_wysokosc_pod_pasek_stanu(wysokosc):
+        def skoryguj_wysokosc_pod_pasek_stanu(wysokosc, rzedy_planszy):
             # po decyzji o tym, że pasek stanu będzie umiejscowiony tylko pod planszami a nie pod całym oknem głównym, kolumna sekcji kontroli musi być odpowiednio wyższa, co oznacza konieczność korekty wysokości drzewa
             # potrzebna korekta, która przy minimalnej wysokości drzewa (4 wiersze) zwiększy ją o drugie tyle a przy wielkości zbliżającej się do maksymalnej (24 wiersze) zwiększy ją o 1/4 (4 wiersze)
-            korekta = math.ceil(wysokosc * 6 / wysokosc)
+            # EDIT: przy wysokościach planszy 10-13 rzędów potrzebna mniejsza korekta - wychodzą z tego niezłe ptolemejskie epicykle, ale działa
+            if rzedy_planszy >= 14:
+                korekta = math.ceil(wysokosc * 6 / wysokosc)
+            elif rzedy_planszy == 13:
+                korekta = math.ceil(wysokosc * 5 / wysokosc)
+            else:
+                korekta = math.ceil(wysokosc * 3 / wysokosc)
             # test
             # print("Podana wysokość: ", wysokosc, "wierszy")
             # print("Korekta: ", korekta, "wierszy")
@@ -1052,14 +1058,14 @@ class DrzewoFloty(ttk.Treeview):
             wysokosc = bazowe_wiersze - math.ceil(abs(delta_planszy) / self.wys_wiersza)
             if wysokosc < 1:
                 wysokosc = 1
-            return skoryguj_wysokosc_pod_pasek_stanu(wysokosc)
+            return skoryguj_wysokosc_pod_pasek_stanu(wysokosc, rzedy_planszy)
         else:
             wysokosc = bazowe_wiersze + math.floor(abs(delta_planszy) / self.wys_wiersza)
-            return skoryguj_wysokosc_pod_pasek_stanu(wysokosc)
+            return skoryguj_wysokosc_pod_pasek_stanu(wysokosc, rzedy_planszy)
 
 
     def wstaw_suwaki(self, rodzic):
-        """Wstawia w drzewo suwaki."""
+        """Wstawia suwaki."""
         suwak_pionowy = ttk.Scrollbar(rodzic, orient=tk.VERTICAL, command=self.yview)
         suwak_pionowy.grid(column=1, row=0, sticky="ns")
         suwak_poziomy = ttk.Scrollbar(rodzic, orient=tk.HORIZONTAL, command=self.xview)
@@ -1315,6 +1321,7 @@ class KontrolaGry(Sekcja):
         self.plansza_g.gracz.tura.dodaj_runde()
         self.plansza_p.gracz.tura.dodaj_runde()
         self.ustaw_tytul()
+        # print("*** Wysokość KG po naciśnięciu:", self.winfo_height(), "px")  #test
 
 
 # ****************************************** SEKCJA STANU ***************************************************
@@ -1322,14 +1329,52 @@ class KontrolaGry(Sekcja):
 
 class PasekStanu(ttk.Frame):
     """
-    Pasek stanu wyświetlający komunikaty o grze na dole głównego interfejsu gry. Dopuszcza powiększanie w poziomie i w pionie.
+    Pasek stanu wyświetlający komunikaty o grze w polu tekstowym na dole głównego interfejsu gry. Dopuszcza powiększanie w pionie.
     """
 
-    def __init__(self, rodzic, plansza_gracza, plansza_przeciwnika):
-        super().__init__(rodzic, padding=10)
-        self.plansza_g = plansza_gracza
-        self.plansza_p = plansza_przeciwnika
-        pass  # TODO
+    def __init__(self, rodzic, odstep, wys_plansz):
+        super().__init__(rodzic, padding=odstep)
+        self.wys_plansz = wys_plansz  # ilość rzędów
+        self.sprawdz_tlo_sytemowe()
+        # test
+        # styl = ttk.Style()
+        # styl.configure("PS.TFrame", background="LightPink1")
+        # self.configure(style="PS.TFrame")
+
+        self.buduj_pole_tekstowe()
+
+
+    def podaj_wysokosc(self):
+        """
+        Podaje wysokość. Niezbędna wysokość uzależniona jest od wysokości plansz i została ustalona po testach
+        """
+        wysokosci = {
+            15: 6,
+            14: 7,
+            13: 8,
+            12: 8,
+            11: 8,
+            10: 8
+        }
+        return wysokosci[self.wys_plansz] if self.wys_plansz in range(10, 16) else 4
+
+    def podaj_szerokosc(self):
+        """Podaje szerokość."""
+        return 93  # TODO
+
+    def buduj_pole_tekstowe(self):
+        """Buduje pole tekstowe."""
+        self.tekst = tk.Text(
+            self,
+            width=self.podaj_szerokosc(),
+            height=self.podaj_wysokosc(),
+            bg=self.TLO_SYSTEMOWE
+        )
+        self.tekst.grid(sticky="ns")
+
+    def sprawdz_tlo_sytemowe(self):
+        """Sprawdza kolor tla systemowego i zapisuje w stałej"""
+        self.TLO_SYSTEMOWE = self.winfo_toplevel().cget("bg")
 
 
 # ******************************************** OKNO GŁÓWNE **************************************************
@@ -1377,9 +1422,9 @@ class GraGUI(ttk.Frame):
     def buduj_plansze(self, gracz, przeciwnik):
         """Buduje plansze gracza i przeciwnika"""
         self.plansza_g = PlanszaGracza(self, 10, 10, gracz=gracz)
-        self.plansza_g.grid(column=0, row=0, rowspan=3)
+        self.plansza_g.grid(column=0, row=0, rowspan=3, sticky=tk.N)
         self.plansza_p = PlanszaPrzeciwnika(self, 10, 10, gracz=przeciwnik)
-        self.plansza_p.grid(column=1, row=0, rowspan=3)
+        self.plansza_p.grid(column=1, row=0, rowspan=3, sticky=tk.N)
 
     def buduj_sekcje_kontroli(self):
         """Buduje sekcje kontroli: ataku, floty i gry po prawej stronie okna głównego."""
@@ -1399,7 +1444,6 @@ class GraGUI(ttk.Frame):
             plansza_przeciwnika=self.plansza_p
         )
         self.kontrola_floty.grid(column=2, row=1, sticky="nsew")
-        # self.kontrola_gry = KontrolaGry(self, self.plansza_g, self.plansza_p)
         self.kontrola_gry = KontrolaGry(
             self,
             (0, 0, 10, 10),
@@ -1412,14 +1456,20 @@ class GraGUI(ttk.Frame):
 
     def buduj_pasek_stanu(self):
         """Buduje pasek stanu na dole okna głównego"""
-        self.pasek_stanu = PasekStanu(self, self.plansza_g, self.plansza_p)
-        self.pasek_stanu.grid(column=0, row=3, columnspan=2)
+        print("*** Buduje PS")
+        self.pasek_stanu = PasekStanu(
+            self,
+            (10, 0, 10, 11),
+            self.plansza_g.gracz.plansza.rzedy
+        )
+        self.pasek_stanu.grid(column=0, row=3, columnspan=2, sticky=tk.N)
 
     def ustaw_grid(self):
         """
         Konfiguruje layout managera. Dopuszcza powiększanie trzeciej kolumny (w poziomie) i czwartego rzędu (w pionie).
         """
         self.columnconfigure(2, weight=1)
+        self.rowconfigure(2, weight=1)
         self.rowconfigure(3, weight=1)
 
     def wybierz_statek_startowy(self):
@@ -1433,7 +1483,7 @@ def main():
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
 
-    GraGUI(okno_glowne, 26, 26)
+    GraGUI(okno_glowne, 10, 12)
 
     okno_glowne.resizable(False, False)
     okno_glowne.mainloop()

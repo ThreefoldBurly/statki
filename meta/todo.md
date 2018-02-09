@@ -74,6 +74,7 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 13. Grid - całość.
 
     * [ZROBIONE] <del>Ustawienie kolumny prawej (sekcje kontroli) tak by o rozmieszczeniu wzajemnym sekcji decydowała głównie wysokość sekcji kontroli floty - uzależniona od wybranego rozmiaru planszy</del>
+    * Przy wysokości planszy 10-11 wierszy (a być może nawet 10-15 (ze względu na czytelność drzewa w sekcji kontroli ataku)) muszą się automatycznie zmieniać ustawienia siatki głównego okna. Powyżej tego zakresu plansza jest na tyle duża że ma sens by sekcja kontroli gry zajmowała dwa dolne rzędy siatki (a pasek stanu jeden). Poniżej tego zakresu plansza jest na tyle mała, że o wiele sensowniejsze jest gdy to pasek stanu zajmuje 2 dolne rzędy siatki a sekcja kontroli gry tylko jeden.
     * Testy pod Windowsem
 
 14. Całość - drobne.

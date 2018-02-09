@@ -285,7 +285,7 @@ class Plansza:
                 return statek
         return None
 
-    def wypelnij_statkami(self, zapelnienie=20, odch_st=9.5, prz_mediany=12):
+    def wypelnij_statkami(self, zapelnienie=20, odch_st=9.5, prz_mediany=0):
         """
         Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry metody.
         """
@@ -309,13 +309,13 @@ class Plansza:
         # dużych statków) powinień sprowadzać się do manipulacji tylko jednym parametrem: PRZESUNIĘCIEM
         # MEDIANY
 
-        def podaj_int_z_rozkladu_Gaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
+        def podaj_rozmiar_z_rozkladu_Gaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
             """
-            Podaje losową liczbę całkowitą wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany. Liczby losowane spoza żądanego przedziału są ignorowane.
+            Podaje rozmiar statku jako losową liczbę całkowitą wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany. Liczby losowane spoza żądanego przedziału są ignorowane.
             """
             while True:
                 i = int(round(gauss(mediana + prz_mediany, odch_st)))
-                if i in range(1, 21):
+                if i in range(minimum, maximum + 1):
                     return i
 
         mediana = (self.MIN_ROZMIAR_STATKU + self.MAX_ROZMIAR_STATKU) / 2.0  # 10.5
@@ -325,7 +325,7 @@ class Plansza:
         akt_rozmiar_statkow = sum_rozmiar_statkow
 
         while akt_rozmiar_statkow > 0:
-            rozmiar_statku = podaj_int_z_rozkladu_Gaussa(mediana, odch_st, self.MIN_ROZMIAR_STATKU, self.MAX_ROZMIAR_STATKU, prz_mediany)
+            rozmiar_statku = podaj_rozmiar_z_rozkladu_Gaussa(mediana, odch_st, self.MIN_ROZMIAR_STATKU, self.MAX_ROZMIAR_STATKU, prz_mediany)
             if rozmiar_statku > akt_rozmiar_statkow:
                 continue
             pole_startowe_x = randint(1, self.kolumny)
