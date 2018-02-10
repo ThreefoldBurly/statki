@@ -354,7 +354,7 @@ class Plansza:
         sum_rozmiar = 0
         for statek in self.statki:
             sum_rozmiar += statek.rozmiar
-            print('\nUmieszczony statek: {} "{}" [{}]'.format(statek.ranga, statek.nazwa, statek.rozmiar))
+            print('\nUmieszczony statek: {} "{}" [{}]'.format(statek.RANGA_BAZOWA, statek.nazwa, statek.rozmiar))
 
         print("\nWszystkich umieszczonych statków: {}. Ich sumaryczny rozmiar: [{}]".format(len(self.statki), sum_rozmiar))
 
@@ -362,14 +362,14 @@ class Plansza:
         """
         Podaje zestawienie ilości niezatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
         """
-        lista_rang = [statek.ranga for statek in self.niezatopione]
+        lista_rang = [statek.RANGA_BAZOWA for statek in self.niezatopione]
         return dict([(ranga, lista_rang.count(ranga)) for ranga in Statek.RANGI])
 
     def podaj_ilosc_zatopionych_wg_rang(self):
         """
         Podaje zestawienie ilości zatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
         """
-        lista_rang = [statek.ranga for statek in self.zatopione]
+        lista_rang = [statek.RANGA_BAZOWA for statek in self.zatopione]
         return dict([(ranga, lista_rang.count(ranga)) for ranga in Statek.RANGI])
 
     def podaj_ilosc_nietrafionych_pol(self):

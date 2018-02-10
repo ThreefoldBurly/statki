@@ -11,6 +11,7 @@ import math
 
 from plansza import Plansza, Pole, Statek
 from mechanika import Gracz
+from komunikaty import Komunikator
 
 
 # ****************************************** SEKCJA PLANSZ **************************************************
@@ -1184,7 +1185,7 @@ class KontrolaGry(Sekcja):
         "stan-gry-g": "LemonChiffon4",
         "stan-gry-p": "LemonChiffon4"
     }
-    self.SZER_STANU = 15  # szerokość stanu gry (etykiety) w znakach
+    SZER_STANU = 15  # szerokość stanu gry (etykiety) w znakach
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
@@ -1379,6 +1380,7 @@ class PasekStanu(ttk.Frame):
             height=self.podaj_wysokosc(),
             font=GraGUI.CZCIONKA_MALA,
             state=tk.DISABLED,
+            wrap=tk.WORD,
             bg=self.TLO_SYSTEMOWE
         )
         self.tekst.grid(column=0, row=0, sticky="ns")
@@ -1437,6 +1439,8 @@ class GraGUI(ttk.Frame):
         self.ustaw_siatke()
 
         self.wybierz_statek_startowy()
+        self.komunikator = Komunikator(self.pasek_stanu, self.plansza_g, self.plansza_p)
+        self.komunikator.o_rozpoczeciu_gry()
 
     def ustaw_style(self):
         """Ustawia style dla okna głównego."""
@@ -1514,11 +1518,6 @@ class GraGUI(ttk.Frame):
         """Wybiera największy statek na start gry."""
         self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
         self.kontrola_floty.drzewo_g.see("niezatopione")
-
-    # def o_rozpoczeciu_gry(self):
-    #     """Wyświetla na pasku stanu komunikat o rozpoczęciu gry."""
-    #     komunikat = "Gra na planszy o rozmiarze " + str(self.plansza_g.gracz.plansza.kolumny)
-    #     komunikat += " kolumn" + str(self.plansza_g.gracz.plansza.kolumny)
 
 
 def main():
