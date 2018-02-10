@@ -20,6 +20,8 @@ SLOWNIK_ODMIAN = {
     "pancernik": ["pancernik", "pancerniki", "pancerników"]
 }
 
+GWIAZDKA = "✱"
+
 
 def do_indeksu(liczba):
     """Zamienia liczbę na indeks wartości w słowniku odmian."""
@@ -38,8 +40,8 @@ def do_indeksu(liczba):
 class Komunikator:
     """Obsługuje pole tekstowe paska stanu (TODO: oraz tooltipy)."""
 
-    def __init__(self, pasek_stanu, plansza_gracza, plansza_przeciwnika):
-        self.pasek_stanu = pasek_stanu
+    def __init__(self, tekst, plansza_gracza, plansza_przeciwnika):
+        self.tekst = tekst
         self.plansza_g = plansza_gracza
         self.plansza_p = plansza_przeciwnika
 
@@ -65,4 +67,21 @@ class Komunikator:
         komunikat = komunikat[:-2]
         komunikat += ". Zaczynamy!"
 
-        self.pasek_stanu.tekst.readonly_insert("1.0", komunikat)
+        self.tekst.ro_insert("1.0", komunikat)
+
+    def o_rundzie(self):
+        """Wyświetla komunikat o nowej rundzie."""
+
+        # TODO: centrowanie zrobić samym widżetem: https://stackoverflow.com/questions/42560585/how-do-i-center-text-in-the-tkinter-text-widget
+
+        komunikat = self.plansza_g.gracz.podaj_info_o_rundzie().title()
+        komunikat = "  ".join([GWIAZDKA * 3, komunikat, GWIAZDKA * 3])
+        print("Komunikat przed centrowaniem, długość:", len(komunikat))
+        print("Szerokość pola:", self.tekst["width"])
+        komunikat = komunikat.center(self.tekst["width"], " ")
+        print("Komunikat po centrowaniu, długość:", len(komunikat))
+        print(komunikat)
+
+        self.tekst.ro_insert("end", "\n\n")
+        self.tekst.ro_insert("end", komunikat)
+        self.tekst.ro_insert("end", "\n")

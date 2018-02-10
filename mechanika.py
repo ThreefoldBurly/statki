@@ -32,6 +32,13 @@ class Gracz:
         self.tura = Tura(self.plansza)
         self.tury.append(self.tura)
 
+    def podaj_info_o_rundzie(self):
+        """Zwraca informację o turze w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków])."""
+        info = "tura #" + str(len(self.tury))
+        info += " / runda #" + str(len(self.tura.rundy))
+        info += " (" + str(len(self.tura.statki)) + ")"
+        return info  # w minuskule!
+
 
 class Tura:
     """

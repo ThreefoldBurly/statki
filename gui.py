@@ -207,8 +207,8 @@ class PlanszaGracza(PlanszaGUI):
         self.odkryj_wszystkie_pola()
 
         # testy
-        statek = self.gracz.plansza.statki[0]
-        self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
+        # statek = self.gracz.plansza.statki[0]
+        # self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
         # statek = self.gracz.plansza.statki[3]
         # self.zatop_statek(statek)
 
@@ -1037,8 +1037,8 @@ class DrzewoFloty(ttk.Treeview):
         """
         # TODO: testy pod Windowsem
 
-        def skoryguj_wysokosc_pod_pasek_stanu(wysokosc, rzedy_planszy):
-            # po decyzji o tym, że pasek stanu będzie umiejscowiony tylko pod planszami a nie pod całym oknem głównym, kolumna sekcji kontroli musi być odpowiednio wyższa, co oznacza konieczność korekty wysokości drzewa
+        def skoryguj_wysokosc_pod_pasek_komunikatow(wysokosc, rzedy_planszy):
+            # po decyzji o tym, że pasek komunikatów będzie umiejscowiony tylko pod planszami a nie pod całym oknem głównym, kolumna sekcji kontroli musi być odpowiednio wyższa, co oznacza konieczność korekty wysokości drzewa
             if rzedy_planszy >= 14:
                 korekta = 6  # daje od 31 wierszy drzewa przy 30 wierszach planszy do 7 przy 14
             elif rzedy_planszy == 13:
@@ -1056,10 +1056,10 @@ class DrzewoFloty(ttk.Treeview):
             wysokosc = bazowe_wiersze - math.ceil(abs(delta_planszy) / self.wys_wiersza)
             if wysokosc < 1:
                 wysokosc = 1
-            return skoryguj_wysokosc_pod_pasek_stanu(wysokosc, rzedy_planszy)
+            return skoryguj_wysokosc_pod_pasek_komunikatow(wysokosc, rzedy_planszy)
         else:
             wysokosc = bazowe_wiersze + math.floor(abs(delta_planszy) / self.wys_wiersza)
-            return skoryguj_wysokosc_pod_pasek_stanu(wysokosc, rzedy_planszy)
+            return skoryguj_wysokosc_pod_pasek_komunikatow(wysokosc, rzedy_planszy)
 
     def wstaw_suwaki(self, rodzic):
         """Wstawia suwaki."""
@@ -1204,10 +1204,7 @@ class KontrolaGry(Sekcja):
 
     def ustaw_tytul(self):
         """Ustawia tytuł sekcji. Format tytułu: Tura #[liczba]/Runda #[liczba]"""
-        tekst = "Tura #" + str(len(self.plansza_g.gracz.tury))
-        tekst += " / Runda #" + str(len(self.plansza_g.gracz.tura.rundy))
-        tekst += " (" + str(len(self.plansza_g.gracz.tura.statki)) + ")"
-        self.tytul.set(tekst)
+        self.tytul.set(self.plansza_g.gracz.podaj_info_o_rundzie().title())
 
     def ustaw_style(self):
         """Ustawia style dla sekcji."""
@@ -1322,9 +1319,9 @@ class KontrolaGry(Sekcja):
 # ****************************************** SEKCJA STANU ***************************************************
 
 
-class PasekStanu(ttk.Frame):
+class PasekKomunikatow(ttk.Frame):
     """
-    Pasek stanu wyświetlający komunikaty o grze w polu tekstowym na dole głównego interfejsu gry. Dopuszcza powiększanie w pionie.
+    Pasek wyświetlający komunikaty o grze w polu tekstowym na dole głównego interfejsu gry. Dopuszcza powiększanie w pionie.
     """
 
     def __init__(self, rodzic, odstep, szer_plansz, wys_plansz):
@@ -1404,7 +1401,8 @@ class ReadonlyText(tk.Text):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def readonly_insert(self, *args, **kwargs):
+    def ro_insert(self, *args, **kwargs):
+        """Readonly insert."""
         self.configure(state=tk.NORMAL)
         self.insert(*args, **kwargs)
         self.configure(state=tk.DISABLED)
@@ -1435,12 +1433,13 @@ class GraGUI(ttk.Frame):
         self.ustaw_style()
         self.buduj_plansze(gracz, przeciwnik)
         self.buduj_sekcje_kontroli()
-        self.buduj_pasek_stanu()
+        self.buduj_pasek_komunikatow()
         self.ustaw_siatke()
-
         self.wybierz_statek_startowy()
-        self.komunikator = Komunikator(self.pasek_stanu, self.plansza_g, self.plansza_p)
+
+        self.komunikator = Komunikator(self.pasek_komunikatow.tekst, self.plansza_g, self.plansza_p)
         self.komunikator.o_rozpoczeciu_gry()
+        self.komunikator.o_rundzie()
 
     def ustaw_style(self):
         """Ustawia style dla okna głównego."""
@@ -1484,9 +1483,9 @@ class GraGUI(ttk.Frame):
             plansza_przeciwnika=self.plansza_p
         )
 
-    def buduj_pasek_stanu(self):
-        """Buduje pasek stanu na dole okna głównego"""
-        self.pasek_stanu = PasekStanu(
+    def buduj_pasek_komunikatow(self):
+        """Buduje pasek komunikatów na dole okna głównego"""
+        self.pasek_komunikatow = PasekKomunikatow(
             self,
             (10, 0, 10, 11),
             self.plansza_g.gracz.plansza.kolumny,
@@ -1502,14 +1501,14 @@ class GraGUI(ttk.Frame):
         self.kontrola_ataku.grid(column=2, row=0, sticky="nwe")
         self.kontrola_floty.grid(column=2, row=1, sticky="nsew")
         self.kontrola_gry.grid(column=2, row=2, rowspan=2, sticky="nwe")
-        self.pasek_stanu.grid(column=0, row=3, columnspan=2, sticky="ns")
-        # dla plansz mniejszych niż 12 rzędów pasek stanu musi zajmować dwa rzędy siatki okna głównego a sekcja kontroli gry jeden (dla większych jest na odwrót)
+        self.pasek_komunikatow.grid(column=0, row=3, columnspan=2, sticky="ns")
+        # dla plansz mniejszych niż 12 rzędów pasek komunikatów musi zajmować dwa rzędy siatki okna głównego a sekcja kontroli gry jeden (dla większych jest na odwrót)
         if self.plansza_g.gracz.plansza.rzedy < 12:
             self.plansza_g.grid(rowspan=2)
             self.plansza_g.grid(rowspan=2)
             self.kontrola_floty.grid(rowspan=2)
             self.kontrola_gry.grid(row=3, rowspan=1)
-            self.pasek_stanu.grid(row=2, rowspan=2)
+            self.pasek_komunikatow.grid(row=2, rowspan=2)
         self.columnconfigure(2, weight=1)
         self.rowconfigure(2, weight=1)
         self.rowconfigure(3, weight=1)
@@ -1525,7 +1524,7 @@ def main():
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
 
-    GraGUI(okno_glowne, 15, 30)  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów
+    GraGUI(okno_glowne, 15, 20)  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów
 
     okno_glowne.resizable(False, False)
     okno_glowne.mainloop()
