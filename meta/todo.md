@@ -53,7 +53,7 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
         * Obsługa możliwości wyboru tylko statków, które jeszcze nie miały swojej rundy w danej turze ==> TODO w trakcie prac nad mechaniką
         * Obsługa zatapiania (odpowiednie formatowanie tej sekcji) ==> TODO w trakcie prac nad mechaniką
         * Obsługa dodawania zatopionych statków (odpowiednie formatowanie tej sekcji) ==> TODO w trakcie prac nad mechaniką
-        * WAŻNE: dodać kolumnę SALWY (ilość salw danego statku zmienia się w trakcie gry - jak na razie informacja jest śledzona tylko przez sekcje Kontroli Ataku)
+        * WAŻNE: dodać kolumnę SALWY (ilość salw danego statku zmienia się w trakcie gry - jak na razie ta informacja jest śledzona tylko przez sekcje Kontroli Ataku)
 
 
     2. [ZROBIONE] <del>Przyciski Poprzedni/Kolejny Statek</del>
@@ -77,9 +77,10 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
     * Przy wysokości planszy 10-11 wierszy (a być może nawet 10-15 (ze względu na czytelność drzewa w sekcji kontroli ataku)) muszą się automatycznie zmieniać ustawienia siatki głównego okna. Powyżej tego zakresu plansza jest na tyle duża że ma sens by sekcja kontroli gry zajmowała dwa dolne rzędy siatki (a pasek stanu jeden). Poniżej tego zakresu plansza jest na tyle mała, że o wiele sensowniejsze jest gdy to pasek stanu zajmuje 2 dolne rzędy siatki a sekcja kontroli gry tylko jeden.
     * Testy pod Windowsem
 
-14. Całość - drobne.
+14. Całość.
 
-    * Przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego
+    * **Dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów**
+    * [ZROBIONE] <del>Przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego</del>(przeniesione do klasy Sekcja, z której reszta dziedziczy)
 
 ## MECHANIKA
 

@@ -285,7 +285,7 @@ class Plansza:
                 return statek
         return None
 
-    def wypelnij_statkami(self, zapelnienie=20, odch_st=9.5, prz_mediany=0):
+    def wypelnij_statkami(self, zapelnienie=20, odch_st=9.5, prz_mediany=-10):
         """
         Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry metody.
         """
@@ -537,7 +537,7 @@ class Statek:
 
     def o_zatopieniu(self):
         """Zwraca komunikat o swoim zatopieniu."""
-        if self.RANGA in self.RANGI[2:4]:  # korweta lub fregata
+        if self.RANGA_BAZOWA in self.RANGI[2:4]:  # korweta lub fregata
             return "{} zatopiona!".format(str(self))
         else:
             return "{} zatopiony!".format(str(self))
@@ -562,11 +562,11 @@ class Statek:
 class Kuter(Statek):
     """Statek o rozmiarze 1 pola."""
 
-    RANGA = Statek.RANGI[0]
+    RANGA_BAZOWA = Statek.RANGI[0]  # explicit is better than implicit
 
     def __init__(self, pola):
         super().__init__(pola)
-        self.ranga = self.RANGA  # ranga rzeczywista - zależna od ilości trafień
+        self.ranga = self.RANGA_BAZOWA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY[self.ranga][:]  # salwy rzeczywiste - zależne od aktualnej rangi rzeczywistej
 
@@ -574,11 +574,11 @@ class Kuter(Statek):
 class Patrolowiec(Statek):
     """Statek o rozmiarze 2-3 pól."""
 
-    RANGA = Statek.RANGI[1]
+    RANGA_BAZOWA = Statek.RANGI[1]
 
     def __init__(self, pola):
         super().__init__(pola)
-        self.ranga = self.RANGA  # jw.
+        self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY[self.ranga][:]  # jw.
 
@@ -586,11 +586,11 @@ class Patrolowiec(Statek):
 class Korweta(Statek):
     """Statek o rozmiarze 4-6 pól."""
 
-    RANGA = Statek.RANGI[2]
+    RANGA_BAZOWA = Statek.RANGI[2]
 
     def __init__(self, pola):
         super().__init__(pola)
-        self.ranga = self.RANGA  # jw.
+        self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY[self.ranga][:]  # jw.
 
@@ -598,11 +598,11 @@ class Korweta(Statek):
 class Fregata(Statek):
     """Statek o rozmiarze 7-9 pól."""
 
-    RANGA = Statek.RANGI[3]
+    RANGA_BAZOWA = Statek.RANGI[3]
 
     def __init__(self, pola):
         super().__init__(pola)
-        self.ranga = self.RANGA  # jw.
+        self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY[self.ranga][:]  # jw.
 
@@ -610,11 +610,11 @@ class Fregata(Statek):
 class Niszczyciel(Statek):
     """Statek o rozmiarze 10-12 pól."""
 
-    RANGA = Statek.RANGI[4]
+    RANGA_BAZOWA = Statek.RANGI[4]
 
     def __init__(self, pola):
         super().__init__(pola)
-        self.ranga = self.RANGA  # jw.
+        self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY[self.ranga][:]  # jw.
 
@@ -622,11 +622,11 @@ class Niszczyciel(Statek):
 class Krazownik(Statek):
     """Statek o rozmiarze 13-16 pól."""
 
-    RANGA = Statek.RANGI[5]
+    RANGA_BAZOWA = Statek.RANGI[5]
 
     def __init__(self, pola):
         super().__init__(pola)
-        self.ranga = self.RANGA  # jw.
+        self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY[self.ranga][:]  # jw.
 
@@ -634,10 +634,10 @@ class Krazownik(Statek):
 class Pancernik(Statek):
     """Statek o rozmiarze 17-20 pól."""
 
-    RANGA = Statek.RANGI[6]
+    RANGA_BAZOWA = Statek.RANGI[6]
 
     def __init__(self, pola):
         super().__init__(pola)
-        self.ranga = self.RANGA  # jw.
+        self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
         self.salwy = self.SALWY[self.ranga][:]  # jw.

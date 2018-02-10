@@ -187,7 +187,7 @@ class PlanszaGUI(Sekcja):
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             pole_gui.configure(style=PoleGUI.STYLE["zatopione"])
             if symbole:
-                pole_gui.configure(text=statek.SYMBOLE[statek.RANGA])
+                pole_gui.configure(text=statek.SYMBOLE[statek.RANGA_BAZOWA])
 
         self.gracz.plansza.zatopione.append(statek)
         self.gracz.plansza.niezatopione.remove(statek)
@@ -206,7 +206,7 @@ class PlanszaGracza(PlanszaGUI):
         self.odkryj_wszystkie_pola()
 
         # testy
-        statek = self.gracz.plansza.statki[1]
+        statek = self.gracz.plansza.statki[0]
         self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
         # statek = self.gracz.plansza.statki[3]
         # self.zatop_statek(statek)
@@ -344,7 +344,7 @@ class PlanszaGracza(PlanszaGUI):
                 if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
                     pole_gui.configure(style=PoleGUI.STYLE["woda"])
                 else:
-                    pole_gui.configure(text=statek.SYMBOLE[statek.RANGA])
+                    pole_gui.configure(text=statek.SYMBOLE[statek.RANGA_BAZOWA])
 
 
 class PlanszaPrzeciwnika(PlanszaGUI):
@@ -822,14 +822,14 @@ class PozycjeSalwy(ttk.Frame):
             row=0,
             column=2,
             sticky=tk.W,
-            padx=(25,0)
+            padx=(25, 0)
         )
         self.numer_trzeciej = ttk.Label(self, style="Mała.TLabel", text="#3:")
         self.numer_trzeciej.grid(
             row=0,
             column=4,
             sticky=tk.W,
-            padx=(25,0)
+            padx=(25, 0)
         )
         self.etykieta_pierwszej = ttk.Label(
             self,
@@ -867,6 +867,7 @@ class PozycjeSalwy(ttk.Frame):
             etykieta.configure(background=self.TLO_SYSTEMOWE)
         else:
             etykieta.configure(background=GraGUI.KOLORY["pozycja-pola"])
+
 
 class KontrolaFloty(Sekcja):
     """
@@ -1037,18 +1038,14 @@ class DrzewoFloty(ttk.Treeview):
 
         def skoryguj_wysokosc_pod_pasek_stanu(wysokosc, rzedy_planszy):
             # po decyzji o tym, że pasek stanu będzie umiejscowiony tylko pod planszami a nie pod całym oknem głównym, kolumna sekcji kontroli musi być odpowiednio wyższa, co oznacza konieczność korekty wysokości drzewa
-            # potrzebna korekta, która przy minimalnej wysokości drzewa (4 wiersze) zwiększy ją o drugie tyle a przy wielkości zbliżającej się do maksymalnej (24 wiersze) zwiększy ją o 1/4 (4 wiersze)
-            # EDIT: przy wysokościach planszy 10-13 rzędów potrzebna mniejsza korekta - wychodzą z tego niezłe ptolemejskie epicykle, ale działa
             if rzedy_planszy >= 14:
-                korekta = math.ceil(wysokosc * 6 / wysokosc)
+                korekta = 6  # daje od 31 wierszy drzewa przy 30 wierszach planszy do 7 przy 14
             elif rzedy_planszy == 13:
-                korekta = math.ceil(wysokosc * 5 / wysokosc)
+                korekta = 5  # daje 6 wierszy drzewa
+            elif rzedy_planszy == 12:
+                korekta = 4  # daje 5 wierszy drzewa
             else:
-                korekta = math.ceil(wysokosc * 3 / wysokosc)
-            # test
-            # print("Podana wysokość: ", wysokosc, "wierszy")
-            # print("Korekta: ", korekta, "wierszy")
-            # print("Wysokość skorygowana:", wysokosc + korekta, "wierszy")
+                korekta = 3  # daje 4 wiersze
             return wysokosc + korekta
 
         bazowe_wiersze, bazowe_rzedy, wys_pola = 19, 26, 26
@@ -1062,7 +1059,6 @@ class DrzewoFloty(ttk.Treeview):
         else:
             wysokosc = bazowe_wiersze + math.floor(abs(delta_planszy) / self.wys_wiersza)
             return skoryguj_wysokosc_pod_pasek_stanu(wysokosc, rzedy_planszy)
-
 
     def wstaw_suwaki(self, rodzic):
         """Wstawia suwaki."""
@@ -1080,7 +1076,7 @@ class DrzewoFloty(ttk.Treeview):
         self.heading("ofiary", text=Statek.ORDER)
         self.column("#0", stretch=True, minwidth=70, width=49)
         self.column("statek", stretch=True, minwidth=97, width=49)
-        self.column("gdzie", stretch=True, minwidth=35, width=49)
+        self.column("gdzie", stretch=True, minwidth=35, width=49, anchor=tk.CENTER)
         self.column("rozmiar", stretch=True, minwidth=40, width=49, anchor=tk.E)
         self.column("ofiary", stretch=True, minwidth=12, width=49)
 
@@ -1134,7 +1130,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
         for i in range(len(statki)):
             statek = statki[i]
             self.insert(
-                statek.RANGA, "end",
+                statek.RANGA_BAZOWA, "end",
                 str(i),  # index listy statków jako ID statku w drzewie - upraszcza późniejszą translację wybranego elementu drzewa z powrotem na statek na planszy. Zamiana na str() wynika z dziwnej obsługi zera (Tkinter zwraca później zamiast zera string 'I001' - prawdopodobnie traktuje podanie zera jako wartości dla ID jako nie podanie niczego i zamiast tego wpisuje wartość defaultową)
                 values=(
                     '"' + statek.nazwa + '"',
@@ -1185,17 +1181,15 @@ class KontrolaGry(Sekcja):
     """
 
     KOLORY = {
-        # "stan-gry-g": "OliveDrab4",
-        # "stan-gry-p": "salmon4"
         "stan-gry-g": "LemonChiffon4",
         "stan-gry-p": "LemonChiffon4"
     }
+    self.SZER_STANU = 15  # szerokość stanu gry (etykiety) w znakach
 
-    def __init__(self,  rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
+    def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
         self.plansza_g = kwargs["plansza_gracza"]
         self.plansza_p = kwargs["plansza_przeciwnika"]
-        self.szer_stanu = 15  # szerokość stanu gry (etykiety) w znakach
         self.ustaw_style()
         self.ustaw_etyramke()
         self.ustaw_tytul()
@@ -1254,7 +1248,7 @@ class KontrolaGry(Sekcja):
             style="GraczKG.TLabel",
             text=tekst_g,
             anchor=tk.E,
-            width=self.szer_stanu
+            width=self.SZER_STANU
         )
         self.stan_g.grid(
             row=0,
@@ -1281,7 +1275,7 @@ class KontrolaGry(Sekcja):
             style="PrzeciwnikKG.TLabel",
             text=tekst_p,
             anchor=tk.E,
-            width=self.szer_stanu
+            width=self.SZER_STANU
         )
         self.stan_p.grid(
             row=1,
@@ -1332,49 +1326,86 @@ class PasekStanu(ttk.Frame):
     Pasek stanu wyświetlający komunikaty o grze w polu tekstowym na dole głównego interfejsu gry. Dopuszcza powiększanie w pionie.
     """
 
-    def __init__(self, rodzic, odstep, wys_plansz):
+    def __init__(self, rodzic, odstep, szer_plansz, wys_plansz):
         super().__init__(rodzic, padding=odstep)
-        self.wys_plansz = wys_plansz  # ilość rzędów
+        self.szer_plansz, self.wys_plansz = szer_plansz, wys_plansz  # # ilość kolumn, ilość rzędów
+
         self.sprawdz_tlo_sytemowe()
-        # test
-        # styl = ttk.Style()
-        # styl.configure("PS.TFrame", background="LightPink1")
-        # self.configure(style="PS.TFrame")
-
         self.buduj_pole_tekstowe()
-
+        self.wstaw_suwak()
 
     def podaj_wysokosc(self):
         """
-        Podaje wysokość. Niezbędna wysokość uzależniona jest od wysokości plansz i została ustalona po testach
+        Podaje wysokość. Niezbędna wysokość uzależniona jest od wysokości plansz (oraz drzewa w sekcji kontroli floty) i została ustalona po testach.
         """
         wysokosci = {
+            8: 17,
+            9: 15,
+            10: 13,
+            11: 11,
+            12: 10,
+            13: 9,
+            14: 8,
             15: 6,
-            14: 7,
-            13: 8,
-            12: 8,
-            11: 8,
-            10: 8
+            16: 5,
+            17: 5,
+            18: 5,
+            19: 4,
+            20: 5,
+            21: 5,
+            22: 5,
+            23: 4,
+            24: 5,
+            25: 5,
+            26: 5,
+            27: 4,
+            28: 5,
+            29: 5,
+            30: 4
         }
-        return wysokosci[self.wys_plansz] if self.wys_plansz in range(10, 16) else 4
+        return wysokosci[self.wys_plansz]
 
     def podaj_szerokosc(self):
         """Podaje szerokość."""
-        return 93  # TODO
+        # z testów wynikło, że dla bazowej szerokości planszy równej 8 kolumn prawidłowa szerokość pola tekstowego to 77 znaków i że z każdą dodatkową kolumną planszy pole powinno rosnąć o 7.5 znaku w szerz
+        korekta = round(7.5 * (self.szer_plansz - 8))
+        return 77 + korekta
 
     def buduj_pole_tekstowe(self):
         """Buduje pole tekstowe."""
-        self.tekst = tk.Text(
+        self.tekst = ReadonlyText(
             self,
             width=self.podaj_szerokosc(),
             height=self.podaj_wysokosc(),
+            font=GraGUI.CZCIONKA_MALA,
+            state=tk.DISABLED,
             bg=self.TLO_SYSTEMOWE
         )
-        self.tekst.grid(sticky="ns")
+        self.tekst.grid(column=0, row=0, sticky="ns")
 
     def sprawdz_tlo_sytemowe(self):
         """Sprawdza kolor tla systemowego i zapisuje w stałej"""
         self.TLO_SYSTEMOWE = self.winfo_toplevel().cget("bg")
+
+    def wstaw_suwak(self):
+        """Wstawia pionowy suwak."""
+        suwak = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.tekst.yview)
+        suwak.grid(column=1, row=0, sticky="ns")
+        self.tekst.configure(yscrollcommand=suwak.set)
+
+
+class ReadonlyText(tk.Text):
+    """
+    Pole tekstowe Tkintera zmodyfikowane o metody, które opakowują podstawe metody edycji tak, by nie trzeba było za każdym razem przed edycją przestawiać widżeta w stan `normal` i po edycji w stan `disabled` (co jest konieczne, ponieważ tk.Text nie ma defaultowo trybu readonly, a tylko `normal` i `disabled`, podczas którego nie można nic zmieniać w widżecie, również programistycznie.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def readonly_insert(self, *args, **kwargs):
+        self.configure(state=tk.NORMAL)
+        self.insert(*args, **kwargs)
+        self.configure(state=tk.DISABLED)
 
 
 # ******************************************** OKNO GŁÓWNE **************************************************
@@ -1403,7 +1434,7 @@ class GraGUI(ttk.Frame):
         self.buduj_plansze(gracz, przeciwnik)
         self.buduj_sekcje_kontroli()
         self.buduj_pasek_stanu()
-        self.ustaw_grid()
+        self.ustaw_siatke()
 
         self.wybierz_statek_startowy()
 
@@ -1422,9 +1453,7 @@ class GraGUI(ttk.Frame):
     def buduj_plansze(self, gracz, przeciwnik):
         """Buduje plansze gracza i przeciwnika"""
         self.plansza_g = PlanszaGracza(self, 10, 10, gracz=gracz)
-        self.plansza_g.grid(column=0, row=0, rowspan=3, sticky=tk.N)
         self.plansza_p = PlanszaPrzeciwnika(self, 10, 10, gracz=przeciwnik)
-        self.plansza_p.grid(column=1, row=0, rowspan=3, sticky=tk.N)
 
     def buduj_sekcje_kontroli(self):
         """Buduje sekcje kontroli: ataku, floty i gry po prawej stronie okna głównego."""
@@ -1435,7 +1464,6 @@ class GraGUI(ttk.Frame):
             plansza_gracza=self.plansza_g,
             plansza_przeciwnika=self.plansza_p
         )
-        self.kontrola_ataku.grid(column=2, row=0, sticky=tk.N)
         self.kontrola_floty = KontrolaFloty(
             self,
             (0, 0, 10, 10),
@@ -1443,7 +1471,6 @@ class GraGUI(ttk.Frame):
             plansza_gracza=self.plansza_g,
             plansza_przeciwnika=self.plansza_p
         )
-        self.kontrola_floty.grid(column=2, row=1, sticky="nsew")
         self.kontrola_gry = KontrolaGry(
             self,
             (0, 0, 10, 10),
@@ -1452,22 +1479,33 @@ class GraGUI(ttk.Frame):
             plansza_gracza=self.plansza_g,
             plansza_przeciwnika=self.plansza_p
         )
-        self.kontrola_gry.grid(column=2, row=2, rowspan=2)
 
     def buduj_pasek_stanu(self):
         """Buduje pasek stanu na dole okna głównego"""
-        print("*** Buduje PS")
         self.pasek_stanu = PasekStanu(
             self,
             (10, 0, 10, 11),
+            self.plansza_g.gracz.plansza.kolumny,
             self.plansza_g.gracz.plansza.rzedy
         )
-        self.pasek_stanu.grid(column=0, row=3, columnspan=2, sticky=tk.N)
 
-    def ustaw_grid(self):
+    def ustaw_siatke(self):
         """
-        Konfiguruje layout managera. Dopuszcza powiększanie trzeciej kolumny (w poziomie) i czwartego rzędu (w pionie).
+        Konfiguruje layout managera. Dopuszcza powiększanie trzeciej kolumny (w poziomie) i czwartego rzędu (w pionie). Zmienia ustawienia dwóch ostatnich rzędów w zależności od wielkości planszy.
         """
+        self.plansza_g.grid(column=0, row=0, rowspan=3, sticky=tk.N)
+        self.plansza_p.grid(column=1, row=0, rowspan=3, sticky=tk.N)
+        self.kontrola_ataku.grid(column=2, row=0, sticky="nwe")
+        self.kontrola_floty.grid(column=2, row=1, sticky="nsew")
+        self.kontrola_gry.grid(column=2, row=2, rowspan=2, sticky="nwe")
+        self.pasek_stanu.grid(column=0, row=3, columnspan=2, sticky="ns")
+        # dla plansz mniejszych niż 12 rzędów pasek stanu musi zajmować dwa rzędy siatki okna głównego a sekcja kontroli gry jeden (dla większych jest na odwrót)
+        if self.plansza_g.gracz.plansza.rzedy < 12:
+            self.plansza_g.grid(rowspan=2)
+            self.plansza_g.grid(rowspan=2)
+            self.kontrola_floty.grid(rowspan=2)
+            self.kontrola_gry.grid(row=3, rowspan=1)
+            self.pasek_stanu.grid(row=2, rowspan=2)
         self.columnconfigure(2, weight=1)
         self.rowconfigure(2, weight=1)
         self.rowconfigure(3, weight=1)
@@ -1477,13 +1515,18 @@ class GraGUI(ttk.Frame):
         self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
         self.kontrola_floty.drzewo_g.see("niezatopione")
 
+    # def o_rozpoczeciu_gry(self):
+    #     """Wyświetla na pasku stanu komunikat o rozpoczęciu gry."""
+    #     komunikat = "Gra na planszy o rozmiarze " + str(self.plansza_g.gracz.plansza.kolumny)
+    #     komunikat += " kolumn" + str(self.plansza_g.gracz.plansza.kolumny)
+
 
 def main():
     """Uruchamia grę."""
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
 
-    GraGUI(okno_glowne, 10, 12)
+    GraGUI(okno_glowne, 15, 30)  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów
 
     okno_glowne.resizable(False, False)
     okno_glowne.mainloop()
