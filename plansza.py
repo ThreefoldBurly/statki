@@ -426,6 +426,34 @@ class Pole:
     def podaj_wspolrzedne(self):
         return (self.kolumna, self.rzad)
 
+    def w_nawiasach(self):
+        """Zwraca informację o polu w formacie: (litera kolumny+cyfra rzędu) np. (B9)"""
+        return "(" + str(self) + ")"
+
+
+class Salwa:
+    """
+    Abstrakcyjna reprezentacja salwy oddawanej przez statek w postaci kolekcji pól planszy, w którą strzela statek (UWAGA - nie jest to plansza statku, który strzela!)
+    """
+
+    def __init__(self, pola):
+        self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # lista pól salwy posortowana od pola najbardziej na NW (zapisanego w osobnej zmiennej: self.polozenie) do pola najbardziej na SE
+        self.trafienia = [True if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]) else False for pole in self.pola]
+        self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI["pudło"] else False for pole in self.pola]
+
+    def __str__(self):
+        """Zwraca reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6)."""
+        pola_tekst = ["(" + str(pole) + ")" for pole in pola]
+        if len(pola) == 1:
+            return pola_tekst[0]
+        elif len(pola) == 2:
+            return " i ".join(pola_tekst)
+        else:
+            return pola_tekst[0] + ", " + " i ".join(pola_tekst[1:])
+
+    def __len__(self):
+        return len(self.pola)
+
 
 class Statek:
     """
@@ -469,15 +497,15 @@ class Statek:
         """
         Zwraca informację o statku w formacie:
 
-        ranga "nazwa" (4,5) [10/17] **
+        ranga "nazwa" (A6) [10/17] **
 
         gdzie:
-        - (4,5) to położenie pola najbardziej wysuniętego na NW (self.polozenie)
+        - (A6) to położenie pola najbardziej wysuniętego na NW (self.polozenie)
         - [10/17] to pola nietrafione/wszystkie pola
         - ** - tyle gwiazdek ile dodatkowych salw za zatopienie przeciwnika
         """
         info = '{} "{}" ({}) [{}] '.format(
-            self.ranga,
+            self.RANGA_BAZOWA,
             self.nazwa,
             str(self.polozenie),
             self.podaj_nietrafione_na_rozmiar()

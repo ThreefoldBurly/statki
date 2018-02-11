@@ -6,7 +6,7 @@ Komunikaty tekstowe w grze.
 
 import tkinter as tk
 
-from plansza import Statek
+from plansza import Pole, Statek
 
 
 class Komunikator:
@@ -98,3 +98,28 @@ class Komunikator:
         self.tekst.ro_insert("end", "\n\n")
         self.tekst.ro_insert("end", komunikat, ("wyszarzone", "wyśrodkowane"))
         self.tekst.ro_insert("end", "\n")
+
+    def o_salwie(self, salwa, statek):
+        """Wyświetla komunikat o oddanej salwie."""
+        statek_info = str(statek).split('"')
+        self.tekst.ro_insert("end", "\n")
+        self.tekst.ro_insert("end", statek_info[0].title() + '"')
+        self.tekst.ro_insert("end", statek_info[1], "pogrubione")
+        komunikat = "oddała" if statek.RANGA_BAZOWA in Statek.RANGI[2:4] else "oddał"
+        self.tekst.ro_insert("end", '"' + statek_info[2] + " " + komunikat + " salwę w ")
+        komunikat = "polę: " if len(salwa) == 1 else "pola: "
+        self.tekst.ro_insert("end", komunikat)
+        for i in range(len(salwa)):
+            if salwa.trafienia[i]:
+                self.tekst.ro_insert("end", salwa.pola[i].w_nawiasach(), ("pogrubione", "trafione"))
+            else:
+                self.tekst.ro_insert("end", salwa.pola[i].w_nawiasach(), "pogrubione")
+            if i == 0:
+                if len(salwa) == 2:
+                    self.tekst.ro_insert("end", " i ")
+                elif len(salwa) == 3:
+                    self.tekst.ro_insert("end", ", ")
+            if i == 1 and len(salwa) == 3:
+                self.tekst.ro_insert("end", " i ")
+        self.tekst.see("end")
+
