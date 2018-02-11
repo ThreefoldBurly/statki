@@ -37,7 +37,7 @@ class PoleGUI(ttk.Button):
         "wybrane-active": "lemon chiffon",
         "wybrane&trafione": "OrangeRed2",
         "wybrane&trafione-active": "chocolate1",
-        "nieodkryte-active": "DarkSeaGreen1"
+        "atak-active": "DarkSeaGreen1"
     }
     STYLE = {
         "woda": "Woda.TButton",
@@ -363,15 +363,15 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """Definiuje style dla pól."""
         # nieodkryte
         self.styl.map(
-            "Nieodkryte.TButton",
-            background=[("active", PoleGUI.KOLORY["nieodkryte-active"])]
+            "Atak.TButton",
+            background=[("active", PoleGUI.KOLORY["atak-active"])]
         )
 
     def zmien_podswietlanie_nieodkrytych(self):
         """Zmienia podświetlanie nieodkrytych pól na odpowiedni kolor."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
-                pole_gui.configure(styl="Nieodkryte.TButton")
+                pole_gui.configure(styl="Atak.TButton")
 
     def powiaz_callbacki(self):
         """Wiąże callbacki we wszystkich polach."""
@@ -597,7 +597,7 @@ class KontrolaAtaku(Sekcja):
         self.styl.configure(
             "PozycjaPolaKA.TLabel",
             anchor=tk.CENTER,
-            font=GraGUI.CZCIONKA_MALA,
+            font=GraGUI.CZCIONKI["mała"],
             width=4
         )
 
@@ -645,7 +645,7 @@ class KontrolaAtaku(Sekcja):
         self.combo_statku = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
-            font=GraGUI.CZCIONKA_MALA,
+            font=GraGUI.CZCIONKI["mała"],
             values=self.plansza_g.gracz.tura.statki,
             width=35
         )
@@ -655,13 +655,13 @@ class KontrolaAtaku(Sekcja):
             columnspan=2,
             sticky=tk.W
         )
-        self.combo_statku.configure(font=GraGUI.CZCIONKA_MALA)  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
+        self.combo_statku.configure(font=GraGUI.CZCIONKI["mała"])  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
 
         # wybór salwy
         self.combo_salwy = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
-            font=GraGUI.CZCIONKA_MALA,
+            font=GraGUI.CZCIONKI["mała"],
             width=6
         )
         self.combo_salwy.grid(
@@ -670,13 +670,13 @@ class KontrolaAtaku(Sekcja):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_salwy.configure(font=GraGUI.CZCIONKA_MALA)
+        self.combo_salwy.configure(font=GraGUI.CZCIONKI["mała"])
 
         # wybór orientacji
         self.combo_orientacji = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
-            font=GraGUI.CZCIONKA_MALA,
+            font=GraGUI.CZCIONKI["mała"],
             width=7
         )
         self.combo_orientacji.grid(
@@ -685,7 +685,7 @@ class KontrolaAtaku(Sekcja):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_orientacji.configure(font=GraGUI.CZCIONKA_MALA)
+        self.combo_orientacji.configure(font=GraGUI.CZCIONKI["mała"])
 
     def ustaw_combo_readonly(self):
         """Ustawia stan comboboksów jako `readonly`"""
@@ -1007,13 +1007,13 @@ class DrzewoFloty(ttk.Treeview):
         self.styl = ttk.Style()
         self.styl.configure(
             "KF.Treeview",
-            font=GraGUI.CZCIONKA_MALA,
+            font=GraGUI.CZCIONKI["mała"],
             rowheight=self.wys_wiersza
             # rowheight=13
         )
         self.styl.configure(
             "KF.Treeview.Heading",
-            font=GraGUI.CZCIONKA_MALA
+            font=GraGUI.CZCIONKI["mała"]
         )
 
     def ustaw_sie(self):
@@ -1144,7 +1144,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
 
     def ustaw_wyglad(self):
         """Konfiguruje wygląd zawartości drzewa."""
-        self.tag_configure("kategoria", font=GraGUI.CZCIONKA_MALA_BOLD)
+        self.tag_configure("kategoria", font=GraGUI.CZCIONKI["mała-pogrubiona"])
         self.tag_configure("ranga", background=self.KOLORY["podświetlenie-rang"])
 
     def powiaz_podwojne_klikniecie(self):
@@ -1211,19 +1211,19 @@ class KontrolaGry(Sekcja):
         self.styl = ttk.Style()
         self.styl.configure(
             "GraczKG.TLabel",
-            font=GraGUI.CZCIONKA_DUZA_BOLD,
+            font=GraGUI.CZCIONKI["duża-pogrubiona"],
             # background=GraGUI.KOLORY["pozycja-pola"],
             foreground=self.KOLORY["stan-gry-g"]
         )
         self.styl.configure(
             "PrzeciwnikKG.TLabel",
-            font=GraGUI.CZCIONKA_DUZA_BOLD,
+            font=GraGUI.CZCIONKI["duża-pogrubiona"],
             # background=GraGUI.KOLORY["pozycja-pola"],
             foreground=self.KOLORY["stan-gry-p"]
         )
         self.styl.configure(
             "KG.TButton",
-            font=GraGUI.CZCIONKA_BOLD
+            font=GraGUI.CZCIONKI["pogrubiona"]
         )
 
     def buduj_etykiety(self):
@@ -1313,7 +1313,6 @@ class KontrolaGry(Sekcja):
         self.plansza_g.gracz.tura.dodaj_runde()
         self.plansza_p.gracz.tura.dodaj_runde()
         self.ustaw_tytul()
-        # print("*** Wysokość KG po naciśnięciu:", self.winfo_height(), "px")  #test
 
 
 # ****************************************** SEKCJA STANU ***************************************************
@@ -1375,10 +1374,10 @@ class PasekKomunikatow(ttk.Frame):
             self,
             width=self.podaj_szerokosc(),
             height=self.podaj_wysokosc(),
-            font=GraGUI.CZCIONKA_MALA,
-            state=tk.DISABLED,
+            font=GraGUI.CZCIONKI["mała"],
             wrap=tk.WORD,
-            bg=self.TLO_SYSTEMOWE
+            bg=self.TLO_SYSTEMOWE,
+            state=tk.DISABLED
         )
         self.tekst.grid(column=0, row=0, sticky="ns")
 
@@ -1400,11 +1399,18 @@ class ReadonlyText(tk.Text):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.bind("<1>", lambda event: self.focus_set())  # to powiązanie przywraca możliwość selekcji tekstu (np. dla skopiowanie) po zablokowaniu (wzięte stąd: https://stackoverflow.com/questions/10817917/how-to-disable-input-to-a-text-widget-but-allow-programatic-input)
 
     def ro_insert(self, *args, **kwargs):
         """Readonly insert."""
         self.configure(state=tk.NORMAL)
         self.insert(*args, **kwargs)
+        self.configure(state=tk.DISABLED)
+
+    def ro_delete(self, *args, **kwargs):
+        """Readonly delete."""
+        self.configure(state=tk.NORMAL)
+        self.delete(*args, **kwargs)
         self.configure(state=tk.DISABLED)
 
 
@@ -1414,11 +1420,13 @@ class ReadonlyText(tk.Text):
 class GraGUI(ttk.Frame):
     """Główny interfejs gry"""
 
-    # TODO: zebrać czcionki w słowniku
-    CZCIONKA_MALA = ("TkDefaultFont", 8)
-    CZCIONKA_MALA_BOLD = ("TkDefaultFont", 8, "bold")
-    CZCIONKA_DUZA_BOLD = ("TkDefaultFont", 10, "bold")
-    CZCIONKA_BOLD = ("TkDefaultFont", 9, "bold")
+    CZCIONKI = {
+        "mała": ("TkDefaultFont", 8),
+        "mała-pogrubiona": ("TkDefaultFont", 8, "bold"),
+        "duża-pogrubiona": ("TkDefaultFont", 10, "bold"),
+        "pogrubiona": ("TkDefaultFont", 9, "bold")
+        # "mała-mono": ("TkFixedFont", 8)
+    }
     KOLORY = {
         "pozycja-pola": "LemonChiffon2"
     }
@@ -1426,31 +1434,28 @@ class GraGUI(ttk.Frame):
     def __init__(self, rodzic, kolumny, rzedy):
         super().__init__(rodzic)
         self.grid()
-
+        self.ustaw_style()
         gracz = Gracz(Plansza(kolumny, rzedy))
         przeciwnik = Gracz(Plansza(kolumny, rzedy))
-
-        self.ustaw_style()
         self.buduj_plansze(gracz, przeciwnik)
         self.buduj_sekcje_kontroli()
         self.buduj_pasek_komunikatow()
         self.ustaw_siatke()
         self.wybierz_statek_startowy()
+        self.przekaz_komunikator()
+        self.wyswietl_komunikaty()
 
-        self.komunikator = Komunikator(self.pasek_komunikatow.tekst, self.plansza_g, self.plansza_p)
-        self.komunikator.o_rozpoczeciu_gry()
-        self.komunikator.o_rundzie()
 
     def ustaw_style(self):
         """Ustawia style dla okna głównego."""
         self.styl = ttk.Style()
         self.styl.configure(
             "Bold.TLabel",
-            font=self.CZCIONKA_BOLD
+            font=self.CZCIONKI["pogrubiona"]
         )
         self.styl.configure(
             "Mała.TLabel",
-            font=GraGUI.CZCIONKA_MALA
+            font=GraGUI.CZCIONKI["mała"]
         )
 
     def buduj_plansze(self, gracz, przeciwnik):
@@ -1518,13 +1523,22 @@ class GraGUI(ttk.Frame):
         self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
         self.kontrola_floty.drzewo_g.see("niezatopione")
 
+    def przekaz_komunikator(self):
+        """Tworzy, ustawia i przekazuje widżetom komunikator."""
+        self.komunikator = Komunikator(self.pasek_komunikatow.tekst, self.CZCIONKI, PoleGUI.KOLORY)
+
+    def wyswietl_komunikaty(self):
+        """Wyświetla komunikaty w polu tekstowym paska komunikatów."""
+        self.komunikator.o_rozpoczeciu_gry(self.plansza_g.gracz.plansza)
+        self.komunikator.o_rundzie(self.plansza_g.gracz)
+
 
 def main():
     """Uruchamia grę."""
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
 
-    GraGUI(okno_glowne, 15, 20)  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów
+    GraGUI(okno_glowne, 15, 15)  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów
 
     okno_glowne.resizable(False, False)
     okno_glowne.mainloop()
