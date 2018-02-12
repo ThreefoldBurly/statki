@@ -28,6 +28,7 @@ Podstawowe różnice względem klasycznej wersji:
 ---
 
 **statki** to WIP. Aktualnie jestem na etapie budowania interfejsu w Tkinterze, co póki co daje efekty lepsze niż się spodziewałem. Bieżące rozwijanie programu robię na gałęzi [`develop`](https://github.com/tburly/statki/tree/develop), więc tam należy szukać najbardziej aktualnej wersji.
+![Zrzut ekranu z 20180212](/meta/zrzut-ekranu_20180212.png "Zrzut ekranu z 20180212")
 
 ---
 

@@ -9,11 +9,11 @@ from random import randint, choice, gauss
 
 
 class Parser:
-    """Parsuje nazwy statków z 'dane/nazwy.sti'."""
+    """Parsuje nazwy statków z 'dane/nazwy.txt'."""
 
     @staticmethod
     def sparsuj_nazwy(rangi):
-        """Parsuje z pliku tekstowego 'dane/nazwy.sti' listę nazw dla każdej rangi statku (całość jako słownik)"""
+        """Parsuje z pliku tekstowego 'dane/nazwy.txt' listę nazw dla każdej rangi statku (całość jako słownik)"""
         nazwy = {}
 
         def parsuj_wg_rangi(linie, ranga):  # funkcja pomocnicza dla bloku poniżej
@@ -25,7 +25,7 @@ class Parser:
             return lista_nazw
 
         linie = []
-        with codecs.open('dane/nazwy.sti', encoding='utf-8') as plik:
+        with codecs.open('dane/nazwy.txt', encoding='utf-8') as plik:
             for linia in plik:
                 linie.append(linia)
 
@@ -41,7 +41,7 @@ class Parser:
                     czy_OK = False
             return czy_OK
 
-        assert czy_nazwy_OK(), "Nieudane parsowanie nazw statków. Brak pliku 'dane/nazwy.sti' lub plik nie zawiera danych w prawidłowym formacie"
+        assert czy_nazwy_OK(), "Nieudane parsowanie nazw statków. Brak pliku 'dane/nazwy.txt' lub plik nie zawiera danych w prawidłowym formacie"
 
         return nazwy
 
