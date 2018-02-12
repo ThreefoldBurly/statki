@@ -433,7 +433,7 @@ class Pole:
 
 class Salwa:
     """
-    Abstrakcyjna reprezentacja salwy oddawanej przez statek w postaci kolekcji pól planszy, w którą strzela statek (UWAGA - nie jest to plansza statku, który strzela!)
+    Abstrakcyjna reprezentacja salwy oddawanej przez statek w postaci kolekcji pól planszy, w którą strzela statek (UWAGA - nie są to pola planszy statku, który strzela!)
     """
 
     def __init__(self, pola):
@@ -466,7 +466,7 @@ class Statek:
     pula_nazw = Parser.sklonuj_nazwy(NAZWY_WG_RANGI)  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
     rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])  # słownik aktualnie dostępnych liczebników rzymskich, do wykorzystania na wypadek wyczerpania listy dostępnych nazw (użycie tego kiedykolwiek jest mało prawdopodobne)
 
-    SALWY = {
+    SALWY = {  # listy ilości pól, w które statek o określonej randze może strzelić w rundzie
         "kuter": [1],
         "patrolowiec": [2],
         "korweta": [3],

@@ -362,7 +362,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs)
         self.combo_orientacji = None  # widżet przekazywany przez Kontrolę Ataku pod koniec jej inicjalizacji
         self.pozycje_salwy = None  # jw.
-        self.komunikator = None  # przekazywany przez GręGUI
+        self.komunikator = None  # przekazywany przez rodzica
         self.drugi_gracz = None  # jw.
         self.ustaw_style_przeciwnika()
         self.powiaz_callbacki()
@@ -403,8 +403,9 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     # CALLBACK wszystkich pól
     def na_klikniecie(self, kolumna, rzad):
         """
-        W zależności od wybranej orientacji w Kontroli Ataku odkrywa na planszy odpowiednie pola (lub pole).
+        W zależności od wybranej orientacji w Kontroli Ataku odkrywa na planszy odpowiednie pola (lub pole), dodaje salwy w rundzie i wyświetla komunikaty o salwie i zatopieniu.
         """
+        ilosc_zatopionych = len(self.gracz.plansza.zatopione)
         # 1 pole
         self.odkryj_pole(kolumna, rzad)
         if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
@@ -501,8 +502,12 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 (kolumna - 1, rzad),
                 (kolumna, rzad - 1)
             )
-
+        # komunikaty
         self.komunikator.o_salwie(self.drugi_gracz.tura.runda.salwy_oddane[-1], self.drugi_gracz.tura.runda.statek)
+        if len(self.gracz.plansza.zatopione) > ilosc_zatopionych:  # jeśli było zatopienie
+            ofiara = self.gracz.plansza.zatopione[-1]
+            napastnik = self.drugi_gracz.tura.runda.statek
+            self.komunikator.o_zatopieniu(ofiara, napastnik)
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
     # CALLBACK wszystkich pól
@@ -784,7 +789,6 @@ class KontrolaAtaku(Sekcja):
         event.widget.selection_clear()  # czyści tło pola tekstowego comboboksa
         indeks = event.widget.current()
         wybrany_statek = self.plansza_g.gracz.tura.statki[indeks]
-        print("Statek wybrany przez combo:", str(wybrany_statek))  # test
         self.plansza_g.zmien_statek(wybrany_statek)  # plansza aktualizuje obiekt rundy
         self.zmien_salwy(wybrany_statek)
 
@@ -1269,6 +1273,7 @@ class KontrolaGry(Sekcja):
         self.ustaw_tytul()
         self.buduj_etykiety()
         self.buduj_przycisk()
+        self.komunikator = None  # przekazywane przez rodzica
 
     def ustaw_etyramke(self):
         """Ustawia etyramkę pod widżety."""
@@ -1383,12 +1388,15 @@ class KontrolaGry(Sekcja):
     def na_koniec_rundy(self):
         """Kończy rundę."""
         # TODO: ustawienie pozostałych sekcji na początek rundy
+        self.plansza_g.kasuj_wybor_statku(self.plansza_g.gracz.tura.runda.statek)
         self.plansza_g.gracz.tura.dodaj_runde()
         self.plansza_p.gracz.tura.dodaj_runde()
+        self.plansza_g.wybierz_statek(self.plansza_g.gracz.tura.runda.statek)
         self.ustaw_tytul()
+        self.komunikator.o_rundzie(self.plansza_g.gracz)
 
 
-# ****************************************** SEKCJA STANU ***************************************************
+# *************************************** SEKCJA KOMUNIKATÓW ************************************************
 
 
 class PasekKomunikatow(ttk.Frame):
@@ -1601,6 +1609,7 @@ class GraGUI(ttk.Frame):
         """Tworzy, ustawia i przekazuje widżetom komunikator."""
         self.komunikator = Komunikator(self.pasek_komunikatow.tekst, self.CZCIONKI, PoleGUI.KOLORY)
         self.plansza_p.komunikator = self.komunikator
+        self.kontrola_gry.komunikator = self.komunikator
 
     def wyswietl_komunikaty(self):
         """Wyświetla komunikaty w polu tekstowym paska komunikatów."""

@@ -12,7 +12,7 @@ from plansza import Pole, Statek
 class Komunikator:
     """Obsługuje pole tekstowe paska stanu (TODO: oraz tooltipy)."""
 
-    ODMIANY = {
+    LICZEBNIKI = {
         "kolumna": ["kolumna", "kolumny", "kolumn"],
         "rząd": ["rząd", "rzędy", "rzędów"],
         "pole": ["pole", "pola", "pól"],
@@ -24,6 +24,10 @@ class Komunikator:
         "niszczyciel": ["niszczyciel", "niszczyciele", "niszczycieli"],
         "krążownik": ["krążownik", "krążowniki", "krążowników"],
         "pancernik": ["pancernik", "pancerniki", "pancerników"]
+    }
+    BIERNIKI = {
+        "korweta": "korwetę",
+        "fregata": "fregatę"
     }
     GWIAZDKA = "✱"
     KOLORY = {
@@ -67,20 +71,20 @@ class Komunikator:
 
         self.tekst.ro_insert("1.0", "Gra na planszy o rozmiarze: ")
         self.tekst.ro_insert("end", str(kolumny), "pogrubione")
-        self.tekst.ro_insert("end", " " + self.ODMIANY["kolumna"][self.do_indeksu(kolumny)] + " x ")
+        self.tekst.ro_insert("end", " " + self.LICZEBNIKI["kolumna"][self.do_indeksu(kolumny)] + " x ")
         self.tekst.ro_insert("end", str(rzedy), "pogrubione")
-        komunikat = " " + self.ODMIANY["rząd"][self.do_indeksu(rzedy)]
-        komunikat += " (" + str(rozmiar) + " " + self.ODMIANY["pole"][self.do_indeksu(rozmiar)] + "). "
+        komunikat = " " + self.LICZEBNIKI["rząd"][self.do_indeksu(rzedy)]
+        komunikat += " (" + str(rozmiar) + " " + self.LICZEBNIKI["pole"][self.do_indeksu(rozmiar)] + "). "
         komunikat += "Umieszczono "
         self.tekst.ro_insert("end", komunikat)
         self.tekst.ro_insert("end", str(ilosc_statkow), "pogrubione")
-        komunikat = " " + self.ODMIANY["statek"][self.do_indeksu(ilosc_statkow)]
+        komunikat = " " + self.LICZEBNIKI["statek"][self.do_indeksu(ilosc_statkow)]
         komunikat += " zajmujących " + str(ilosc_pol_statkow) + " "
-        komunikat += self.ODMIANY["pole"][self.do_indeksu(ilosc_pol_statkow)] + ". W tym: "
+        komunikat += self.LICZEBNIKI["pole"][self.do_indeksu(ilosc_pol_statkow)] + ". W tym: "
         self.tekst.ro_insert("end", komunikat)
         for ranga in Statek.RANGI:
             self.tekst.ro_insert("end", str(wg_rang[ranga]), "pogrubione")
-            komunikat = " " + self.ODMIANY[ranga][self.do_indeksu(wg_rang[ranga])]
+            komunikat = " " + self.LICZEBNIKI[ranga][self.do_indeksu(wg_rang[ranga])]
             komunikat += " (" + Statek.SYMBOLE[ranga] + "), "
             self.tekst.ro_insert("end", komunikat)
         self.tekst.ro_delete("end-3c", "end")
@@ -98,15 +102,14 @@ class Komunikator:
         self.tekst.ro_insert("end", "\n\n")
         self.tekst.ro_insert("end", komunikat, ("wyszarzone", "wyśrodkowane"))
         self.tekst.ro_insert("end", "\n")
+        self.tekst.see("end")
 
     def o_salwie(self, salwa, statek):
         """Wyświetla komunikat o oddanej salwie."""
-        statek_info = str(statek).split('"')
         self.tekst.ro_insert("end", "\n")
-        self.tekst.ro_insert("end", statek_info[0].title() + '"')
-        self.tekst.ro_insert("end", statek_info[1], "pogrubione")
+        self.o_statku(statek)
         komunikat = "oddała" if statek.RANGA_BAZOWA in Statek.RANGI[2:4] else "oddał"
-        self.tekst.ro_insert("end", '"' + statek_info[2] + " " + komunikat + " salwę w ")
+        self.tekst.ro_insert("end", " " + komunikat + " salwę w ")
         komunikat = "polę: " if len(salwa) == 1 else "pola: "
         self.tekst.ro_insert("end", komunikat)
         for i in range(len(salwa)):
@@ -123,3 +126,30 @@ class Komunikator:
                 self.tekst.ro_insert("end", " i ")
         self.tekst.see("end")
 
+    def o_statku(self, statek):
+        """Wyświetla komunikat o statku."""
+        statek_info = str(statek).split('"')
+        indeks_znaku = self.tekst.index("end-1c").split(".")[1]
+        if indeks_znaku == "0":
+            self.tekst.ro_insert("end", statek_info[0].title() + '"')
+        else:
+            if self.tekst.get("end-7c", "end-1c") == "przez ":
+                statek_ranga = statek_info[0][:-1]
+                if statek_ranga in Statek.RANGI[2:4]:
+                    statek_ranga = self.BIERNIKI[statek_ranga]
+                    self.tekst.ro_insert("end", statek_ranga + ' "')
+                else:
+                    self.tekst.ro_insert("end", statek_info[0] + '"')
+            else:
+                self.tekst.ro_insert("end", statek_info[0] + '"')
+        self.tekst.ro_insert("end", statek_info[1], "pogrubione")
+        self.tekst.ro_insert("end", '"' + statek_info[2])
+
+    def o_zatopieniu(self, ofiara, napastnik):
+        """Wyświetla komunikat o zatopieniu ofiary przez napastnika."""
+        self.tekst.ro_insert("end", "\n")
+        self.tekst.ro_insert("end", "Statek przeciwnika, ")
+        self.o_statku(ofiara)
+        self.tekst.ro_insert("end", ", został zatopiony przez ")
+        self.o_statku(napastnik)
+        self.tekst.see("end")

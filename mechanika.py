@@ -82,7 +82,6 @@ class Runda:
         """Tworzy salwę z otrzymanej listy krotek współrzędnych i dodaje do odpowiedniej listy."""
         pola = []
         for kolumna, rzad in wspolrzedne:
-            pola.append(plansza.podaj_pole(kolumna, rzad))
+            if plansza.czy_pole_w_planszy(kolumna, rzad):
+                pola.append(plansza.podaj_pole(kolumna, rzad))
         self.salwy_oddane.append(Salwa(pola))
-
-
