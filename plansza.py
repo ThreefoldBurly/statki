@@ -74,7 +74,7 @@ class Plansza:
         self.drukuj_sie()  # test
         self.ilosc_pol_statkow = sum([statek.rozmiar for statek in self.statki])
         # kontrola 2 poniższych zmiennych via GUI
-        self.zatopione = []  # lista zatopionych statków (na tej planszy - dla kontroli końca gry)
+        self.zatopione = []  # lista zatopionych statków (na tej planszy - m.in. dla kontroli końca gry)
         self.niezatopione = self.statki[:]  # lista niezatopionych statków (na tej planszy)
 
     def stworz_pola(self):
@@ -437,7 +437,7 @@ class Salwa:
     """
 
     def __init__(self, pola):
-        self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # lista pól salwy posortowana od pola najbardziej na NW (zapisanego w osobnej zmiennej: self.polozenie) do pola najbardziej na SE
+        self.pola = pola
         self.trafienia = [True if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]) else False for pole in self.pola]
         self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI["pudło"] else False for pole in self.pola]
 

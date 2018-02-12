@@ -403,105 +403,42 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     # CALLBACK wszystkich pól
     def na_klikniecie(self, kolumna, rzad):
         """
-        W zależności od wybranej orientacji w Kontroli Ataku odkrywa na planszy odpowiednie pola (lub pole), dodaje salwy w rundzie i wyświetla komunikaty o salwie i zatopieniu.
+        W zależności od wybranej orientacji w sekcji kontroli ataku oddaje salwę w wybrane pola oraz wyświetla komunikaty o salwie i zatopieniu.
         """
         ilosc_zatopionych = len(self.gracz.plansza.zatopione)
         # 1 pole
-        self.odkryj_pole(kolumna, rzad)
         if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(self.gracz.plansza, (kolumna, rzad))
-        # 2 pola w prawo
+            self.oddaj_salwe((kolumna, rzad))
+        # 2 pola (w prawo)
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
-            self.odkryj_pole(kolumna + 1, rzad)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna + 1, rzad)
-            )
-        # 2 pola w dół
+            self.oddaj_salwe((kolumna, rzad), (kolumna + 1, rzad))
+        # 2 pola (w dół)
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
-            self.odkryj_pole(kolumna, rzad + 1)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna, rzad + 1)
-            )
-        # 2 pola w lewo
+            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1))
+        # 2 pola (w lewo)
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
-            self.odkryj_pole(kolumna - 1, rzad)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna - 1, rzad)
-            )
-        # 2 pola w górę
+            self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad))
+        # 2 pola (w górę)
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
-            self.odkryj_pole(kolumna, rzad - 1)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna, rzad - 1)
-            )
+            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1))
         # 3 pola poziomo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
-            self.odkryj_pole(kolumna - 1, rzad)
-            self.odkryj_pole(kolumna + 1, rzad)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna - 1, rzad),
-                (kolumna + 1, rzad)
-            )
+            self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
         # 3 pola pionowo
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
-            self.odkryj_pole(kolumna, rzad - 1)
-            self.odkryj_pole(kolumna, rzad + 1)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna, rzad - 1),
-                (kolumna, rzad + 1)
-            )
+            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
         # 3 pola L
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
-            self.odkryj_pole(kolumna, rzad - 1)
-            self.odkryj_pole(kolumna + 1, rzad)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna, rzad - 1),
-                (kolumna + 1, rzad)
-            )
+            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
         # 3 pola Г
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
-            self.odkryj_pole(kolumna, rzad + 1)
-            self.odkryj_pole(kolumna + 1, rzad)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna, rzad + 1),
-                (kolumna + 1, rzad)
-            )
+            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
         # 3 pola Ꞁ
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
-            self.odkryj_pole(kolumna - 1, rzad)
-            self.odkryj_pole(kolumna, rzad + 1)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna - 1, rzad),
-                (kolumna, rzad + 1)
-            )
+            self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
         # 3 pola ⅃
         elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
-            self.odkryj_pole(kolumna - 1, rzad)
-            self.odkryj_pole(kolumna, rzad - 1)
-            self.drugi_gracz.tura.runda.dodaj_oddana_salwe(
-                self.gracz.plansza,
-                (kolumna, rzad),
-                (kolumna - 1, rzad),
-                (kolumna, rzad - 1)
-            )
+            self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
         # komunikaty
         self.komunikator.o_salwie(self.drugi_gracz.tura.runda.salwy_oddane[-1], self.drugi_gracz.tura.runda.statek)
         if len(self.gracz.plansza.zatopione) > ilosc_zatopionych:  # jeśli było zatopienie
@@ -510,124 +447,28 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             self.komunikator.o_zatopieniu(ofiara, napastnik)
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
-    # CALLBACK wszystkich pól
-    def na_wejscie(self, event):
-        """
-        W zależności od wybranej orientacji w Kontroli Ataku podświetla lub nie dodatkowe, sąsiednie pola w odpowiedniej konfiguracji.
-        """
-        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
-        self.pozycje_salwy.pierwsza.set(event.widget.pole)
-        # 2 pola w prawo
-        if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
-            self.zmien_stan_pola(kolumna + 1, rzad, "active", "druga")
-        # 2 pola w dół
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "active", "druga")
-        # 2 pola w lewo
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active", "druga")
-        # 2 pola w górę
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "active", "druga")
-        # 3 pola poziomo
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active", "druga")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active", "trzecia")
-        # 3 pola pionowo
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "active", "druga")
-            self.zmien_stan_pola(kolumna, rzad + 1, "active", "trzecia")
-        # 3 pola L
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "active", "druga")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active", "trzecia")
-        # 3 pola Г
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "active", "druga")
-            self.zmien_stan_pola(kolumna + 1, rzad, "active", "trzecia")
-        # 3 pola Ꞁ
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active", "druga")
-            self.zmien_stan_pola(kolumna, rzad + 1, "active", "trzecia")
-        # 3 pola ⅃
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "active", "druga")
-            self.zmien_stan_pola(kolumna, rzad - 1, "active", "trzecia")
-
-    # CALLBACK wszystkich pól
-    def na_wyjscie(self, event):
-        """
-        W zależności od wybranej orientacji w Kontroli Ataku kasuje podświetlenie dodatkowych, sąsiednich pól (lub pola) wywołane wcześniejszym uruchomieniem callbacka `na_wejscie()`.
-        """
-        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
-        self.pozycje_salwy.pierwsza.set("")
-        # 2 pola w prawo
-        if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active", "druga")
-        # 2 pola w dół
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active", "druga")
-        # 2 pola w lewo
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active", "druga")
-        # 2 pola w górę
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active", "druga")
-        # 3 pola poziomo
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active", "druga")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active", "trzecia")
-        # 3 pola pionowo
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active", "druga")
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active", "trzecia")
-        # 3 pola L
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active", "druga")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active", "trzecia")
-        # 3 pola Г
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active", "druga")
-            self.zmien_stan_pola(kolumna + 1, rzad, "!active", "trzecia")
-        # 3 pola Ꞁ
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active", "druga")
-            self.zmien_stan_pola(kolumna, rzad + 1, "!active", "trzecia")
-        # 3 pola ⅃
-        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
-            self.zmien_stan_pola(kolumna - 1, rzad, "!active", "druga")
-            self.zmien_stan_pola(kolumna, rzad - 1, "!active", "trzecia")
-
-    def zmien_stan_pola(self, kolumna, rzad, stan, pozycja):
-        """
-        Zmienia stan pola wg podanych współrzędnych. Aktualizuje treść pozycji pól w sekcji kontroli ataku."""
-        if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
-            pole_gui = self.podaj_pole_gui(kolumna, rzad)
-            pole_gui.state([stan])
-            # pozycje pól
-            if stan == "active":
-                if pozycja == "druga":
-                    self.pozycje_salwy.druga.set(pole_gui.pole)
-                elif pozycja == "trzecia":
-                    self.pozycje_salwy.trzecia.set(pole_gui.pole)
-            elif stan == "!active":
-                if pozycja == "druga":
-                    self.pozycje_salwy.druga.set("")
-                elif pozycja == "trzecia":
-                    self.pozycje_salwy.trzecia.set("")
+    def oddaj_salwe(self, *wspolrzedne):
+        """Oddaje salwę w pola o podanych współrzędnych."""
+        # współrzędne sortowane od pola najbardziej na NW do pola najbardziej na SE
+        wspolrzedne = sorted(wspolrzedne, key=lambda w: w[0] + w[1])
+        pola_salwy = []
+        for kolumna, rzad in wspolrzedne:
+            if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
+                self.odkryj_pole(kolumna, rzad)
+                pola_salwy.append(self.gracz.plansza.podaj_pole(kolumna, rzad))
+        self.drugi_gracz.tura.runda.dodaj_oddana_salwe(pola_salwy)
 
     def odkryj_pole(self, kolumna, rzad):
         """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Jeśli trzeba, zatapia trafiony statek (i odkrywa pola jego obwiedni)."""
-        if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
-            pole_gui = self.podaj_pole_gui(kolumna, rzad)
-            if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
-                self.oznacz_pudlo(pole_gui)
-            elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
-                self.oznacz_trafione(pole_gui, PoleGUI.GLIFY["trafione"])
-                statek = self.gracz.plansza.podaj_statek(pole_gui.pole)
-                if statek.czy_zatopiony():
-                    self.zatop_statek(statek, symbole=True)
-                    self.odkryj_obwiednie(statek)
+        pole_gui = self.podaj_pole_gui(kolumna, rzad)
+        if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
+            self.oznacz_pudlo(pole_gui)
+        elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
+            self.oznacz_trafione(pole_gui, PoleGUI.GLIFY["trafione"])
+            statek = self.gracz.plansza.podaj_statek(pole_gui.pole)
+            if statek.czy_zatopiony():
+                self.zatop_statek(statek, symbole=True)
+                self.odkryj_obwiednie(statek)
 
     def odkryj_obwiednie(self, statek):
         """Odkrywa na planszy obwiednie zatopionego statku."""
@@ -638,6 +479,135 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 pole_gui.configure(style=PoleGUI.STYLE["woda"])
         # test
         print(statek.o_zatopieniu())
+
+    # CALLBACK wszystkich pól
+    def na_wejscie(self, event):
+        """
+        W zależności od wybranej orientacji w sekcji kontroli ataku zmienia celownik (podświetla pola) i aktualizuje pozycje odpowiadających pól w sekcji kontroli ataku.
+        """
+        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        # 1 pole
+        if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad))
+        # 2 pola (w prawo)
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
+            self.zmien_celownik("active", (kolumna + 1, rzad))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna + 1, rzad))
+        # 2 pola (w dół)
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
+            self.zmien_celownik("active", (kolumna, rzad + 1))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1))
+        # 2 pola (w lewo)
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
+            self.zmien_celownik("active", (kolumna - 1, rzad))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad))
+        # 2 pola (w górę)
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
+            self.zmien_celownik("active", (kolumna, rzad - 1))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1))
+        # 3 pola poziomo
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+            self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna + 1, rzad))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
+        # 3 pola pionowo
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+            self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna, rzad + 1))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
+        # 3 pola L
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+            self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna + 1, rzad))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
+        # 3 pola Г
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+            self.zmien_celownik("active", (kolumna, rzad + 1), (kolumna + 1, rzad))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
+        # 3 pola Ꞁ
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
+            self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad + 1))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
+        # 3 pola ⅃
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
+            self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad - 1))
+            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
+
+    # CALLBACK wszystkich pól
+    def na_wyjscie(self, event):
+        """
+        W zależności od wybranej orientacji w sekcji kontroli ataku zmienia celownik (gasi pola) i aktualizuje pozycje odpowiadających pól w sekcji kontroli ataku.
+        """
+        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+        # 1 pole
+        if self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad))
+        # 2 pola (w prawo)
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
+            self.zmien_celownik("!active", (kolumna + 1, rzad))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna + 1, rzad))
+        # 2 pola (w dół)
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
+            self.zmien_celownik("!active", (kolumna, rzad + 1))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1))
+        # 2 pola (w lewo)
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
+            self.zmien_celownik("!active", (kolumna - 1, rzad))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad))
+        # 2 pola (w górę)
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
+            self.zmien_celownik("!active", (kolumna, rzad - 1))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1))
+        # 3 pola poziomo
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+            self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna + 1, rzad))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
+        # 3 pola pionowo
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+            self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna, rzad + 1))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
+        # 3 pola L
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+            self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna + 1, rzad))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
+        # 3 pola Г
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+            self.zmien_celownik("!active", (kolumna, rzad + 1), (kolumna + 1, rzad))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
+        # 3 pola Ꞁ
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
+            self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad + 1))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
+        # 3 pola ⅃
+        elif self.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
+            self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad - 1))
+            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
+
+    def zmien_celownik(self, stan, *wspolrzedne):
+        """
+        Zmienia stan (włącza na wejściu/wyłącza na wyjściu) celownika (pól, w które oddawana jest salwa po naciśnięciu lewego klawisza myszy) wg podanych współrzędnych.
+        """
+        for kolumna, rzad in wspolrzedne:
+            if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
+                pole_gui = self.podaj_pole_gui(kolumna, rzad)
+                pole_gui.state([stan])
+
+    def aktualizuj_pozycje_pol(self, stan, *wspolrzedne):
+        """Aktualizuje treść odpowiadających celownikowi pozycji pól w sekcji kontroli ataku."""
+        def ustaw_pozycje(stan, pozycja):
+            if stan == "wejście":
+                pozycja.set(self.gracz.plansza.podaj_pole(kolumna, rzad))
+            elif stan == "wyjście":
+                pozycja.set("")
+
+        # współrzędne sortowane od pola najbardziej na NW do pola najbardziej na SE
+        wspolrzedne = sorted(wspolrzedne, key=lambda w: w[0] + w[1])
+        for i in range(len(wspolrzedne)):
+            kolumna, rzad = wspolrzedne[i]
+            if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
+                if i == 0:
+                    ustaw_pozycje(stan, self.pozycje_salwy.pierwsza)
+                elif i == 1:
+                    ustaw_pozycje(stan, self.pozycje_salwy.druga)
+                elif i == 2:
+                    ustaw_pozycje(stan, self.pozycje_salwy.trzecia)
 
 
 # ***************************************** SEKCJA KONTROLI *************************************************

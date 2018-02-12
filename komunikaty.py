@@ -12,7 +12,7 @@ from plansza import Pole, Statek
 class Komunikator:
     """Obsługuje pole tekstowe paska stanu (TODO: oraz tooltipy)."""
 
-    LICZEBNIKI = {
+    LICZBA_MNOGA = {
         "kolumna": ["kolumna", "kolumny", "kolumn"],
         "rząd": ["rząd", "rzędy", "rzędów"],
         "pole": ["pole", "pola", "pól"],
@@ -42,7 +42,7 @@ class Komunikator:
 
     @staticmethod
     def do_indeksu(liczba):
-        """Zamienia liczbę na indeks wartości w słowniku odmian."""
+        """Zamienia liczbę na indeks wartości w słowniku liczby mnogiej."""
         if liczba == 1:
             return 0
         elif liczba in range(2, 5):
@@ -71,20 +71,20 @@ class Komunikator:
 
         self.tekst.ro_insert("1.0", "Gra na planszy o rozmiarze: ")
         self.tekst.ro_insert("end", str(kolumny), "pogrubione")
-        self.tekst.ro_insert("end", " " + self.LICZEBNIKI["kolumna"][self.do_indeksu(kolumny)] + " x ")
+        self.tekst.ro_insert("end", " " + self.LICZBA_MNOGA["kolumna"][self.do_indeksu(kolumny)] + " x ")
         self.tekst.ro_insert("end", str(rzedy), "pogrubione")
-        komunikat = " " + self.LICZEBNIKI["rząd"][self.do_indeksu(rzedy)]
-        komunikat += " (" + str(rozmiar) + " " + self.LICZEBNIKI["pole"][self.do_indeksu(rozmiar)] + "). "
+        komunikat = " " + self.LICZBA_MNOGA["rząd"][self.do_indeksu(rzedy)]
+        komunikat += " (" + str(rozmiar) + " " + self.LICZBA_MNOGA["pole"][self.do_indeksu(rozmiar)] + "). "
         komunikat += "Umieszczono "
         self.tekst.ro_insert("end", komunikat)
         self.tekst.ro_insert("end", str(ilosc_statkow), "pogrubione")
-        komunikat = " " + self.LICZEBNIKI["statek"][self.do_indeksu(ilosc_statkow)]
+        komunikat = " " + self.LICZBA_MNOGA["statek"][self.do_indeksu(ilosc_statkow)]
         komunikat += " zajmujących " + str(ilosc_pol_statkow) + " "
-        komunikat += self.LICZEBNIKI["pole"][self.do_indeksu(ilosc_pol_statkow)] + ". W tym: "
+        komunikat += self.LICZBA_MNOGA["pole"][self.do_indeksu(ilosc_pol_statkow)] + ". W tym: "
         self.tekst.ro_insert("end", komunikat)
         for ranga in Statek.RANGI:
             self.tekst.ro_insert("end", str(wg_rang[ranga]), "pogrubione")
-            komunikat = " " + self.LICZEBNIKI[ranga][self.do_indeksu(wg_rang[ranga])]
+            komunikat = " " + self.LICZBA_MNOGA[ranga][self.do_indeksu(wg_rang[ranga])]
             komunikat += " (" + Statek.SYMBOLE[ranga] + "), "
             self.tekst.ro_insert("end", komunikat)
         self.tekst.ro_delete("end-3c", "end")
@@ -126,14 +126,14 @@ class Komunikator:
                 self.tekst.ro_insert("end", " i ")
         self.tekst.see("end")
 
-    def o_statku(self, statek):
-        """Wyświetla komunikat o statku."""
+    def o_statku(self, statek, przypadek="mianownik"):
+        """Wyświetla komunikat o statku. W razie potrzeby dokonuje odmiany przez przypadki."""
         statek_info = str(statek).split('"')
         indeks_znaku = self.tekst.index("end-1c").split(".")[1]
         if indeks_znaku == "0":
             self.tekst.ro_insert("end", statek_info[0].title() + '"')
         else:
-            if self.tekst.get("end-7c", "end-1c") == "przez ":
+            if przypadek == "biernik":
                 statek_ranga = statek_info[0][:-1]
                 if statek_ranga in Statek.RANGI[2:4]:
                     statek_ranga = self.BIERNIKI[statek_ranga]
@@ -151,5 +151,5 @@ class Komunikator:
         self.tekst.ro_insert("end", "Statek przeciwnika, ")
         self.o_statku(ofiara)
         self.tekst.ro_insert("end", ", został zatopiony przez ")
-        self.o_statku(napastnik)
+        self.o_statku(napastnik, "biernik")
         self.tekst.see("end")

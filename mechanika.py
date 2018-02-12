@@ -78,10 +78,6 @@ class Runda:
         self.salwy_oddane = []
         self.salwy_otrzymane = None  # lista salw przeciwnika otrzymywana i zapisywana na początku rundy
 
-    def dodaj_oddana_salwe(self, plansza, *wspolrzedne):
-        """Tworzy salwę z otrzymanej listy krotek współrzędnych i dodaje do odpowiedniej listy."""
-        pola = []
-        for kolumna, rzad in wspolrzedne:
-            if plansza.czy_pole_w_planszy(kolumna, rzad):
-                pola.append(plansza.podaj_pole(kolumna, rzad))
+    def dodaj_oddana_salwe(self, pola):
+        """Tworzy salwę z listy otrzymanych pól i dodaje do oddanych salw."""
         self.salwy_oddane.append(Salwa(pola))
