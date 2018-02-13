@@ -351,16 +351,40 @@ class PlanszaGracza(PlanszaGUI):
                 else:
                     pole_gui.configure(text=statek.SYMBOLE[statek.RANGA_BAZOWA])
 
+    def wylacz_zablokowane_statki(self):
+        """
+        Wyłącza pola zablokowanych statków. Uruchamiana w sekcji kontroli ataku razem z blokadą zmiany statku w momencie wykonania pierwszej salwy.
+        """
+        wybrany_statek = self.gracz.tura.runda.statek
+        for statek in [statek for statek in self.gracz.tura.statki if statek != wybrany_statek]:
+            for pole in statek.pola:
+                pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
+                pole_gui.state(["disabled"])
+
+    def wlacz_zablokowane_statki(self):
+        """
+        Włącza pola zablokowanych statków. Uruchamiana w sekcji kontroli gry na koniec rundy - już po dodaniu nowej rundy w turze, ale jeszcze PRZED wyborem nowego statku na początek tury.
+        """
+        for statek in self.gracz.tura.statki:
+            for pole in statek.pola:
+                pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
+                pole_gui.state(["!disabled"])
+
+    def wylacz_zgrany_statek(self, zgrany_statek):
+        """Wyłącza statek zgrany w poprzedniej rundzie. Uruchamiana w sekcji kontroli gry na koniec rundy."""
+        for pole in zgrany_statek.pola:
+            pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
+            pole_gui.state(["disabled"])
 
 class PlanszaPrzeciwnika(PlanszaGUI):
     """Graficzna reprezentacja planszy przeciwnika."""
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Przeciwnik", **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs)
+        self.pg = None  # jw.
         self.ka = None  # przekazywane przez GręGUI
-        self.kf = None  # przekazywane przez GręGUI
+        self.kf = None  # jw.
         self.komunikator = None  # jw.
-        self.drugi_gracz = None  # jw.
         self.ustaw_style_przeciwnika()
         self.powiaz_callbacki()
         self.zmien_podswietlanie_nieodkrytych(PoleGUI.STYLE["atak"])
@@ -437,8 +461,8 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
             self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 
-        oddana_salwa = self.drugi_gracz.tura.runda.salwy_oddane[-1]
-        napastnik = self.drugi_gracz.tura.runda.statek
+        oddana_salwa = self.pg.gracz.tura.runda.salwy_oddane[-1]
+        napastnik = self.pg.gracz.tura.runda.statek
         # komunikaty
         self.komunikator.o_salwie(oddana_salwa, napastnik)
         if len(self.gracz.plansza.zatopione) > ilosc_zatopionych:  # jeśli było zatopienie
@@ -464,11 +488,12 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 pola_salwy.append(self.gracz.plansza.podaj_pole(kolumna, rzad))
             else:
                 niewypaly.append((kolumna, rzad))
-        self.drugi_gracz.tura.runda.salwy_oddane.append(Salwa(pola_salwy, niewypaly))
+        self.pg.gracz.tura.runda.salwy_oddane.append(Salwa(pola_salwy, niewypaly))
 
     def blokuj_zmiane_statku(self):
         """Blokuje możliwość zmiany statku na planszy gracza po oddaniu pierwszej salwy w widżetach."""
-        self.drugi_gracz.tura.runda.mozna_zmienic_statek = False
+        self.pg.gracz.tura.runda.mozna_zmienic_statek = False
+        self.pg.wylacz_zablokowane_statki()
         self.ka.combo_statku.state(["disabled"])
         self.kf.przycisk_do_tylu.state(["disabled"])
         self.kf.przycisk_do_przodu.state(["disabled"])
@@ -637,8 +662,8 @@ class KontrolaAtaku(Sekcja):
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Atak", **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
-        self.plansza_g = kwargs["plansza_gracza"]
-        self.plansza_p = kwargs["plansza_przeciwnika"]
+        self.pg = kwargs["plansza_gracza"]
+        # self.plansza_p = kwargs["plansza_przeciwnika"]
         self.ustaw_style()
         self.ustaw_etyramke()
         self.buduj_etykiety()
@@ -707,7 +732,7 @@ class KontrolaAtaku(Sekcja):
             self.etyramka,
             styl="KA.TCombobox",
             font=GraGUI.CZCIONKI["mała"],
-            values=self.plansza_g.gracz.tura.statki,
+            values=self.pg.gracz.tura.statki,
             width=35
         )
         self.combo_statku.grid(
@@ -766,8 +791,8 @@ class KontrolaAtaku(Sekcja):
         """Zmienia statek na planszy i aktualizuje combo_salwy."""
         event.widget.selection_clear()  # czyści tło pola tekstowego comboboksa
         indeks = event.widget.current()
-        wybrany_statek = self.plansza_g.gracz.tura.statki[indeks]
-        self.plansza_g.zmien_statek(wybrany_statek)  # plansza sama aktualizuje obiekt rundy
+        wybrany_statek = self.pg.gracz.tura.statki[indeks]
+        self.pg.zmien_statek(wybrany_statek)
         self.zmien_salwy(wybrany_statek)
 
     # CALLBACK combo_salwy
@@ -783,7 +808,7 @@ class KontrolaAtaku(Sekcja):
 
     def zmien_salwy(self, statek):
         """Ustawia salwy wybranego statku."""
-        self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in statek.salwy]
+        self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in statek.sila_ognia]
         self.combo_salwy.set(self.combo_salwy["values"][0])
         self.zmien_orientacje(self.combo_salwy["values"][0])
 
@@ -932,8 +957,8 @@ class KontrolaFloty(Sekcja):
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Flota", **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
-        self.plansza_g = kwargs["plansza_gracza"]
-        self.plansza_p = kwargs["plansza_przeciwnika"]
+        self.pg = kwargs["plansza_gracza"]
+        self.pp = kwargs["plansza_przeciwnika"]
         self.sprawdz_tlo_sytemowe()
         self.ustaw_style()
         self.ustaw_etyramke()
@@ -963,8 +988,8 @@ class KontrolaFloty(Sekcja):
         # drzewa nie mogą być bezpośrednio umieszczane w notesie - potrzebne ramki pośrednie
         ramka_drzewa_g = ttk.Frame(notes)
         ramka_drzewa_p = ttk.Frame(notes)
-        self.drzewo_g = DrzewoFlotyGracza(ramka_drzewa_g, self.plansza_g)
-        self.drzewo_p = DrzewoFlotyPrzeciwnika(ramka_drzewa_p, self.plansza_p)
+        self.drzewo_g = DrzewoFlotyGracza(ramka_drzewa_g, self.pg)
+        self.drzewo_p = DrzewoFlotyPrzeciwnika(ramka_drzewa_p, self.pp)
         ramka_drzewa_g.grid(sticky="nsew")
         # zgłasza wyżej powiększanie w poziomie i w pionie
         ramka_drzewa_g.rowconfigure(0, weight=1)
@@ -989,7 +1014,7 @@ class KontrolaFloty(Sekcja):
             # text="Poprzedni",
             # compound=tk.LEFT,
             image=ikona_do_tylu,
-            command=self.plansza_g.na_nawias_kw_lewy
+            command=self.pg.na_nawias_kw_lewy
         )
         self.przycisk_do_tylu.image = ikona_do_tylu  # konieczne ze względu na bug Tkintera (https://stackoverflow.com/questions/22200003/tkinter-button-not-showing-image)
         self.przycisk_do_tylu.grid(row=1, column=0, sticky=tk.W, pady=(13, 0), padx=35)
@@ -1000,7 +1025,7 @@ class KontrolaFloty(Sekcja):
             # text="Kolejny",
             # compound=tk.LEFT,
             image=ikona_do_przodu,
-            command=self.plansza_g.na_nawias_kw_prawy
+            command=self.pg.na_nawias_kw_prawy
         )
         self.przycisk_do_przodu.image = ikona_do_przodu
         self.przycisk_do_przodu.grid(row=1, column=2, sticky=tk.E, pady=(13, 0), padx=35)
@@ -1238,8 +1263,8 @@ class KontrolaGry(Sekcja):
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
-        self.plansza_g = kwargs["plansza_gracza"]
-        self.plansza_p = kwargs["plansza_przeciwnika"]
+        self.pg = kwargs["plansza_gracza"]
+        self.pp = kwargs["plansza_przeciwnika"]
         self.ka = None  # sekcja kontroli ataku przekazywana przez GręGUI
         self.kf = None  # sekcja kontroli floty przekazywana przez GręGUI
         self.ustaw_style()
@@ -1256,7 +1281,7 @@ class KontrolaGry(Sekcja):
 
     def ustaw_tytul(self):
         """Ustawia tytuł sekcji. Format tytułu: Tura #[liczba]/Runda #[liczba]"""
-        self.tytul.set(self.plansza_g.gracz.podaj_info_o_rundzie().title())
+        self.tytul.set(self.pg.gracz.podaj_info_o_rundzie().title())
 
     def ustaw_style(self):
         """Ustawia style dla sekcji."""
@@ -1284,7 +1309,7 @@ class KontrolaGry(Sekcja):
         etykieta_g = ttk.Label(
             self.etyramka,
             style="Mała.TLabel",
-            text=self.plansza_g.tytul.get() + ":"
+            text=self.pg.tytul.get() + ":"
         ).grid(
             row=0,
             column=0,
@@ -1292,7 +1317,7 @@ class KontrolaGry(Sekcja):
             padx=(28, 13),
             pady=(0, 5)
         )
-        tekst_g = self.podaj_tekst_stanu(self.plansza_g.gracz)
+        tekst_g = self.podaj_tekst_stanu(self.pg.gracz)
         self.stan_g = ttk.Label(
             self.etyramka,
             style="GraczKG.TLabel",
@@ -1311,7 +1336,7 @@ class KontrolaGry(Sekcja):
         etykieta_p = ttk.Label(
             self.etyramka,
             style="Mała.TLabel",
-            text=self.plansza_p.tytul.get() + ":"
+            text=self.pp.tytul.get() + ":"
         ).grid(
             row=1,
             column=0,
@@ -1319,7 +1344,7 @@ class KontrolaGry(Sekcja):
             padx=(28, 13),
             pady=(5, 5)
         )
-        tekst_p = self.podaj_tekst_stanu(self.plansza_p.gracz)
+        tekst_p = self.podaj_tekst_stanu(self.pp.gracz)
         self.stan_p = ttk.Label(
             self.etyramka,
             style="PrzeciwnikKG.TLabel",
@@ -1361,21 +1386,24 @@ class KontrolaGry(Sekcja):
     # CALLBACK przycisku KONIEC RUNDY
     def na_koniec_rundy(self):
         """Kończy rundę."""
-        # TODO: ustawienie pozostałych sekcji na początek rundy
+        zgrany_statek = self.pg.gracz.tura.runda.statek
+        self.pg.kasuj_wybor_statku(zgrany_statek)
+        self.pg.wylacz_zgrany_statek(zgrany_statek)
+        self.pg.gracz.tura.dodaj_runde()
+        self.pp.gracz.tura.dodaj_runde()
         self.odblokuj_widzety()
-        self.plansza_g.kasuj_wybor_statku(self.plansza_g.gracz.tura.runda.statek)
-        self.plansza_g.gracz.tura.dodaj_runde()
-        self.plansza_p.gracz.tura.dodaj_runde()
-        self.plansza_g.wybierz_statek(self.plansza_g.gracz.tura.runda.statek)
+        self.pg.wybierz_statek(self.pg.gracz.tura.runda.statek)
         self.ustaw_tytul()
-        self.komunikator.o_rundzie(self.plansza_g.gracz)
+        self.komunikator.o_rundzie(self.pg.gracz)
 
     def odblokuj_widzety(self):
         """
         Odblokowuje widżety umożliwiające zmianę statku, zablokowane w trakcie rundy po pierwszej salwie.
         """
+        self.pg.wlacz_zablokowane_statki()
         self.ka.combo_statku.state(["!disabled"])
         self.ka.combo_statku.state(["readonly"])
+        self.ka.combo_statku["values"] = self.pg.gracz.tura.statki
         self.kf.przycisk_do_tylu.state(["!disabled"])
         self.kf.przycisk_do_przodu.state(["!disabled"])
 
@@ -1525,8 +1553,8 @@ class GraGUI(ttk.Frame):
 
     def buduj_plansze(self, gracz, przeciwnik):
         """Buduje plansze gracza i przeciwnika"""
-        self.plansza_g = PlanszaGracza(self, 10, 10, gracz=gracz)
-        self.plansza_p = PlanszaPrzeciwnika(self, 10, 10, gracz=przeciwnik)
+        self.plansza_gracza = PlanszaGracza(self, 10, 10, gracz=gracz)
+        self.plansza_przeciwnika = PlanszaPrzeciwnika(self, 10, 10, gracz=przeciwnik)
 
     def buduj_sekcje_kontroli(self):
         """Buduje sekcje kontroli: ataku, floty i gry po prawej stronie okna głównego."""
@@ -1534,23 +1562,23 @@ class GraGUI(ttk.Frame):
             self,
             (0, 10, 10, 10),  # odstęp zewnętrzny (lewo, góra, prawo, dół)
             (5, 10, 5, 5),  # odstęp wewnętrzny
-            plansza_gracza=self.plansza_g,
-            plansza_przeciwnika=self.plansza_p
+            plansza_gracza=self.plansza_gracza,
+            plansza_przeciwnika=self.plansza_przeciwnika
         )
         self.kontrola_floty = KontrolaFloty(
             self,
             (0, 0, 10, 10),
             (5, 7, 5, 13),
-            plansza_gracza=self.plansza_g,
-            plansza_przeciwnika=self.plansza_p
+            plansza_gracza=self.plansza_gracza,
+            plansza_przeciwnika=self.plansza_przeciwnika
         )
         self.kontrola_gry = KontrolaGry(
             self,
             (0, 0, 10, 10),
             (5, 10, 5, 5),
             "",
-            plansza_gracza=self.plansza_g,
-            plansza_przeciwnika=self.plansza_p
+            plansza_gracza=self.plansza_gracza,
+            plansza_przeciwnika=self.plansza_przeciwnika
         )
 
     def buduj_pasek_komunikatow(self):
@@ -1558,24 +1586,24 @@ class GraGUI(ttk.Frame):
         self.pasek_komunikatow = PasekKomunikatow(
             self,
             (10, 0, 10, 11),
-            self.plansza_g.gracz.plansza.kolumny,
-            self.plansza_g.gracz.plansza.rzedy
+            self.plansza_gracza.gracz.plansza.kolumny,
+            self.plansza_gracza.gracz.plansza.rzedy
         )
 
     def ustaw_siatke(self):
         """
         Konfiguruje layout managera. Dopuszcza powiększanie trzeciej kolumny (w poziomie) i czwartego rzędu (w pionie). Zmienia ustawienia dwóch ostatnich rzędów w zależności od wielkości planszy.
         """
-        self.plansza_g.grid(column=0, row=0, rowspan=3, sticky=tk.N)
-        self.plansza_p.grid(column=1, row=0, rowspan=3, sticky=tk.N)
+        self.plansza_gracza.grid(column=0, row=0, rowspan=3, sticky=tk.N)
+        self.plansza_przeciwnika.grid(column=1, row=0, rowspan=3, sticky=tk.N)
         self.kontrola_ataku.grid(column=2, row=0, sticky="nwe")
         self.kontrola_floty.grid(column=2, row=1, sticky="nsew")
         self.kontrola_gry.grid(column=2, row=2, rowspan=2, sticky="nwe")
         self.pasek_komunikatow.grid(column=0, row=3, columnspan=2, sticky="ns")
         # dla plansz mniejszych niż 12 rzędów pasek komunikatów musi zajmować dwa rzędy siatki okna głównego a sekcja kontroli gry jeden (dla większych jest na odwrót)
-        if self.plansza_g.gracz.plansza.rzedy < 12:
-            self.plansza_g.grid(rowspan=2)
-            self.plansza_g.grid(rowspan=2)
+        if self.plansza_gracza.gracz.plansza.rzedy < 12:
+            self.plansza_gracza.grid(rowspan=2)
+            self.plansza_gracza.grid(rowspan=2)
             self.kontrola_floty.grid(rowspan=2)
             self.kontrola_gry.grid(row=3, rowspan=1)
             self.pasek_komunikatow.grid(row=2, rowspan=2)
@@ -1585,31 +1613,32 @@ class GraGUI(ttk.Frame):
 
     def przekaz_odnosniki(self):
         """Przekazuje odnośniki pomiędzy sekcjami."""
-        self.plansza_p.drugi_gracz = self.plansza_g.gracz
+        # PG
+        self.plansza_przeciwnika.pg = self.plansza_gracza
         # KA
-        self.plansza_g.ka = self.kontrola_ataku
-        self.plansza_p.ka = self.kontrola_ataku
+        self.plansza_gracza.ka = self.kontrola_ataku
+        self.plansza_przeciwnika.ka = self.kontrola_ataku
         self.kontrola_gry.ka = self.kontrola_ataku
         # KF
-        self.plansza_g.kf = self.kontrola_floty
-        self.plansza_p.kf = self.kontrola_floty
+        self.plansza_gracza.kf = self.kontrola_floty
+        self.plansza_przeciwnika.kf = self.kontrola_floty
         self.kontrola_gry.kf = self.kontrola_floty
 
     def wybierz_statek_startowy(self):
         """Wybiera największy statek na start gry."""
-        self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
+        self.plansza_gracza.wybierz_statek(self.plansza_gracza.gracz.plansza.statki[0])
         self.kontrola_floty.drzewo_g.see("niezatopione")
 
     def przekaz_komunikator(self):
         """Tworzy, ustawia i przekazuje widżetom komunikator."""
         self.komunikator = Komunikator(self.pasek_komunikatow.tekst, self.CZCIONKI, PoleGUI.KOLORY)
-        self.plansza_p.komunikator = self.komunikator
+        self.plansza_przeciwnika.komunikator = self.komunikator
         self.kontrola_gry.komunikator = self.komunikator
 
     def wyswietl_komunikaty(self):
         """Wyświetla komunikaty w polu tekstowym paska komunikatów."""
-        self.komunikator.o_rozpoczeciu_gry(self.plansza_g.gracz.plansza)
-        self.komunikator.o_rundzie(self.plansza_g.gracz)
+        self.komunikator.o_rozpoczeciu_gry(self.plansza_gracza.gracz.plansza)
+        self.komunikator.o_rundzie(self.plansza_gracza.gracz)
 
 
 def main():

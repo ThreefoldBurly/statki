@@ -480,7 +480,7 @@ class Statek:
     pula_nazw = Parser.sklonuj_nazwy(NAZWY_WG_RANGI)  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
     rzymskie = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])  # słownik aktualnie dostępnych liczebników rzymskich, do wykorzystania na wypadek wyczerpania listy dostępnych nazw (użycie tego kiedykolwiek jest mało prawdopodobne)
 
-    SILA_OGNIA = {  # listy ilości pól, w które statek o określonej randze może strzelić w rundzie
+    SILY_OGNIA = {  # listy ilości pól, w które statek o określonej randze może strzelić w rundzie
         "kuter": [1],
         "patrolowiec": [2],
         "korweta": [3],
@@ -609,11 +609,11 @@ class Statek:
         # TODO: obiekt wywołujący tę metodę powinien sprawdzić czy nie obniża rangi kutra
         index = self.RANGI.index(self.ranga) - 1
         self.ranga = self.RANGI[index]
-        self.sila_ognia = self.SILA_OGNIA[self.ranga][:]
+        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]
 
     def resetuj_sile_ognia(self):
         """Resetuje listę salw, do wartości wynikającej z aktualnej rangi."""
-        self.sila_ognia = self.SILA_OGNIA[self.ranga][:]
+        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]
 
     def podaj_nietrafione_na_rozmiar(self):
         """Podaje informację o stosunku nietrafionych do wszystkich pól jako string w formacie: 16/20."""
@@ -630,7 +630,7 @@ class Kuter(Statek):
         super().__init__(id_planszy, pola)
         self.ranga = self.RANGA_BAZOWA  # ranga rzeczywista - zależna od ilości trafień
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILA_OGNIA[self.ranga][:]  # sila_ognia rzeczywista - zależna od aktualnej rangi rzeczywistej
+        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # sila_ognia rzeczywista - zależna od aktualnej rangi rzeczywistej
 
 
 class Patrolowiec(Statek):
@@ -642,7 +642,7 @@ class Patrolowiec(Statek):
         super().__init__(id_planszy, pola)
         self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILA_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
 
 
 class Korweta(Statek):
@@ -654,7 +654,7 @@ class Korweta(Statek):
         super().__init__(id_planszy, pola)
         self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILA_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
 
 
 class Fregata(Statek):
@@ -666,7 +666,7 @@ class Fregata(Statek):
         super().__init__(id_planszy, pola)
         self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILA_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
 
 
 class Niszczyciel(Statek):
@@ -678,7 +678,7 @@ class Niszczyciel(Statek):
         super().__init__(id_planszy, pola)
         self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILA_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
 
 
 class Krazownik(Statek):
@@ -690,7 +690,7 @@ class Krazownik(Statek):
         super().__init__(id_planszy, pola)
         self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILA_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
 
 
 class Pancernik(Statek):
@@ -702,4 +702,4 @@ class Pancernik(Statek):
         super().__init__(id_planszy, pola)
         self.ranga = self.RANGA_BAZOWA  # jw.
         self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILA_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
