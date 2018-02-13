@@ -33,45 +33,58 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
 9. Plansza Gracza:
 
-    * [ZROBIONE] <<del>Przewijanie statków klawiszami '[',']'</del>
+    * [ZROBIONE] <del>Przewijanie statków klawiszami '[',']'</del>
+    * Dodatkowe graficzne wyróżnienie statków, które mogą strzelać w danej rundzie
 
 9. Plansza Przeciwnika.
 
-    * [ZROBIONE] <del>Dokończyć obracanie podświetlaniem (dołożyć pełen obród 2-polowej salwy)</del>
+    * [ZROBIONE] <del>Dokończyć obracanie podświetlaniem (dołożyć pełen obrót 2-polowej salwy)</del>
     * wyróżnianie zatopionych statków po wyborze w drzewie Kontroli Floty
 
 10. Kontrola Floty:
 
     1. Drzewo.
+
         * [ZROBIONE] <del>Scrollbary</del>
         * [ZROBIONE] <del>Automatyczne przesuwanie widoku na wybrany element (teraz jeśli przewijając wybierze się statek poza widokiem to pozostaje niewidoczny)</del>
         * [ZROBIONE] <del>Prawidłowe ustawienie na gridzie</del>
         * [ZROBIONE] <del>Przesunięcie drzewa do osobnej klasy</del>
-        * Notebook i drzewo statków przeciwnika
-        * Sortowanie kolumn - wg nazwy, wg pozycji i wg ilości nietrafionych pól (każde sortowanie odbywa się osobno w każdej kategorii)
-        * Obsługa możliwości wyboru tylko statków, które jeszcze nie miały swojej rundy w danej turze
-        * Obsługa zatapiania (odpowiednie formatowanie tej sekcji) ==> do dołożenia później, w trakcie prac nad mechaniką
-        * Obsługa dodawania zatopionych statków (odpowiednie formatowanie tej sekcji) ==> do dołożenia później, w trakcie prac nad mechaniką
-        * Etykiety pod drzewem ==> decyzja czy potrzebne później
+        * [ZROBIONE] <del>Notebook i drzewo statków przeciwnika</del>
+        * Sortowanie kolumn - wg nazwy, wg pozycji i wg ilości nietrafionych pól (każde sortowanie odbywa się osobno w każdej kategorii) ==> TODO
+        * Obsługa możliwości wyboru tylko statków, które jeszcze nie miały swojej rundy w danej turze ==> TODO w trakcie prac nad mechaniką
+        * Obsługa zatapiania (odpowiednie formatowanie tej sekcji) ==> TODO w trakcie prac nad mechaniką
+        * Obsługa dodawania zatopionych statków (odpowiednie formatowanie tej sekcji) ==> TODO w trakcie prac nad mechaniką
+        * WAŻNE: dodać kolumnę SALWY (ilość salw danego statku zmienia się w trakcie gry - jak na razie ta informacja jest śledzona tylko przez sekcje Kontroli Ataku)
 
-    2. Przyciski Poprzedni/Kolejny Statek + Etykieta Wyboru
+
+    2. [ZROBIONE] <del>Przyciski Poprzedni/Kolejny Statek</del>
+        * [ZROBIONE] <del>wyświetlanie zmieniającego się położenia kursora na planszy gracza - najlepiej na etykiecie pomiędzy przyciskami przewijania</del>
 
     3. Schemat zagnieżdżonego layoutu:
 
         [1] Okno Główne (Tk) >> [2] GraGUI (Frame) >> [3] Kontrola Floty (Frame) >> [4] etyramka (LabelFrame) >> [5] notes (Notebook) >> [6] ramka (Frame) >> [7] drzewo (Treeview)
 
-11. Kontrola Gry. Dokładnie rozrysować.
+11. Kontrola Gry.
 
-12. Pasek stanu.
+    * [ZROBIONE] <del>Podstawowy wygląd</del>
+    * Powiązanie z mechanika.py
+    * Kontrola pozostałych sekcji
 
-    * wyświetlanie w jednej linii zmieniającego się położenia kursora na każdej z plansz
+12. Pasek komunikatów.
 
+13. Grid - całość.
 
-13. Grid - całość. Aktualnie jest w miarę OK, ale wystarczy zmienić rozmiar na mniejszy od maksymalnego i cała Kontrola Ataku znika.
+    * [ZROBIONE] <del>Ustawienie kolumny prawej (sekcje kontroli) tak by o rozmieszczeniu wzajemnym sekcji decydowała głównie wysokość sekcji kontroli floty - uzależniona od wybranego rozmiaru planszy</del>
+    * Przy wysokości planszy 10-11 wierszy (a być może nawet 10-15 (ze względu na czytelność drzewa w sekcji kontroli ataku)) muszą się automatycznie zmieniać ustawienia siatki głównego okna. Powyżej tego zakresu plansza jest na tyle duża że ma sens by sekcja kontroli gry zajmowała dwa dolne rzędy siatki (a pasek komunikatów jeden). Poniżej tego zakresu plansza jest na tyle mała, że o wiele sensowniejsze jest gdy to pasek komunikatów zajmuje 2 dolne rzędy siatki a sekcja kontroli gry tylko jeden.
+    * Testy pod Windowsem
 
-14. Całość - drobne.
+14. Całość.
 
-    * przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego
+    * **Dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów**
+    * [ZROBIONE] <del>Przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego</del>(
+    przeniesione do klasy Sekcja, z której reszta dziedziczy)
+
+----
 
 ## MECHANIKA
 
@@ -82,3 +95,39 @@ plansza.py <<--->> mechanika.py <<--->> gui.py
   (stan)            (proces)          (interfejs)
 
   (dane)       (zapis/komunikacja)   (input/output)
+
+----
+
+#### ZMIANA STATKU [ZROBIONE]
+
+Zmiana wybranego statku odbywa się na kilka sposobów:
+
+1. Poprzez kliknięcie na statku w Planszy Gracza.
+2. Poprzez naciśnięcie przycisku "[" lub "]" na klawiaturze (bedąc gdziekolwiek w aplikacji).
+3. Poprzez wybór z listy comboboksu Kontroli Ataku.
+4. Poprzez podwójne kliknięcie w drzewie Kontroli Floty.
+5. Poprzez kliknięcie przycisków zmiany statku w Kontroli Floty.
+
+We wszystkich ww. przypadkach zmiana dokonywana jest przez wywołanie metody `zmien_statek(statek)` klasy `PlanszaGracza`, która wygląda tak:
+
+`if statek and not statek.czy_zatopiony():
+    self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
+    self.wybierz_statek(statek)`
+
+`kasuj_wybor_statku()` pobiera aktualny statek rundy, a `wybierz_statek()` ustala statek podany do `zmien_statek` jako nowy aktualny statek rundy.
+
+Przyjrzyjmy się w takim razie, co dokładnie jest podawane metodzie `zmien_statek()` we wszystkich jej wywołaniach. Tym bardziej, że zakażdym razem sprawdza czy w ogóle dostała coś innego niż obiekt fałszywy.
+
+1. Jeżeli aktualna runda nie ma blokady zmiany, podaje statek wg współrzędnych klikniętego pola. [BŁĄD - powinny być brane pod uwagę tylko statki znajdujące się w liście aktualnej tury (czyli te które jeszcze nie strzelały w tej turze)].
+
+2. Jeśli aktualna runda nie ma blokady zmiany i jeśli jest co wybierać (lista statków aktualnej tury jest większa niż 1), podaje kolejny lub poprzedni względem aktualnego statek z listy aktualnej tury [DOBRZE]
+
+3. Bez warunków (blokada zmiany jest zakładana na wyższym poziomie na całego widżeta) podaje statek z listy aktualnej tury odpowiadający statkowi klikniętemu w comboboksie [DOBRZE].
+
+4. Jeżeli aktualna runda nie ma blokady zmiany, podaje statek z listy aktualnej tury na podstawie kolejności wprowadzania statków do drzewa [BŁĄD - raz że statki są wprowadzane do drzewa na poczatku gry wg listy niezatopionych w planszy a nie na podstawie listy tury, a dwa taka translacja się rozjedzie zaraz po pierwszej rundzie - trzeba znaleźć metodę na wydobycie statku z drzewa na podstawie najlepiej stringowej reprezentacji jego położenia, która jest zapisywana w drzewie i jest unikalna dla danej planszy, ewentualnie na podstawie nazwy statku, która powinna teoretycznie być unikalna dla całej gry]
+
+5. == 2.
+
+Jeśli za każdym razem zostanie zapewnione, że nie ma blokady zmiany statku w rundzie i że podany jest na liście statków aktualnej tury - statek powinien być móc wybrany. Stąd wynika że ten warunek (i tylko ten) powinien być zawarty w metodzie `zmien_statek()` klasy `PlanszaGracza`.
+
+----

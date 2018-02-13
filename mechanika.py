@@ -6,16 +6,6 @@ Mechanika i przepływ gry w rozbiciu na tury, rundy i graczy - wg opisu zawarteg
 from copy import deepcopy
 
 
-# class Gra:
-#     """
-#     Abstrakcyjna reprezentacja gry.
-#     """
-
-#     def __init__(self, plansza_gracza, plansza_przeciwnika):
-#         self.gracz = Gracz(plansza_gracza)
-#         self.przeciwnik = Gracz(plansza_przeciwnika)
-
-
 class Gracz:
     """
     Abstrakcyjna reprezentacja gracza. Śledzi kolejne tury.
@@ -31,6 +21,13 @@ class Gracz:
         """Tworzy nową turę i dodaje do listy tur"""
         self.tura = Tura(self.plansza)
         self.tury.append(self.tura)
+
+    def podaj_info_o_rundzie(self):
+        """Zwraca informację o turze w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków])."""
+        info = "tura #" + str(len(self.tury))
+        info += " / runda #" + str(len(self.tura.rundy))
+        info += " (" + str(len(self.tura.statki)) + ")"
+        return info  # w minuskule!
 
 
 class Tura:
@@ -49,31 +46,24 @@ class Tura:
     def dodaj_runde(self):
         """Tworzy nową rundę i dodaje do listy rund"""
         self.statki.remove(self.runda.statek)
-        self.runda.zrob_migawke()
+        self.zrob_migawke()
         self.runda = Runda(self.statki[0])
         self.rundy.append(self.runda)
 
     def zrob_migawke(self):
+        """Tworzy migawkę (głęboką kopię) obiektu planszy i zapisuje w zmiennej."""
         self.migawka_planszy = deepcopy(self.plansza)
 
 
 class Runda:
     """
     Abstrakcyjna reprezentacja rundy.
-    Śledzi salwy statku, który strzela w tej rundzie oraz strzały otrzymane od przeciwnika. . Defaultowo startuje z pierwszym statkiem z listy tury
+    Śledzi salwy statku, który strzela w tej rundzie oraz salwy otrzymane od przeciwnika. . Defaultowo startuje z pierwszym statkiem z listy tury
     """
 
     def __init__(self, statek):
         self.statek = statek  # wartość zmieniana przez użytkownika via GUI
         # TODO: inicjalizacja śledzenia salw po pierwszym ataku
-        self.salwy = None  # jw. - wartość startową otrzymuje po oddaniu pierwszego strzału
-
-        # zmienne poniżej przechowują tylko wspólrzędne zamiast pełnych obiektów pól planszy przeciwnika, żeby zachować kompartmentację informacji, co będzie miało znaczenie przy implementacji komunikacji sieciowej dla gry osobowej (aplikacje będą wysyłać sobie nawzajem tylko proste liczby całkowite)
-        self.strzaly_wyslane = []  # lista krotek współrzędnych pól na planszy przeciwnika (kolumna, rzad), w które zostały oddane strzały
-        self.strzaly_otrzymane = []  # lista krotek współrzędnych pól na planszy gracza (kolumna, rzad), w które strzelił przeciwnik
-
-    def dodaj_strzal_wyslany(self, kolumna, rzad):
-        self.strzały_wyslane.append((kolumna, rzad))
-
-    def dodaj_strzal_otrzymany(self, kolumna, rzad):
-        self.strzały_otrzymane.append((kolumna, rzad))
+        self.salwy_oddane = []
+        self.salwy_otrzymane = None  # lista salw przeciwnika otrzymywana i zapisywana na początku rundy
+        self.mozna_zmienic_statek = True
