@@ -5,15 +5,6 @@ Mechanika i przepływ gry w rozbiciu na tury, rundy i graczy - wg opisu zawarteg
 """
 from copy import deepcopy
 
-# class Gra:
-#     """
-#     Abstrakcyjna reprezentacja gry.
-#     """
-
-#     def __init__(self, plansza_gracza, plansza_przeciwnika):
-#         self.gracz = Gracz(plansza_gracza)
-#         self.przeciwnik = Gracz(plansza_przeciwnika)
-
 
 class Gracz:
     """

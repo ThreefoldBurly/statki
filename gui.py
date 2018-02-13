@@ -341,7 +341,6 @@ class PlanszaGracza(PlanszaGUI):
             else:
                 pole_gui.configure(style=PoleGUI.STYLE["bazowe"])
 
-
     def odkryj_wszystkie_pola(self):
         """Odkrywa wszystkie pola planszy."""
         for rzad in self.pola_gui:
@@ -1379,7 +1378,6 @@ class KontrolaGry(Sekcja):
         self.ka.combo_statku.state(["readonly"])
         self.kf.przycisk_do_tylu.state(["!disabled"])
         self.kf.przycisk_do_przodu.state(["!disabled"])
-
 
 
 # *************************************** SEKCJA KOMUNIKATÓW ************************************************

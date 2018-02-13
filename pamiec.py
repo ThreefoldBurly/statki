@@ -5,7 +5,6 @@ Zapis i odczyt danych z pamięci zewnętrznej.
 """
 
 import codecs
-from random import randint, choice, gauss
 
 
 class Parser:
