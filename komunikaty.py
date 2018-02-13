@@ -110,19 +110,19 @@ class Komunikator:
         self.o_statku(statek)
         komunikat = "oddała" if statek.RANGA_BAZOWA in Statek.RANGI[2:4] else "oddał"
         self.tekst.ro_insert("end", " " + komunikat + " salwę w ")
-        komunikat = "polę: " if len(salwa) == 1 else "pola: "
+        komunikat = "polę: " if len(salwa.pola) == 1 else "pola: "
         self.tekst.ro_insert("end", komunikat)
-        for i in range(len(salwa)):
+        for i in range(len(salwa.pola)):
             if salwa.trafienia[i]:
                 self.tekst.ro_insert("end", salwa.pola[i].w_nawiasach(), ("pogrubione", "trafione"))
             else:
                 self.tekst.ro_insert("end", salwa.pola[i].w_nawiasach(), "pogrubione")
             if i == 0:
-                if len(salwa) == 2:
+                if len(salwa.pola) == 2:
                     self.tekst.ro_insert("end", " i ")
-                elif len(salwa) == 3:
+                elif len(salwa.pola) == 3:
                     self.tekst.ro_insert("end", ", ")
-            if i == 1 and len(salwa) == 3:
+            if i == 1 and len(salwa.pola) == 3:
                 self.tekst.ro_insert("end", " i ")
         self.tekst.see("end")
 

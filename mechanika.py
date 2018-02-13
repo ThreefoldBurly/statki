@@ -5,8 +5,6 @@ Mechanika i przepływ gry w rozbiciu na tury, rundy i graczy - wg opisu zawarteg
 """
 from copy import deepcopy
 
-from plansza import Salwa
-
 # class Gra:
 #     """
 #     Abstrakcyjna reprezentacja gry.
@@ -77,7 +75,4 @@ class Runda:
         # TODO: inicjalizacja śledzenia salw po pierwszym ataku
         self.salwy_oddane = []
         self.salwy_otrzymane = None  # lista salw przeciwnika otrzymywana i zapisywana na początku rundy
-
-    def dodaj_oddana_salwe(self, pola):
-        """Tworzy salwę z listy otrzymanych pól i dodaje do oddanych salw."""
-        self.salwy_oddane.append(Salwa(pola))
+        self.mozna_wybrac_statek = True

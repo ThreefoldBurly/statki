@@ -436,10 +436,11 @@ class Salwa:
     Abstrakcyjna reprezentacja salwy oddawanej przez statek w postaci kolekcji pól planszy, w którą strzela statek (UWAGA - nie są to pola planszy statku, który strzela!)
     """
 
-    def __init__(self, pola):
+    def __init__(self, pola, niewypaly):
         self.pola = pola
         self.trafienia = [True if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]) else False for pole in self.pola]
         self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI["pudło"] else False for pole in self.pola]
+        self.niewypaly = niewypaly  # strzały poza planszę
 
     def __str__(self):
         """Zwraca reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6)."""
@@ -452,7 +453,7 @@ class Salwa:
             return pola_tekst[0] + ", " + " i ".join(pola_tekst[1:])
 
     def __len__(self):
-        return len(self.pola)
+        return len(self.pola) + len(self.niewypaly)
 
 
 class Statek:
