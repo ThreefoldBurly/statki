@@ -33,11 +33,12 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 
 9. Plansza Gracza:
 
-    * [ZROBIONE] <<del>Przewijanie statków klawiszami '[',']'</del>
+    * [ZROBIONE] <del>Przewijanie statków klawiszami '[',']'</del>
+    * Dodatkowe graficzne wyróżnienie statków, które mogą strzelać w danej rundzie
 
 9. Plansza Przeciwnika.
 
-    * [ZROBIONE] <del>Dokończyć obracanie podświetlaniem (dołożyć pełen obród 2-polowej salwy)</del>
+    * [ZROBIONE] <del>Dokończyć obracanie podświetlaniem (dołożyć pełen obrót 2-polowej salwy)</del>
     * wyróżnianie zatopionych statków po wyborze w drzewie Kontroli Floty
 
 10. Kontrola Floty:
@@ -80,7 +81,10 @@ Te oznaczenia powinny pojawiać się również na planszy przeciwnika, ale tylko
 14. Całość.
 
     * **Dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów**
-    * [ZROBIONE] <del>Przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego</del>(przeniesione do klasy Sekcja, z której reszta dziedziczy)
+    * [ZROBIONE] <del>Przenieść kod pogrubiający czcionkę etyramek wszystkich sekcji do okna głównego</del>(
+    przeniesione do klasy Sekcja, z której reszta dziedziczy)
+
+----
 
 ## MECHANIKA
 
@@ -91,3 +95,39 @@ plansza.py <<--->> mechanika.py <<--->> gui.py
   (stan)            (proces)          (interfejs)
 
   (dane)       (zapis/komunikacja)   (input/output)
+
+----
+
+#### ZMIANA STATKU [ZROBIONE]
+
+Zmiana wybranego statku odbywa się na kilka sposobów:
+
+1. Poprzez kliknięcie na statku w Planszy Gracza.
+2. Poprzez naciśnięcie przycisku "[" lub "]" na klawiaturze (bedąc gdziekolwiek w aplikacji).
+3. Poprzez wybór z listy comboboksu Kontroli Ataku.
+4. Poprzez podwójne kliknięcie w drzewie Kontroli Floty.
+5. Poprzez kliknięcie przycisków zmiany statku w Kontroli Floty.
+
+We wszystkich ww. przypadkach zmiana dokonywana jest przez wywołanie metody `zmien_statek(statek)` klasy `PlanszaGracza`, która wygląda tak:
+
+`if statek and not statek.czy_zatopiony():
+    self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
+    self.wybierz_statek(statek)`
+
+`kasuj_wybor_statku()` pobiera aktualny statek rundy, a `wybierz_statek()` ustala statek podany do `zmien_statek` jako nowy aktualny statek rundy.
+
+Przyjrzyjmy się w takim razie, co dokładnie jest podawane metodzie `zmien_statek()` we wszystkich jej wywołaniach. Tym bardziej, że zakażdym razem sprawdza czy w ogóle dostała coś innego niż obiekt fałszywy.
+
+1. Jeżeli aktualna runda nie ma blokady zmiany, podaje statek wg współrzędnych klikniętego pola. [BŁĄD - powinny być brane pod uwagę tylko statki znajdujące się w liście aktualnej tury (czyli te które jeszcze nie strzelały w tej turze)].
+
+2. Jeśli aktualna runda nie ma blokady zmiany i jeśli jest co wybierać (lista statków aktualnej tury jest większa niż 1), podaje kolejny lub poprzedni względem aktualnego statek z listy aktualnej tury [DOBRZE]
+
+3. Bez warunków (blokada zmiany jest zakładana na wyższym poziomie na całego widżeta) podaje statek z listy aktualnej tury odpowiadający statkowi klikniętemu w comboboksie [DOBRZE].
+
+4. Jeżeli aktualna runda nie ma blokady zmiany, podaje statek z listy aktualnej tury na podstawie kolejności wprowadzania statków do drzewa [BŁĄD - raz że statki są wprowadzane do drzewa na poczatku gry wg listy niezatopionych w planszy a nie na podstawie listy tury, a dwa taka translacja się rozjedzie zaraz po pierwszej rundzie - trzeba znaleźć metodę na wydobycie statku z drzewa na podstawie najlepiej stringowej reprezentacji jego położenia, która jest zapisywana w drzewie i jest unikalna dla danej planszy, ewentualnie na podstawie nazwy statku, która powinna teoretycznie być unikalna dla całej gry]
+
+5. == 2.
+
+Jeśli za każdym razem zostanie zapewnione, że nie ma blokady zmiany statku w rundzie i że podany jest na liście statków aktualnej tury - statek powinien być móc wybrany. Stąd wynika że ten warunek (i tylko ten) powinien być zawarty w metodzie `zmien_statek()` klasy `PlanszaGracza`.
+
+----

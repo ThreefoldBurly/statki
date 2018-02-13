@@ -75,4 +75,4 @@ class Runda:
         # TODO: inicjalizacja śledzenia salw po pierwszym ataku
         self.salwy_oddane = []
         self.salwy_otrzymane = None  # lista salw przeciwnika otrzymywana i zapisywana na początku rundy
-        self.mozna_wybrac_statek = True
+        self.mozna_zmienic_statek = True

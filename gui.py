@@ -262,9 +262,8 @@ class PlanszaGracza(PlanszaGUI):
         """
         Wybiera kliknięty statek, kasując wybór poprzedniego. Zatopione statki nie są wybierane. Ten sam mechanizm jest uruchamiany po wyborze statku w sekcjach kontroli ataku i floty.
         """
-        if self.gracz.tura.runda.mozna_wybrac_statek:
-            statek = self.gracz.plansza.podaj_statek(self.podaj_pole_gui(kolumna, rzad).pole)
-            self.zmien_statek(statek)
+        statek = self.gracz.plansza.podaj_statek(self.podaj_pole_gui(kolumna, rzad).pole)
+        self.zmien_statek(statek)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
@@ -287,7 +286,7 @@ class PlanszaGracza(PlanszaGUI):
         """
         Przewija wybrany statek do tyłu.
         """
-        if self.gracz.tura.runda.mozna_wybrac_statek and len(self.gracz.tura.statki) > 1:  # jeśli jest co przewijać
+        if len(self.gracz.tura.statki) > 1:  # jeśli jest co przewijać
             indeks = self.gracz.tura.statki.index(self.gracz.tura.runda.statek)
             if indeks > 0:  # jeśli nie jesteśmy na początku kolejki
                 statek = self.gracz.tura.statki[indeks - 1]
@@ -300,7 +299,7 @@ class PlanszaGracza(PlanszaGUI):
         """
         Przewija wybrany statek do przodu.
         """
-        if self.gracz.tura.runda.mozna_wybrac_statek and len(self.gracz.tura.statki) > 1:  # jeśli jest co przewijać
+        if len(self.gracz.tura.statki) > 1:  # jeśli jest co przewijać
             indeks = self.gracz.tura.statki.index(self.gracz.tura.runda.statek)
             if indeks < len(self.gracz.tura.statki) - 1:  # jeśli nie jesteśmy na końcu kolejki
                 statek = self.gracz.tura.statki[indeks + 1]
@@ -310,7 +309,7 @@ class PlanszaGracza(PlanszaGUI):
 
     def zmien_statek(self, statek):
         """Zmienia wybrany statek"""
-        if statek and not statek.czy_zatopiony():
+        if statek in self.gracz.tura.statki and self.gracz.tura.runda.mozna_zmienic_statek:
             self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
             self.wybierz_statek(statek)
 
@@ -328,7 +327,7 @@ class PlanszaGracza(PlanszaGUI):
         self.ka.zmien_salwy(statek)
         if len(self.kf.drzewo_g.selection()) > 0:
             self.kf.drzewo_g.selection_remove(self.kf.drzewo_g.selection()[0])
-        iid = str(self.gracz.plansza.niezatopione.index(statek))
+        iid = str(statek.polozenie)
         self.kf.drzewo_g.selection_add(iid)
         if self.kf.drzewo_g.bbox(iid, column="statek") == "":
             self.kf.drzewo_g.see(iid)
@@ -455,7 +454,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     def oddaj_salwe(self, *wspolrzedne):
         """Oddaje salwę w pola o podanych współrzędnych."""
         if len(self.gracz.tura.runda.salwy_oddane) == 0:
-            self.blokuj_wybor_statku()
+            self.blokuj_zmiane_statku()
         # współrzędne sortowane od pola najbardziej na NW do pola najbardziej na SE
         wspolrzedne = sorted(wspolrzedne, key=lambda w: w[0] + w[1])
         pola_salwy = []
@@ -468,9 +467,9 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 niewypaly.append((kolumna, rzad))
         self.drugi_gracz.tura.runda.salwy_oddane.append(Salwa(pola_salwy, niewypaly))
 
-    def blokuj_wybor_statku(self):
-        """Blokuje możliwość wyboru statku na planszy gracza po oddaniu pierwszej salwy w widżetach."""
-        self.drugi_gracz.tura.runda.mozna_wybrac_statek = False
+    def blokuj_zmiane_statku(self):
+        """Blokuje możliwość zmiany statku na planszy gracza po oddaniu pierwszej salwy w widżetach."""
+        self.drugi_gracz.tura.runda.mozna_zmienic_statek = False
         self.ka.combo_statku.state(["disabled"])
         self.kf.przycisk_do_tylu.state(["disabled"])
         self.kf.przycisk_do_przodu.state(["disabled"])
@@ -769,7 +768,7 @@ class KontrolaAtaku(Sekcja):
         event.widget.selection_clear()  # czyści tło pola tekstowego comboboksa
         indeks = event.widget.current()
         wybrany_statek = self.plansza_g.gracz.tura.statki[indeks]
-        self.plansza_g.zmien_statek(wybrany_statek)  # plansza aktualizuje obiekt rundy
+        self.plansza_g.zmien_statek(wybrany_statek)  # plansza sama aktualizuje obiekt rundy
         self.zmien_salwy(wybrany_statek)
 
     # CALLBACK combo_salwy
@@ -1183,7 +1182,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
             statek = statki[i]
             self.insert(
                 statek.RANGA_BAZOWA, "end",
-                str(i),  # index listy statków jako ID statku w drzewie - upraszcza późniejszą translację wybranego elementu drzewa z powrotem na statek na planszy. Zamiana na str() wynika z dziwnej obsługi zera (Tkinter zwraca później zamiast zera string 'I001' - prawdopodobnie traktuje podanie zera jako wartości dla ID jako nie podanie niczego i zamiast tego wpisuje wartość defaultową)
+                str(statek.polozenie),  # tekstowa reprezentacja położenia statku jako ID w drzewie - upraszcza późniejszą translację wybranego elementu drzewa z powrotem na statek na planszy
                 values=(
                     '"' + statek.nazwa + '"',
                     str(statek.polozenie),
@@ -1206,9 +1205,8 @@ class DrzewoFlotyGracza(DrzewoFloty):
     def na_podwojne_klikniecie(self, event=None):
         """Wybiera kliknięty podwójnie statek na planszy gracza."""
         # TODO: w drzewie nie może dać się wybierać statków które już miały swoją rundę w tej turze!
-        if self.plansza_gui.gracz.tura.runda.mozna_wybrac_statek:
-            statek = self.plansza_gui.gracz.tura.statki[int(self.focus())]
-            self.plansza_gui.zmien_statek(statek)
+        statek = self.plansza_gui.gracz.plansza.podaj_statek(self.focus(), "str")
+        self.plansza_gui.zmien_statek(statek)
 
 
 class DrzewoFlotyPrzeciwnika(DrzewoFloty):
@@ -1365,16 +1363,23 @@ class KontrolaGry(Sekcja):
     def na_koniec_rundy(self):
         """Kończy rundę."""
         # TODO: ustawienie pozostałych sekcji na początek rundy
-        self.ka.combo_statku.state(["!disabled"])
-        self.ka.combo_statku.state(["readonly"])
-        self.kf.przycisk_do_tylu.state(["!disabled"])
-        self.kf.przycisk_do_przodu.state(["!disabled"])
+        self.odblokuj_widzety()
         self.plansza_g.kasuj_wybor_statku(self.plansza_g.gracz.tura.runda.statek)
         self.plansza_g.gracz.tura.dodaj_runde()
         self.plansza_p.gracz.tura.dodaj_runde()
         self.plansza_g.wybierz_statek(self.plansza_g.gracz.tura.runda.statek)
         self.ustaw_tytul()
         self.komunikator.o_rundzie(self.plansza_g.gracz)
+
+    def odblokuj_widzety(self):
+        """
+        Odblokowuje widżety umożliwiające zmianę statku, zablokowane w trakcie rundy po pierwszej salwie.
+        """
+        self.ka.combo_statku.state(["!disabled"])
+        self.ka.combo_statku.state(["readonly"])
+        self.kf.przycisk_do_tylu.state(["!disabled"])
+        self.kf.przycisk_do_przodu.state(["!disabled"])
+
 
 
 # *************************************** SEKCJA KOMUNIKATÓW ************************************************
