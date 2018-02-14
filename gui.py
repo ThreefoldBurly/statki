@@ -357,24 +357,20 @@ class PlanszaGracza(PlanszaGUI):
         """
         wybrany_statek = self.gracz.tura.runda.statek
         for statek in [statek for statek in self.gracz.tura.statki if statek != wybrany_statek]:
-            for pole in statek.pola:
-                pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
-                pole_gui.state(["disabled"])
+            self.zmien_stan_statku(statek, "disabled")
 
     def wlacz_zablokowane_statki(self):
         """
         Włącza pola zablokowanych statków. Uruchamiana w sekcji kontroli gry na koniec rundy - już po dodaniu nowej rundy w turze, ale jeszcze PRZED wyborem nowego statku na początek tury.
         """
         for statek in self.gracz.tura.statki:
-            for pole in statek.pola:
-                pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
-                pole_gui.state(["!disabled"])
+            self.zmien_stan_statku(statek, "!disabled")
 
-    def wylacz_zgrany_statek(self, zgrany_statek):
-        """Wyłącza statek zgrany w poprzedniej rundzie. Uruchamiana w sekcji kontroli gry na koniec rundy."""
-        for pole in zgrany_statek.pola:
+    def zmien_stan_statku(self, statek, stan):
+        """Zmienia stan podanego statek."""
+        for pole in statek.pola:
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
-            pole_gui.state(["disabled"])
+            pole_gui.state([stan])
 
 class PlanszaPrzeciwnika(PlanszaGUI):
     """Graficzna reprezentacja planszy przeciwnika."""
@@ -495,6 +491,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         self.pg.gracz.tura.runda.mozna_zmienic_statek = False
         self.pg.wylacz_zablokowane_statki()
         self.ka.combo_statku.state(["disabled"])
+        self.kf.drzewo_g.wyszarz_zablokowane_statki()
         self.kf.przycisk_do_tylu.state(["disabled"])
         self.kf.przycisk_do_przodu.state(["disabled"])
 
@@ -1061,9 +1058,10 @@ class DrzewoFloty(ttk.Treeview):
     """
 
     KOLORY = {
-        "podświetlenie-rang": "LemonChiffon2",
-        "podświetlenie-rang-zatopione": "plum3",  # TODO
-        "podświetlenie-rang-przeciwnik": "DarkOliveGreen2"  # TODO
+        "zablokowane": "gray64",
+        "rangi": "LemonChiffon2",
+        "rangi-zatopione": "plum3",  # TODO
+        "rangi-przeciwnik": "DarkOliveGreen2"  # TODO
     }
 
     def __init__(self, rodzic, plansza_gui):
@@ -1083,7 +1081,6 @@ class DrzewoFloty(ttk.Treeview):
             "KF.Treeview",
             font=GraGUI.CZCIONKI["mała"],
             rowheight=self.wys_wiersza
-            # rowheight=13
         )
         self.styl.configure(
             "KF.Treeview.Heading",
@@ -1092,12 +1089,10 @@ class DrzewoFloty(ttk.Treeview):
 
     def ustaw_sie(self):
         """Konfiguruje to drzewo."""
-
         self.configure(
             style="KF.Treeview",
             height=self.podaj_wysokosc(),
-            # height=22,
-            columns=("statek", "gdzie", "rozmiar", "ofiary"),
+            columns=("statek", "gdzie", "rozmiar", "siła ognia", "ofiary"),
             displaycolumns="#all",
             selectmode="browse"
         )
@@ -1145,15 +1140,18 @@ class DrzewoFloty(ttk.Treeview):
 
     def ustaw_kolumny(self, naglowek_rozmiar):
         """Konfiguruje kolumny."""
+        self.heading("#0", text="Ranga")
         self.heading("statek", text="Statek")
         self.heading("gdzie", text="Poz")
         self.heading("rozmiar", text=naglowek_rozmiar)
+        self.heading("siła ognia", text="Siła")
         self.heading("ofiary", text=Statek.ORDER)
-        self.column("#0", stretch=True, minwidth=70, width=49)
-        self.column("statek", stretch=True, minwidth=97, width=49)
-        self.column("gdzie", stretch=True, minwidth=35, width=49, anchor=tk.CENTER)
-        self.column("rozmiar", stretch=True, minwidth=40, width=49, anchor=tk.E)
-        self.column("ofiary", stretch=True, minwidth=12, width=49)
+        self.column("#0", stretch=True, minwidth=70, width=39)
+        self.column("statek", stretch=True, minwidth=85, width=39)
+        self.column("gdzie", stretch=True, minwidth=35, width=39, anchor=tk.CENTER)
+        self.column("rozmiar", stretch=True, minwidth=40, width=39, anchor=tk.E)
+        self.column("siła ognia", stretch=True, minwidth=50, width=39, anchor=tk.W)
+        self.column("ofiary", stretch=True, minwidth=12, width=39)
 
     def powiaz_escape(self):
         """Wiąże callback obsługujący naćiśnięcie ESCAPE."""
@@ -1169,7 +1167,7 @@ class DrzewoFloty(ttk.Treeview):
 
 class DrzewoFlotyGracza(DrzewoFloty):
     """
-    Pokazuje statki gracza. Kolumny: `Kategoria` (bez nagłówka), `Statek`, `Poz` (pozycja), `NT/R` (pola nietrafione/rozmiar), `★` (ilość gwiazdek = ilość ofiar danego statku).
+    Pokazuje statki gracza. Kolumny: `Ranga` (#0), `Statek`, `Poz` (pozycja), `NT/R` (pola nietrafione/rozmiar), `Siła` (siła ognia), `★` (ilość gwiazdek = ilość ofiar danego statku).
     """
 
     def __init__(self, rodzic, plansza_gui):
@@ -1211,6 +1209,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
                     '"' + statek.nazwa + '"',
                     str(statek.polozenie),
                     statek.podaj_nietrafione_na_rozmiar(),
+                    str(statek.sila_ognia),
                     "".join([statek.ORDER for ofiara in statek.ofiary])
                 ),
                 tags=(kategoria, "statek")
@@ -1219,7 +1218,8 @@ class DrzewoFlotyGracza(DrzewoFloty):
     def ustaw_wyglad(self):
         """Konfiguruje wygląd zawartości drzewa."""
         self.tag_configure("kategoria", font=GraGUI.CZCIONKI["mała-pogrubiona"])
-        self.tag_configure("ranga", background=self.KOLORY["podświetlenie-rang"])
+        self.tag_configure("ranga", background=self.KOLORY["rangi"])
+        self.tag_configure("zablokowane", foreground=self.KOLORY["zablokowane"])
 
     def powiaz_podwojne_klikniecie(self):
         """Wiąże callback obsługujący podóœjne kliknięcie."""
@@ -1232,6 +1232,27 @@ class DrzewoFlotyGracza(DrzewoFloty):
         statek = self.plansza_gui.gracz.plansza.podaj_statek(self.focus(), "str")
         self.plansza_gui.zmien_statek(statek)
 
+    def wyszarz_zablokowane_statki(self):
+        """Wyszarza zablokowane statki."""
+        wybrany_statek = self.plansza_gui.gracz.tura.runda.statek
+        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gracz.tura.statki if statek != wybrany_statek]
+        for iid in lista_iid:
+            tag_ranga, tag_statek = self.item(iid)["tags"][:2]
+            self.item(iid, tags=(tag_ranga, tag_statek, "zablokowane"))
+
+    def kasuj_wyszarzenie_statkow(self):
+        """Kasuje wyszarzenie zablokowanych statków."""
+        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gracz.tura.statki]
+        for iid in lista_iid:
+            tag_ranga, tag_statek = self.item(iid)["tags"][:2]
+            self.item(iid, tags=(tag_ranga, tag_statek))
+
+    def wyszarz_statek(self, statek):
+        """Wyszarza podany statek"""
+        iid = str(statek.polozenie)
+        tag_ranga, tag_statek = self.item(iid)["tags"][:2]
+        self.item(iid, tags=(tag_ranga, tag_statek, "zablokowane"))
+
 
 class DrzewoFlotyPrzeciwnika(DrzewoFloty):
     """
@@ -1242,6 +1263,7 @@ class DrzewoFlotyPrzeciwnika(DrzewoFloty):
         super().__init__(rodzic, plansza_gui)
 
         self.ustaw_kolumny("Rozm")
+        self.configure(displaycolumns=(0, 1, 2, 4))
 
     def dodaj_statek(self):
         """
@@ -1388,7 +1410,8 @@ class KontrolaGry(Sekcja):
         """Kończy rundę."""
         zgrany_statek = self.pg.gracz.tura.runda.statek
         self.pg.kasuj_wybor_statku(zgrany_statek)
-        self.pg.wylacz_zgrany_statek(zgrany_statek)
+        self.pg.zmien_stan_statku(zgrany_statek, "disabled")
+        self.kf.drzewo_g.wyszarz_statek(zgrany_statek)
         self.pg.gracz.tura.dodaj_runde()
         self.pp.gracz.tura.dodaj_runde()
         self.odblokuj_widzety()
@@ -1404,6 +1427,7 @@ class KontrolaGry(Sekcja):
         self.ka.combo_statku.state(["!disabled"])
         self.ka.combo_statku.state(["readonly"])
         self.ka.combo_statku["values"] = self.pg.gracz.tura.statki
+        self.kf.drzewo_g.kasuj_wyszarzenie_statkow()
         self.kf.przycisk_do_tylu.state(["!disabled"])
         self.kf.przycisk_do_przodu.state(["!disabled"])
 
