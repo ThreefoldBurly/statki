@@ -498,6 +498,15 @@ class Statek:
         "krążownik": "K",
         "pancernik": "P"
     }
+    ZAKRESY = {
+        "kuter": range(1, 2),
+        "patrolowiec": range(2, 4),
+        "korweta": range(4, 7),
+        "fregata": range(7, 10),
+        "niszczyciel": range(10, 13),
+        "krążownik": range(13, 17),
+        "pancernik": range(17, 20)
+    }
     ORDER = "★"
 
     def __init__(self, id_planszy, pola):

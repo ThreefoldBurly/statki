@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
 """
-Mechanika i przepływ gry w rozbiciu na tury, rundy i graczy - wg opisu zawartego w meta/zasady.md.
+Mechanika i przebieg gry w rozbiciu na tury i rundy - wg opisu zawartego w meta/zasady.md. Gra składa się z tur, które składają się z rund. Runda odpowiada atakowi pojedynczego statku na pola planszy przeciwnika podzielonemu na salwy. Ilość salw oddawanych przez statek w rundzie zależy od jego aktualnej siły ognia. Tura składa się z tylu rund ile statków na planszy może atakować (nie są zatopione). Gra składa się z tak wielu tur, jak wiele razy po wykonaniu wszystkich ataków na planszy atakującego gracza pozostał jeszcze jakiś niezatopiony statek.
 """
+
 from copy import deepcopy
 
 
-class Gracz:
+class Gra:
     """
-    Abstrakcyjna reprezentacja gracza. Śledzi kolejne tury.
+    Abstrakcyjna reprezentacja przebiegu gry na danej planszy. Zapisuje kolejne tury.
     """
 
     def __init__(self, plansza):
@@ -23,7 +24,7 @@ class Gracz:
         self.tury.append(self.tura)
 
     def podaj_info_o_rundzie(self):
-        """Zwraca informację o turze w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków])."""
+        """Zwraca informację o rundzie w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków])."""
         info = "tura #" + str(len(self.tury))
         info += " / runda #" + str(len(self.tura.rundy))
         info += " (" + str(len(self.tura.statki)) + ")"
@@ -32,13 +33,12 @@ class Gracz:
 
 class Tura:
     """
-    Abstrakcyjna reprezentacja tury.
-    Śledzi kolejne rundy poprzez monitorowanie własnej listy statków, które jeszcze nie miały swojej rundy. Na koniec każdej rundy zapisuje stan gry (po stronie danego gracza) w postaci migawki planszy
+    Abstrakcyjna reprezentacja tury. Zapisuje kolejne rundy i śledzi statki zdolne do ataku w kolejnych rundach. Startuje z listą niezatopionych statków.
     """
 
     def __init__(self, plansza):
         self.plansza = plansza
-        self.migawka_planszy = None  # wykonywana na koniec każdej rundy
+        self.migawki_planszy = []  # wykonywane na koniec każdej rundy
         self.statki = self.plansza.niezatopione[:]  # śledzona jest tylko ilość elementów nie ich zawartość, więc wystarczy płytka kopia
         self.runda = Runda(self.statki[0])
         self.rundy = [self.runda]
@@ -46,24 +46,30 @@ class Tura:
     def dodaj_runde(self):
         """Tworzy nową rundę i dodaje do listy rund"""
         self.statki.remove(self.runda.statek)
-        self.zrob_migawke()
+        self.migawki_planszy.append(deepcopy(self.plansza))
         self.runda = Runda(self.statki[0])
         self.rundy.append(self.runda)
 
-    def zrob_migawke(self):
-        """Tworzy migawkę (głęboką kopię) obiektu planszy i zapisuje w zmiennej."""
-        self.migawka_planszy = deepcopy(self.plansza)
+    def filtruj_zatopione(self):
+        """Filtruje z listy statków statki zatopione w ostatniej rundzie przez przeciwnika."""
+        aktualne_statki = [statek for statek in self.statki if statek not in self.plansza.zatopione]
+        self.statki = aktualne_statki
 
 
 class Runda:
     """
-    Abstrakcyjna reprezentacja rundy.
-    Śledzi salwy statku, który strzela w tej rundzie oraz salwy otrzymane od przeciwnika. . Defaultowo startuje z pierwszym statkiem z listy tury
+    Abstrakcyjna reprezentacja rundy. Śledzi atakujący statek i zapisuje salwy, które oddał oraz salwy otrzymane od przeciwnika. Startuje z pierwszym statkiem z listy tury.
     """
 
     def __init__(self, statek):
         self.statek = statek  # wartość zmieniana przez użytkownika via GUI
-        # TODO: inicjalizacja śledzenia salw po pierwszym ataku
+        self.sila_ognia = self.statek.sila_ognia[:]
         self.salwy_oddane = []
         self.salwy_otrzymane = None  # lista salw przeciwnika otrzymywana i zapisywana na początku rundy
         self.mozna_zmienic_statek = True
+        self.mozna_atakowac = True
+
+    def ustaw_statek(self, statek):
+        """Ustawia podany statek i jego siłę ognia jako aktualne dla rundy."""
+        self.statek = statek
+        self.sila_ognia = statek.sila_ognia[:]
