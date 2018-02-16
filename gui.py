@@ -324,7 +324,7 @@ class PlanszaGracza(PlanszaGUI):
         self.gra.tura.runda.ustaw_statek(statek)
         # kontrola widżetów w innych sekcjach
         self.ka.combo_statku.set(statek)
-        self.ka.ustaw_sile_ognia()
+        self.ka.ustaw_combo_salwy()
         if len(self.kf.drzewo_g.selection()) > 0:
             self.kf.drzewo_g.selection_remove(self.kf.drzewo_g.selection()[0])
         iid = str(statek.polozenie)
@@ -397,7 +397,6 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """Włącza nieodkryte pola oraz celownik."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
-                print("Raportuje styl pola:", pole_gui.configure("style")[-1])
                 if pole_gui.configure("style")[-1] in [PoleGUI.STYLE["bazowe"], ""]:
                     pole_gui.state(["!disabled"])
                     pole_gui.configure(style=PoleGUI.STYLE["atak"])
@@ -491,7 +490,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         oddana_salwa = Salwa(pola_salwy, niewypaly)
         self.pg.gra.tura.runda.salwy_oddane.append(oddana_salwa)
         self.pg.gra.tura.runda.sila_ognia.remove(len(oddana_salwa))
-        self.ka.ustaw_sile_ognia()
+        self.ka.ustaw_combo_salwy()
 
 
     def blokuj_zmiane_statku(self):
@@ -674,7 +673,7 @@ class KontrolaAtaku(Sekcja):
         self.ustaw_etyramke()
         self.buduj_etykiety()
         self.buduj_comboboksy()
-        self.ustaw_combo_readonly()
+        self.przestaw_na_readonly()
         self.pozycje_salwy = PozycjeSalwy(self.etyramka)
         self.powiaz_callbacki()
 
@@ -765,7 +764,7 @@ class KontrolaAtaku(Sekcja):
         self.combo_salwy.configure(font=GraGUI.CZCIONKI["mała"])
 
         # wybór orientacji
-        self.combo_orientacji = ComboZeZmianaCzcionki(
+        self.combo_orientacji = ComboOrientacji(
             self.etyramka,
             styl="KA.TCombobox",
             font=GraGUI.CZCIONKI["mała"],
@@ -779,7 +778,7 @@ class KontrolaAtaku(Sekcja):
         )
         self.combo_orientacji.configure(font=GraGUI.CZCIONKI["mała"])
 
-    def ustaw_combo_readonly(self):
+    def przestaw_na_readonly(self):
         """Ustawia stan comboboksów jako `readonly`"""
         self.combo_statku.state(["readonly"])
         self.combo_salwy.state(["readonly"])
@@ -804,12 +803,13 @@ class KontrolaAtaku(Sekcja):
     def na_wybor_salwy(self, event=None):
         """Aktualizuje combo_orientacji."""
         event.widget.selection_clear()
-        self.ustaw_orientacje(event.widget.get())
+        self.ustaw_combo_orientacji(event.widget.get())
 
     # CALLBACK combo_orientacji
     def na_wybor_orientacji(self, event=None):
         """Czyści pole tekstowe combo_orientacji"""
         event.widget.selection_clear()
+        self.combo_orientacji.ostatnia_orientacja = self.combo_orientacji.get()
 
     def wylacz_salwe_i_orientacje(self):
         """Wyłącza combo salwy i orientacji. Uruchamiane po oddaniu ostatniej salwy."""
@@ -826,7 +826,7 @@ class KontrolaAtaku(Sekcja):
         self.combo_salwy["values"] = self.pg.gra.tura.runda.sila_ognia
         self.combo_orientacji.state(["!disabled"])
         self.combo_orientacji.state(["readonly"])
-        self.ustaw_orientacje(self.combo_salwy["values"][0])
+        self.ustaw_combo_orientacji(self.combo_salwy["values"][0])
 
     def blokuj_atak(self):
         """Blokuje możliwość oddania salwy w pola planszy przeciwnika."""
@@ -836,18 +836,22 @@ class KontrolaAtaku(Sekcja):
         self.pozycje_salwy.wyczysc()
 
 
-    def ustaw_sile_ognia(self):
-        """Ustawia siłę ognia wybranego statku."""
+    def ustaw_combo_salwy(self):
+        """Ustawia aktualną siłę ognia w comboboksie salwy."""
         sila_ognia = self.pg.gra.tura.runda.sila_ognia
         if len(sila_ognia) > 0:
             self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in self.pg.gra.tura.runda.sila_ognia]
             self.combo_salwy.set(self.combo_salwy["values"][0])
-            self.ustaw_orientacje(self.combo_salwy["values"][0])
+            self.ustaw_combo_orientacji(self.combo_salwy["values"][0])
         else:
             self.blokuj_atak()
 
-    def ustaw_orientacje(self, salwa_tekst):
-        """Ustawia orientacje wybranej salwy."""
+    def ustaw_combo_orientacji(self, salwa_tekst):
+        """
+        Ustawia w comboboksie orientację wybranej salwy. Zachowuje wcześniejszą orientację, jeśli wybrana salwa odpowiada poprzedniej.
+        """
+        print("Ostatnia salwa:", self.combo_orientacji.ostatnia_salwa)
+        print("Ostatnia orientacja:", self.combo_orientacji.ostatnia_orientacja)
         salwa = int(salwa_tekst[0])
         if salwa == 1:
             self.combo_orientacji["values"] = [self.ORIENTACJE[0]]
@@ -861,7 +865,13 @@ class KontrolaAtaku(Sekcja):
             self.combo_orientacji["values"] = self.ORIENTACJE[5:]
             self.wlacz_pozycje_salwy("druga")
             self.wlacz_pozycje_salwy("trzecia")
-        self.combo_orientacji.set(self.combo_orientacji["values"][0])
+
+        if salwa == self.combo_orientacji.ostatnia_salwa:
+            self.combo_orientacji.set(self.combo_orientacji.ostatnia_orientacja)
+        else:
+            self.combo_orientacji.set(self.combo_orientacji["values"][0])
+        self.combo_orientacji.ostatnia_salwa = salwa
+        self.combo_orientacji.ostatnia_orientacja = self.combo_orientacji.get()
 
     def wylacz_pozycje_salwy(self, pozycja):
         """Wyłącza podaną pozycję salwy"""
@@ -890,6 +900,7 @@ class KontrolaAtaku(Sekcja):
         else:
             indeks += 1
         self.combo_orientacji.set(self.combo_orientacji["values"][indeks])
+        self.combo_orientacji.ostatnia_orientacja = self.combo_orientacji.get()
 
 
 class ComboZeZmianaCzcionki(ttk.Combobox):
@@ -904,6 +915,17 @@ class ComboZeZmianaCzcionki(ttk.Combobox):
     def _obsluz_czcionke_listy_rozwijanej(self, *args):
         lista_rozwijana = self.tk.eval("ttk::combobox::PopdownWindow {}".format(self))
         self.tk.call("{}.f.l".format(lista_rozwijana), 'configure', '-font', self['font'])
+
+
+class ComboOrientacji(ComboZeZmianaCzcionki):
+    """
+    Combobox orientacji salwy - zachowuje informację o ostatniej salwie i wybranej orientacji, tak że jeśli kolejna salwa ataku odpowiada poprzedniej - orientacja wybrana poprzednio w comboboksie pozostaje niezmieniona.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ostatnia_salwa = 0
+        self.ostatnia_orientacja = ""
 
 
 class PozycjeSalwy(ttk.Frame):
