@@ -10,7 +10,7 @@ from PIL import Image, ImageTk
 import math
 
 from plansza import Plansza, Pole, Salwa, Statek
-from mechanika import Gracz
+from mechanika import Gra
 from komunikaty import Komunikator
 
 
@@ -77,9 +77,9 @@ class PlanszaGUI(Sekcja):
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
-        self.gracz = kwargs["gracz"]
+        self.gra = kwargs["gra"]
         # self.tytul = tytul
-        self.pola_gui = [[0 for kolumna in range(self.gracz.plansza.kolumny)] for rzad in range(self.gracz.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
+        self.pola_gui = [[0 for kolumna in range(self.gra.plansza.kolumny)] for rzad in range(self.gra.plansza.rzedy)]  # matryca (lista rzędów (list)) obiektów klasy PoleGUI (tu inicjalizowanych jako "0")
         self.ustaw_style()
         self.buduj_etykiety()
         self.buduj_pola()
@@ -134,7 +134,7 @@ class PlanszaGUI(Sekcja):
 
     def buduj_etykiety(self):
         """Buduje etykiety kolumn i rzędów."""
-        for kolumna in range(self.gracz.plansza.kolumny):
+        for kolumna in range(self.gra.plansza.kolumny):
             ttk.Label(
                 self.etyramka,
                 text=Plansza.ALFABET[kolumna + 1],
@@ -145,7 +145,7 @@ class PlanszaGUI(Sekcja):
                 sticky=tk.W + tk.E,
                 pady=(0, 3)
             )
-        for rzad in range(self.gracz.plansza.rzedy):
+        for rzad in range(self.gra.plansza.rzedy):
             ttk.Label(
                 self.etyramka,
                 text=str(rzad + 1)
@@ -158,12 +158,12 @@ class PlanszaGUI(Sekcja):
 
     def buduj_pola(self):
         """Buduje pola planszy"""
-        for i in range(self.gracz.plansza.kolumny):
-            for j in range(self.gracz.plansza.rzedy):
+        for i in range(self.gra.plansza.kolumny):
+            for j in range(self.gra.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 pole_gui = PoleGUI(
                     self.etyramka,
-                    self.gracz.plansza.podaj_pole(kolumna, rzad),
+                    self.gra.plansza.podaj_pole(kolumna, rzad),
                     text="",
                     width=2
                 )
@@ -191,17 +191,17 @@ class PlanszaGUI(Sekcja):
         else:
             pole_gui.configure(style=PoleGUI.STYLE["trafione"])
 
-    def zatop_statek(self, statek, symbole=False):
+    def zatop_statek(self, statek, z_symbolami=False):
         """Oznacza pola wskazanego statku jako zatopione."""
         for pole in statek.pola:
             pole.znacznik = Pole.ZNACZNIKI["zatopione"]
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             pole_gui.configure(style=PoleGUI.STYLE["zatopione"])
-            if symbole:
+            if z_symbolami:
                 pole_gui.configure(text=statek.SYMBOLE[statek.RANGA_BAZOWA])
 
-        self.gracz.plansza.zatopione.append(statek)
-        self.gracz.plansza.niezatopione.remove(statek)
+        self.gra.plansza.zatopione.append(statek)
+        self.gra.plansza.niezatopione.remove(statek)
 
 
 class PlanszaGracza(PlanszaGUI):
@@ -216,9 +216,9 @@ class PlanszaGracza(PlanszaGUI):
         self.odkryj_wszystkie_pola()
 
         # testy
-        # statek = self.gracz.plansza.statki[0]
+        # statek = self.gra.plansza.statki[0]
         # self.oznacz_trafione(self.podaj_pole_gui(*statek.polozenie.podaj_wspolrzedne()))
-        # statek = self.gracz.plansza.statki[3]
+        # statek = self.gra.plansza.statki[3]
         # self.zatop_statek(statek)
 
     def ustaw_style_gracza(self):
@@ -245,8 +245,8 @@ class PlanszaGracza(PlanszaGUI):
     def powiaz_callbacki(self):
         """Wiąże callbacki."""
         # wszystkie pola
-        for i in range(self.gracz.plansza.kolumny):
-            for j in range(self.gracz.plansza.rzedy):
+        for i in range(self.gra.plansza.kolumny):
+            for j in range(self.gra.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 # lambda bez własnych argumentów (w formie: lambda: self.na_klikniecie(kolumna, rzad) nie zadziała prawidłowo w tym przypadku - zmienne przekazywane do każdej funkcji (anonimowej czy nie - bez różnicy) są zawsze ewaluowane dopiero w momencie wywołania tej funkcji, tak więc w tym przypadku w danej iteracji pętli zostają przekazane zmienne "i" i "j" (nazwy) a nie ich wartości - wartości zostaną ewaluowane dopiero w momencie wywołania callbacka (czyli naciśnięcia przycisku) i będzie to wartość z ostatniej iteracji dla wszystkich przycisków, więcej tutaj: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126))
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
@@ -262,7 +262,7 @@ class PlanszaGracza(PlanszaGUI):
         """
         Wybiera kliknięty statek, kasując wybór poprzedniego. Zatopione statki nie są wybierane. Ten sam mechanizm jest uruchamiany po wyborze statku w sekcjach kontroli ataku i floty.
         """
-        statek = self.gracz.plansza.podaj_statek(self.podaj_pole_gui(kolumna, rzad).pole)
+        statek = self.gra.plansza.podaj_statek(self.podaj_pole_gui(kolumna, rzad).pole)
         self.zmien_statek(statek)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
@@ -286,12 +286,12 @@ class PlanszaGracza(PlanszaGUI):
         """
         Przewija wybrany statek do tyłu.
         """
-        if len(self.gracz.tura.statki) > 1:  # jeśli jest co przewijać
-            indeks = self.gracz.tura.statki.index(self.gracz.tura.runda.statek)
+        if len(self.gra.tura.statki) > 1:  # jeśli jest co przewijać
+            indeks = self.gra.tura.statki.index(self.gra.tura.runda.statek)
             if indeks > 0:  # jeśli nie jesteśmy na początku kolejki
-                statek = self.gracz.tura.statki[indeks - 1]
+                statek = self.gra.tura.statki[indeks - 1]
             else:
-                statek = self.gracz.tura.statki[len(self.gracz.tura.statki) - 1]
+                statek = self.gra.tura.statki[len(self.gra.tura.statki) - 1]
             self.zmien_statek(statek)
 
     # CALLBACK okna głównego
@@ -299,18 +299,18 @@ class PlanszaGracza(PlanszaGUI):
         """
         Przewija wybrany statek do przodu.
         """
-        if len(self.gracz.tura.statki) > 1:  # jeśli jest co przewijać
-            indeks = self.gracz.tura.statki.index(self.gracz.tura.runda.statek)
-            if indeks < len(self.gracz.tura.statki) - 1:  # jeśli nie jesteśmy na końcu kolejki
-                statek = self.gracz.tura.statki[indeks + 1]
+        if len(self.gra.tura.statki) > 1:  # jeśli jest co przewijać
+            indeks = self.gra.tura.statki.index(self.gra.tura.runda.statek)
+            if indeks < len(self.gra.tura.statki) - 1:  # jeśli nie jesteśmy na końcu kolejki
+                statek = self.gra.tura.statki[indeks + 1]
             else:
-                statek = self.gracz.tura.statki[0]
+                statek = self.gra.tura.statki[0]
             self.zmien_statek(statek)
 
     def zmien_statek(self, statek):
         """Zmienia wybrany statek"""
-        if statek in self.gracz.tura.statki and self.gracz.tura.runda.mozna_zmienic_statek:
-            self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
+        if statek in self.gra.tura.statki and self.gra.tura.runda.mozna_zmienic_statek:
+            self.kasuj_wybor_statku(self.gra.tura.runda.statek)
             self.wybierz_statek(statek)
 
     def wybierz_statek(self, statek):
@@ -321,10 +321,10 @@ class PlanszaGracza(PlanszaGUI):
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane&trafione"])
             else:
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane"])
-        self.gracz.tura.runda.statek = statek
+        self.gra.tura.runda.ustaw_statek(statek)
         # kontrola widżetów w innych sekcjach
         self.ka.combo_statku.set(statek)
-        self.ka.zmien_salwy(statek)
+        self.ka.ustaw_combo_salwy()
         if len(self.kf.drzewo_g.selection()) > 0:
             self.kf.drzewo_g.selection_remove(self.kf.drzewo_g.selection()[0])
         iid = str(statek.polozenie)
@@ -345,25 +345,49 @@ class PlanszaGracza(PlanszaGUI):
         """Odkrywa wszystkie pola planszy."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
-                statek = self.gracz.plansza.podaj_statek(pole_gui.pole)
+                statek = self.gra.plansza.podaj_statek(pole_gui.pole)
                 if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
                     pole_gui.configure(style=PoleGUI.STYLE["woda"])
                 else:
                     pole_gui.configure(text=statek.SYMBOLE[statek.RANGA_BAZOWA])
 
+    def wylacz_zablokowane_statki(self):
+        """
+        Wyłącza pola zablokowanych statków. Uruchamiana w sekcji kontroli ataku razem z blokadą zmiany statku w momencie wykonania pierwszej salwy.
+        """
+        wybrany_statek = self.gra.tura.runda.statek
+        for statek in [statek for statek in self.gra.tura.statki if statek != wybrany_statek]:
+            self.zmien_stan_statku(statek, "disabled")
+
+    def wlacz_zablokowane_statki(self):
+        """
+        Włącza pola zablokowanych statków. Uruchamiana w sekcji kontroli gry na koniec rundy - już po dodaniu nowej rundy w turze, ale jeszcze PRZED wyborem nowego statku na początek tury.
+        """
+        for statek in self.gra.tura.statki:
+            self.zmien_stan_statku(statek, "!disabled")
+
+    def zmien_stan_statku(self, statek, stan):
+        """Zmienia stan podanego statek."""
+        for pole in statek.pola:
+            pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
+            pole_gui.state([stan])
+
+    def oznacz_salwy(self, salwy):
+        """Oznacza otrzymane salwy."""
+        pass  # TODO
 
 class PlanszaPrzeciwnika(PlanszaGUI):
     """Graficzna reprezentacja planszy przeciwnika."""
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Przeciwnik", **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs)
+        self.pg = None  # jw.
         self.ka = None  # przekazywane przez GręGUI
-        self.kf = None  # przekazywane przez GręGUI
+        self.kf = None  # jw.
         self.komunikator = None  # jw.
-        self.drugi_gracz = None  # jw.
         self.ustaw_style_przeciwnika()
         self.powiaz_callbacki()
-        self.zmien_podswietlanie_nieodkrytych(PoleGUI.STYLE["atak"])
+        self.wlacz_atak()
 
     def ustaw_style_przeciwnika(self):
         """Definiuje style dla pól."""
@@ -373,21 +397,26 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             background=[("active", PoleGUI.KOLORY["atak-active"])]
         )
 
-    def zmien_podswietlanie_nieodkrytych(self, styl_pola_gui):
-        """Zmienia podświetlanie nieodkrytych pól wg podanego stylu."""
+    def wlacz_atak(self):
+        """Włącza nieodkryte pola oraz celownik."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
-                if pole_gui.pole.znacznik in [
-                    Pole.ZNACZNIKI["puste"],
-                    Pole.ZNACZNIKI["obwiednia"],
-                    Pole.ZNACZNIKI["statek"]
-                ]:
-                    pole_gui.configure(style=styl_pola_gui)
+                if pole_gui.configure("style")[-1] in [PoleGUI.STYLE["bazowe"], ""]:
+                    pole_gui.state(["!disabled"])
+                    pole_gui.configure(style=PoleGUI.STYLE["atak"])
+
+    def wylacz_atak(self):
+        """Wyłącza nieodkryte pola oraz celownik."""
+        for rzad in self.pola_gui:
+            for pole_gui in rzad:
+                if pole_gui.configure("style")[-1] == PoleGUI.STYLE["atak"]:
+                    pole_gui.state(["disabled"])
+                    pole_gui.configure(style=PoleGUI.STYLE["bazowe"])
 
     def powiaz_callbacki(self):
         """Wiąże callbacki we wszystkich polach."""
-        for i in range(self.gracz.plansza.kolumny):
-            for j in range(self.gracz.plansza.rzedy):
+        for i in range(self.gra.plansza.kolumny):
+            for j in range(self.gra.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
                 pole_gui.configure(command=lambda x=kolumna, y=rzad: self.na_klikniecie(x, y))
@@ -402,74 +431,78 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """
         W zależności od wybranej orientacji w sekcji kontroli ataku oddaje salwę w wybrane pola oraz wyświetla komunikaty o salwie i zatopieniu.
         """
-        ilosc_zatopionych = len(self.gracz.plansza.zatopione)
-        # 1 pole
-        if self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
-            self.oddaj_salwe((kolumna, rzad))
-        # 2 pola (w prawo)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna + 1, rzad))
-        # 2 pola (w dół)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1))
-        # 2 pola (w lewo)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad))
-        # 2 pola (w górę)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1))
-        # 3 pola poziomo
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
-        # 3 pola pionowo
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
-        # 3 pola L
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
-        # 3 pola Г
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
-        # 3 pola Ꞁ
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
-        # 3 pola ⅃
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
-            self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
+        if self.pg.gra.tura.runda.mozna_atakowac:
+            ilosc_zatopionych = len(self.gra.plansza.zatopione)
+            # 1 pole
+            if self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
+                self.oddaj_salwe((kolumna, rzad))
+            # 2 pola (w prawo)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna + 1, rzad))
+            # 2 pola (w dół)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1))
+            # 2 pola (w lewo)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad))
+            # 2 pola (w górę)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1))
+            # 3 pola poziomo
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
+            # 3 pola pionowo
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
+            # 3 pola L
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
+            # 3 pola Г
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
+            # 3 pola Ꞁ
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
+            # 3 pola ⅃
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
+                self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 
-        oddana_salwa = self.drugi_gracz.tura.runda.salwy_oddane[-1]
-        napastnik = self.drugi_gracz.tura.runda.statek
-        # komunikaty
-        self.komunikator.o_salwie(oddana_salwa, napastnik)
-        if len(self.gracz.plansza.zatopione) > ilosc_zatopionych:  # jeśli było zatopienie
-            ofiara = self.gracz.plansza.zatopione[-1]
-            self.komunikator.o_zatopieniu(ofiara, napastnik)
-        # kontrola ataku
-        # if len(napastnik.salwy) > 0:
-        #     napastnik.salwy.remove(len(oddana_salwa))
+            oddana_salwa = self.pg.gra.tura.runda.salwy_oddane[-1]
+            napastnik = self.pg.gra.tura.runda.statek
+            # komunikaty
+            self.komunikator.o_salwie(oddana_salwa, napastnik)
+            if len(self.gra.plansza.zatopione) > ilosc_zatopionych:  # jeśli było zatopienie
+                ofiara = self.gra.plansza.zatopione[-1]
+                self.komunikator.o_zatopieniu(ofiara, napastnik)
 
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
     def oddaj_salwe(self, *wspolrzedne):
         """Oddaje salwę w pola o podanych współrzędnych."""
-        if len(self.gracz.tura.runda.salwy_oddane) == 0:
+        if len(self.gra.tura.runda.salwy_oddane) == 0:
             self.blokuj_zmiane_statku()
         # współrzędne sortowane od pola najbardziej na NW do pola najbardziej na SE
         wspolrzedne = sorted(wspolrzedne, key=lambda w: w[0] + w[1])
         pola_salwy = []
         niewypaly = []
         for kolumna, rzad in wspolrzedne:
-            if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
+            if self.gra.plansza.czy_pole_w_planszy(kolumna, rzad):
                 self.odkryj_pole(kolumna, rzad)
-                pola_salwy.append(self.gracz.plansza.podaj_pole(kolumna, rzad))
+                pola_salwy.append(self.gra.plansza.podaj_pole(kolumna, rzad))
             else:
                 niewypaly.append((kolumna, rzad))
-        self.drugi_gracz.tura.runda.salwy_oddane.append(Salwa(pola_salwy, niewypaly))
+        oddana_salwa = Salwa(pola_salwy, niewypaly)
+        self.pg.gra.tura.runda.salwy_oddane.append(oddana_salwa)
+        self.pg.gra.tura.runda.sila_ognia.remove(len(oddana_salwa))
+        self.ka.ustaw_combo_salwy()
+
 
     def blokuj_zmiane_statku(self):
         """Blokuje możliwość zmiany statku na planszy gracza po oddaniu pierwszej salwy w widżetach."""
-        self.drugi_gracz.tura.runda.mozna_zmienic_statek = False
+        self.pg.gra.tura.runda.mozna_zmienic_statek = False
+        self.pg.wylacz_zablokowane_statki()
         self.ka.combo_statku.state(["disabled"])
+        self.kf.drzewo_g.wyszarz_zablokowane_statki()
         self.kf.przycisk_do_tylu.state(["disabled"])
         self.kf.przycisk_do_przodu.state(["disabled"])
 
@@ -480,9 +513,9 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             self.oznacz_pudlo(pole_gui)
         elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
             self.oznacz_trafione(pole_gui, PoleGUI.GLIFY["trafione"])
-            statek = self.gracz.plansza.podaj_statek(pole_gui.pole)
+            statek = self.gra.plansza.podaj_statek(pole_gui.pole)
             if statek.czy_zatopiony():
-                self.zatop_statek(statek, symbole=True)
+                self.zatop_statek(statek, z_symbolami=True)
                 self.odkryj_obwiednie(statek)
 
     def odkryj_obwiednie(self, statek):
@@ -500,107 +533,109 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """
         W zależności od wybranej orientacji w sekcji kontroli ataku zmienia celownik (podświetla pola) i aktualizuje pozycje odpowiadających pól w sekcji kontroli ataku.
         """
-        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
-        # 1 pole
-        if self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad))
-        # 2 pola (w prawo)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
-            self.zmien_celownik("active", (kolumna + 1, rzad))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna + 1, rzad))
-        # 2 pola (w dół)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
-            self.zmien_celownik("active", (kolumna, rzad + 1))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1))
-        # 2 pola (w lewo)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
-            self.zmien_celownik("active", (kolumna - 1, rzad))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad))
-        # 2 pola (w górę)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
-            self.zmien_celownik("active", (kolumna, rzad - 1))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1))
-        # 3 pola poziomo
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
-            self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna + 1, rzad))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
-        # 3 pola pionowo
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
-            self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna, rzad + 1))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
-        # 3 pola L
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
-            self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna + 1, rzad))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
-        # 3 pola Г
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
-            self.zmien_celownik("active", (kolumna, rzad + 1), (kolumna + 1, rzad))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
-        # 3 pola Ꞁ
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
-            self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad + 1))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
-        # 3 pola ⅃
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
-            self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad - 1))
-            self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
+        if self.pg.gra.tura.runda.mozna_atakowac:
+            kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+            # 1 pole
+            if self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad))
+            # 2 pola (w prawo)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
+                self.zmien_celownik("active", (kolumna + 1, rzad))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna + 1, rzad))
+            # 2 pola (w dół)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
+                self.zmien_celownik("active", (kolumna, rzad + 1))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1))
+            # 2 pola (w lewo)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
+                self.zmien_celownik("active", (kolumna - 1, rzad))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad))
+            # 2 pola (w górę)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
+                self.zmien_celownik("active", (kolumna, rzad - 1))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1))
+            # 3 pola poziomo
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+                self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna + 1, rzad))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
+            # 3 pola pionowo
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+                self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna, rzad + 1))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
+            # 3 pola L
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+                self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna + 1, rzad))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
+            # 3 pola Г
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+                self.zmien_celownik("active", (kolumna, rzad + 1), (kolumna + 1, rzad))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
+            # 3 pola Ꞁ
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
+                self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad + 1))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
+            # 3 pola ⅃
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
+                self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad - 1))
+                self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 
     # CALLBACK wszystkich pól
     def na_wyjscie(self, event):
         """
         W zależności od wybranej orientacji w sekcji kontroli ataku zmienia celownik (gasi pola) i aktualizuje pozycje odpowiadających pól w sekcji kontroli ataku.
         """
-        kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
-        # 1 pole
-        if self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad))
-        # 2 pola (w prawo)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
-            self.zmien_celownik("!active", (kolumna + 1, rzad))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna + 1, rzad))
-        # 2 pola (w dół)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
-            self.zmien_celownik("!active", (kolumna, rzad + 1))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1))
-        # 2 pola (w lewo)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
-            self.zmien_celownik("!active", (kolumna - 1, rzad))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad))
-        # 2 pola (w górę)
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
-            self.zmien_celownik("!active", (kolumna, rzad - 1))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1))
-        # 3 pola poziomo
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
-            self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna + 1, rzad))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
-        # 3 pola pionowo
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
-            self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna, rzad + 1))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
-        # 3 pola L
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
-            self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna + 1, rzad))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
-        # 3 pola Г
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
-            self.zmien_celownik("!active", (kolumna, rzad + 1), (kolumna + 1, rzad))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
-        # 3 pola Ꞁ
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
-            self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad + 1))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
-        # 3 pola ⅃
-        elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
-            self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad - 1))
-            self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
+        if self.pg.gra.tura.runda.mozna_atakowac:
+            kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
+            # 1 pole
+            if self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[0]:
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad))
+            # 2 pola (w prawo)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[1]:
+                self.zmien_celownik("!active", (kolumna + 1, rzad))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna + 1, rzad))
+            # 2 pola (w dół)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[2]:
+                self.zmien_celownik("!active", (kolumna, rzad + 1))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1))
+            # 2 pola (w lewo)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[3]:
+                self.zmien_celownik("!active", (kolumna - 1, rzad))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad))
+            # 2 pola (w górę)
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[4]:
+                self.zmien_celownik("!active", (kolumna, rzad - 1))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1))
+            # 3 pola poziomo
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[5]:
+                self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna + 1, rzad))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
+            # 3 pola pionowo
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[6]:
+                self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna, rzad + 1))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
+            # 3 pola L
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[7]:
+                self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna + 1, rzad))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
+            # 3 pola Г
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[8]:
+                self.zmien_celownik("!active", (kolumna, rzad + 1), (kolumna + 1, rzad))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
+            # 3 pola Ꞁ
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[9]:
+                self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad + 1))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
+            # 3 pola ⅃
+            elif self.ka.combo_orientacji.get() == KontrolaAtaku.ORIENTACJE[10]:
+                self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad - 1))
+                self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 
     def zmien_celownik(self, stan, *wspolrzedne):
         """
         Zmienia stan (włącza na wejściu/wyłącza na wyjściu) celownika (pól, w które oddawana jest salwa po naciśnięciu lewego klawisza myszy) wg podanych współrzędnych.
         """
         for kolumna, rzad in wspolrzedne:
-            if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
+            if self.gra.plansza.czy_pole_w_planszy(kolumna, rzad):
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
                 pole_gui.state([stan])
 
@@ -608,15 +643,14 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """Aktualizuje treść odpowiadających celownikowi pozycji pól w sekcji kontroli ataku."""
         def ustaw_pozycje(stan, pozycja):
             if stan == "wejście":
-                pozycja.set(self.gracz.plansza.podaj_pole(kolumna, rzad))
+                pozycja.set(self.gra.plansza.podaj_pole(kolumna, rzad))
             elif stan == "wyjście":
                 pozycja.set("")
-
         # współrzędne sortowane od pola najbardziej na NW do pola najbardziej na SE
         wspolrzedne = sorted(wspolrzedne, key=lambda w: w[0] + w[1])
         for i in range(len(wspolrzedne)):
             kolumna, rzad = wspolrzedne[i]
-            if self.gracz.plansza.czy_pole_w_planszy(kolumna, rzad):
+            if self.gra.plansza.czy_pole_w_planszy(kolumna, rzad):
                 if i == 0:
                     ustaw_pozycje(stan, self.ka.pozycje_salwy.pierwsza)
                 elif i == 1:
@@ -637,13 +671,13 @@ class KontrolaAtaku(Sekcja):
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Atak", **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
-        self.plansza_g = kwargs["plansza_gracza"]
-        self.plansza_p = kwargs["plansza_przeciwnika"]
+        self.pg = kwargs["plansza_gracza"]
+        self.pp = kwargs["plansza_przeciwnika"]
         self.ustaw_style()
         self.ustaw_etyramke()
         self.buduj_etykiety()
         self.buduj_comboboksy()
-        self.ustaw_combo_readonly()
+        self.przestaw_na_readonly()
         self.pozycje_salwy = PozycjeSalwy(self.etyramka)
         self.powiaz_callbacki()
 
@@ -707,7 +741,7 @@ class KontrolaAtaku(Sekcja):
             self.etyramka,
             styl="KA.TCombobox",
             font=GraGUI.CZCIONKI["mała"],
-            values=self.plansza_g.gracz.tura.statki,
+            values=self.pg.gra.tura.statki,
             width=35
         )
         self.combo_statku.grid(
@@ -734,7 +768,7 @@ class KontrolaAtaku(Sekcja):
         self.combo_salwy.configure(font=GraGUI.CZCIONKI["mała"])
 
         # wybór orientacji
-        self.combo_orientacji = ComboZeZmianaCzcionki(
+        self.combo_orientacji = ComboOrientacji(
             self.etyramka,
             styl="KA.TCombobox",
             font=GraGUI.CZCIONKI["mała"],
@@ -748,7 +782,7 @@ class KontrolaAtaku(Sekcja):
         )
         self.combo_orientacji.configure(font=GraGUI.CZCIONKI["mała"])
 
-    def ustaw_combo_readonly(self):
+    def przestaw_na_readonly(self):
         """Ustawia stan comboboksów jako `readonly`"""
         self.combo_statku.state(["readonly"])
         self.combo_salwy.state(["readonly"])
@@ -766,29 +800,60 @@ class KontrolaAtaku(Sekcja):
         """Zmienia statek na planszy i aktualizuje combo_salwy."""
         event.widget.selection_clear()  # czyści tło pola tekstowego comboboksa
         indeks = event.widget.current()
-        wybrany_statek = self.plansza_g.gracz.tura.statki[indeks]
-        self.plansza_g.zmien_statek(wybrany_statek)  # plansza sama aktualizuje obiekt rundy
-        self.zmien_salwy(wybrany_statek)
+        wybrany_statek = self.pg.gra.tura.statki[indeks]
+        self.pg.zmien_statek(wybrany_statek)
 
     # CALLBACK combo_salwy
     def na_wybor_salwy(self, event=None):
         """Aktualizuje combo_orientacji."""
         event.widget.selection_clear()
-        self.zmien_orientacje(event.widget.get())
+        self.ustaw_combo_orientacji(event.widget.get())
 
     # CALLBACK combo_orientacji
     def na_wybor_orientacji(self, event=None):
         """Czyści pole tekstowe combo_orientacji"""
         event.widget.selection_clear()
+        self.combo_orientacji.ostatnia_orientacja = self.combo_orientacji.get()
 
-    def zmien_salwy(self, statek):
-        """Ustawia salwy wybranego statku."""
-        self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in statek.salwy]
-        self.combo_salwy.set(self.combo_salwy["values"][0])
-        self.zmien_orientacje(self.combo_salwy["values"][0])
+    def wylacz_salwe_i_orientacje(self):
+        """Wyłącza combo salwy i orientacji. Uruchamiane po oddaniu ostatniej salwy."""
+        self.combo_salwy.state(["disabled"])
+        self.combo_orientacji.state(["disabled"])
 
-    def zmien_orientacje(self, salwa_tekst):
-        """Ustawia orientacje wybranej salwy."""
+    def wlacz_comboboksy(self):
+        """Włącza i wypełnia danymi startowymi wszystkie comboboksy. Uruchamiane na początku nowej rundy."""
+        self.combo_statku.state(["!disabled"])
+        self.combo_statku.state(["readonly"])
+        self.combo_statku["values"] = self.pg.gra.tura.statki
+        self.combo_salwy.state(["!disabled"])
+        self.combo_salwy.state(["readonly"])
+        self.combo_salwy["values"] = self.pg.gra.tura.runda.sila_ognia
+        self.combo_orientacji.state(["!disabled"])
+        self.combo_orientacji.state(["readonly"])
+        self.ustaw_combo_orientacji(self.combo_salwy["values"][0])
+
+    def blokuj_atak(self):
+        """Blokuje możliwość oddania salwy w pola planszy przeciwnika."""
+        self.wylacz_salwe_i_orientacje()
+        self.pg.gra.tura.runda.mozna_atakowac = False
+        self.pp.wylacz_atak()
+        self.pozycje_salwy.wyczysc()
+
+
+    def ustaw_combo_salwy(self):
+        """Ustawia aktualną siłę ognia w comboboksie salwy."""
+        sila_ognia = self.pg.gra.tura.runda.sila_ognia
+        if len(sila_ognia) > 0:
+            self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in self.pg.gra.tura.runda.sila_ognia]
+            self.combo_salwy.set(self.combo_salwy["values"][0])
+            self.ustaw_combo_orientacji(self.combo_salwy["values"][0])
+        else:
+            self.blokuj_atak()
+
+    def ustaw_combo_orientacji(self, salwa_tekst):
+        """
+        Ustawia w comboboksie orientację wybranej salwy. Zachowuje wcześniejszą orientację, jeśli wybrana salwa odpowiada poprzedniej.
+        """
         salwa = int(salwa_tekst[0])
         if salwa == 1:
             self.combo_orientacji["values"] = [self.ORIENTACJE[0]]
@@ -802,7 +867,13 @@ class KontrolaAtaku(Sekcja):
             self.combo_orientacji["values"] = self.ORIENTACJE[5:]
             self.wlacz_pozycje_salwy("druga")
             self.wlacz_pozycje_salwy("trzecia")
-        self.combo_orientacji.set(self.combo_orientacji["values"][0])
+
+        if salwa == self.combo_orientacji.ostatnia_salwa:
+            self.combo_orientacji.set(self.combo_orientacji.ostatnia_orientacja)
+        else:
+            self.combo_orientacji.set(self.combo_orientacji["values"][0])
+        self.combo_orientacji.ostatnia_salwa = salwa
+        self.combo_orientacji.ostatnia_orientacja = self.combo_orientacji.get()
 
     def wylacz_pozycje_salwy(self, pozycja):
         """Wyłącza podaną pozycję salwy"""
@@ -831,6 +902,7 @@ class KontrolaAtaku(Sekcja):
         else:
             indeks += 1
         self.combo_orientacji.set(self.combo_orientacji["values"][indeks])
+        self.combo_orientacji.ostatnia_orientacja = self.combo_orientacji.get()
 
 
 class ComboZeZmianaCzcionki(ttk.Combobox):
@@ -845,6 +917,17 @@ class ComboZeZmianaCzcionki(ttk.Combobox):
     def _obsluz_czcionke_listy_rozwijanej(self, *args):
         lista_rozwijana = self.tk.eval("ttk::combobox::PopdownWindow {}".format(self))
         self.tk.call("{}.f.l".format(lista_rozwijana), 'configure', '-font', self['font'])
+
+
+class ComboOrientacji(ComboZeZmianaCzcionki):
+    """
+    Combobox orientacji salwy - zachowuje informację o ostatniej salwie i wybranej orientacji, tak że jeśli kolejna salwa ataku odpowiada poprzedniej - orientacja wybrana poprzednio w comboboksie pozostaje niezmieniona.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ostatnia_salwa = 0
+        self.ostatnia_orientacja = ""
 
 
 class PozycjeSalwy(ttk.Frame):
@@ -924,6 +1007,11 @@ class PozycjeSalwy(ttk.Frame):
         else:
             etykieta.configure(background=GraGUI.KOLORY["pozycja-pola"])
 
+    def wyczysc(self):
+        self.pierwsza.set("")
+        self.druga.set("")
+        self.trzecia.set("")
+
 
 class KontrolaFloty(Sekcja):
     """
@@ -932,8 +1020,8 @@ class KontrolaFloty(Sekcja):
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Flota", **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
-        self.plansza_g = kwargs["plansza_gracza"]
-        self.plansza_p = kwargs["plansza_przeciwnika"]
+        self.pg = kwargs["plansza_gracza"]
+        self.pp = kwargs["plansza_przeciwnika"]
         self.sprawdz_tlo_sytemowe()
         self.ustaw_style()
         self.ustaw_etyramke()
@@ -963,8 +1051,8 @@ class KontrolaFloty(Sekcja):
         # drzewa nie mogą być bezpośrednio umieszczane w notesie - potrzebne ramki pośrednie
         ramka_drzewa_g = ttk.Frame(notes)
         ramka_drzewa_p = ttk.Frame(notes)
-        self.drzewo_g = DrzewoFlotyGracza(ramka_drzewa_g, self.plansza_g)
-        self.drzewo_p = DrzewoFlotyPrzeciwnika(ramka_drzewa_p, self.plansza_p)
+        self.drzewo_g = DrzewoFlotyGracza(ramka_drzewa_g, self.pg)
+        self.drzewo_p = DrzewoFlotyPrzeciwnika(ramka_drzewa_p, self.pp)
         ramka_drzewa_g.grid(sticky="nsew")
         # zgłasza wyżej powiększanie w poziomie i w pionie
         ramka_drzewa_g.rowconfigure(0, weight=1)
@@ -989,7 +1077,7 @@ class KontrolaFloty(Sekcja):
             # text="Poprzedni",
             # compound=tk.LEFT,
             image=ikona_do_tylu,
-            command=self.plansza_g.na_nawias_kw_lewy
+            command=self.pg.na_nawias_kw_lewy
         )
         self.przycisk_do_tylu.image = ikona_do_tylu  # konieczne ze względu na bug Tkintera (https://stackoverflow.com/questions/22200003/tkinter-button-not-showing-image)
         self.przycisk_do_tylu.grid(row=1, column=0, sticky=tk.W, pady=(13, 0), padx=35)
@@ -1000,7 +1088,7 @@ class KontrolaFloty(Sekcja):
             # text="Kolejny",
             # compound=tk.LEFT,
             image=ikona_do_przodu,
-            command=self.plansza_g.na_nawias_kw_prawy
+            command=self.pg.na_nawias_kw_prawy
         )
         self.przycisk_do_przodu.image = ikona_do_przodu
         self.przycisk_do_przodu.grid(row=1, column=2, sticky=tk.E, pady=(13, 0), padx=35)
@@ -1029,6 +1117,13 @@ class KontrolaFloty(Sekcja):
         else:
             self.etykieta_pozycji_pola.configure(background=GraGUI.KOLORY["pozycja-pola"])
 
+    def wlacz_widzety(self):
+        """
+        Włącza przyciski zmiany statku i kasuje wyszarzenie drzewa floty. Uruchamiane na początku nowej rundy.
+        """
+        self.przycisk_do_tylu.state(["!disabled"])
+        self.przycisk_do_przodu.state(["!disabled"])
+        self.drzewo_g.kasuj_wyszarzenie_statkow()
 
 class DrzewoFloty(ttk.Treeview):
     """
@@ -1036,9 +1131,10 @@ class DrzewoFloty(ttk.Treeview):
     """
 
     KOLORY = {
-        "podświetlenie-rang": "LemonChiffon2",
-        "podświetlenie-rang-zatopione": "plum3",  # TODO
-        "podświetlenie-rang-przeciwnik": "DarkOliveGreen2"  # TODO
+        "zablokowane": "gray64",
+        "rangi": "LemonChiffon2",
+        "rangi-zatopione": "plum3",  # TODO
+        "rangi-przeciwnik": "DarkOliveGreen2"  # TODO
     }
 
     def __init__(self, rodzic, plansza_gui):
@@ -1058,7 +1154,6 @@ class DrzewoFloty(ttk.Treeview):
             "KF.Treeview",
             font=GraGUI.CZCIONKI["mała"],
             rowheight=self.wys_wiersza
-            # rowheight=13
         )
         self.styl.configure(
             "KF.Treeview.Heading",
@@ -1067,12 +1162,10 @@ class DrzewoFloty(ttk.Treeview):
 
     def ustaw_sie(self):
         """Konfiguruje to drzewo."""
-
         self.configure(
             style="KF.Treeview",
             height=self.podaj_wysokosc(),
-            # height=22,
-            columns=("statek", "gdzie", "rozmiar", "ofiary"),
+            columns=("statek", "gdzie", "rozmiar", "siła ognia", "ofiary"),
             displaycolumns="#all",
             selectmode="browse"
         )
@@ -1099,7 +1192,7 @@ class DrzewoFloty(ttk.Treeview):
             return wysokosc + korekta
 
         bazowe_wiersze, bazowe_rzedy, wys_pola = 19, 26, 26
-        rzedy_planszy = self.plansza_gui.gracz.plansza.rzedy
+        rzedy_planszy = self.plansza_gui.gra.plansza.rzedy
         delta_planszy = (rzedy_planszy - bazowe_rzedy) * wys_pola
         if delta_planszy < 0:
             wysokosc = bazowe_wiersze - math.ceil(abs(delta_planszy) / self.wys_wiersza)
@@ -1120,15 +1213,18 @@ class DrzewoFloty(ttk.Treeview):
 
     def ustaw_kolumny(self, naglowek_rozmiar):
         """Konfiguruje kolumny."""
+        self.heading("#0", text="Ranga")
         self.heading("statek", text="Statek")
         self.heading("gdzie", text="Poz")
         self.heading("rozmiar", text=naglowek_rozmiar)
+        self.heading("siła ognia", text="Siła")
         self.heading("ofiary", text=Statek.ORDER)
-        self.column("#0", stretch=True, minwidth=70, width=49)
-        self.column("statek", stretch=True, minwidth=97, width=49)
-        self.column("gdzie", stretch=True, minwidth=35, width=49, anchor=tk.CENTER)
-        self.column("rozmiar", stretch=True, minwidth=40, width=49, anchor=tk.E)
-        self.column("ofiary", stretch=True, minwidth=12, width=49)
+        self.column("#0", stretch=True, minwidth=70, width=39)
+        self.column("statek", stretch=True, minwidth=85, width=39)
+        self.column("gdzie", stretch=True, minwidth=35, width=39, anchor=tk.CENTER)
+        self.column("rozmiar", stretch=True, minwidth=40, width=39, anchor=tk.E)
+        self.column("siła ognia", stretch=True, minwidth=50, width=39, anchor=tk.W)
+        self.column("ofiary", stretch=True, minwidth=12, width=39)
 
     def powiaz_escape(self):
         """Wiąże callback obsługujący naćiśnięcie ESCAPE."""
@@ -1144,14 +1240,14 @@ class DrzewoFloty(ttk.Treeview):
 
 class DrzewoFlotyGracza(DrzewoFloty):
     """
-    Pokazuje statki gracza. Kolumny: `Kategoria` (bez nagłówka), `Statek`, `Poz` (pozycja), `NT/R` (pola nietrafione/rozmiar), `★` (ilość gwiazdek = ilość ofiar danego statku).
+    Pokazuje statki gracza. Kolumny: `Ranga` (#0), `Statek`, `Poz` (pozycja), `NT/R` (pola nietrafione/rozmiar), `Siła` (siła ognia), `★` (ilość gwiazdek = ilość ofiar danego statku).
     """
 
     def __init__(self, rodzic, plansza_gui):
         super().__init__(rodzic, plansza_gui)
 
         self.ustaw_kolumny("NT/R")
-        self.dodaj_statki(self.plansza_gui.gracz.plansza.niezatopione, "niezatopione")
+        self.dodaj_statki(self.plansza_gui.gra.plansza.niezatopione, "niezatopione")
         self.ustaw_wyglad()
         self.powiaz_podwojne_klikniecie()
 
@@ -1166,7 +1262,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
                     tags="kategoria"
                     )
         # rangi
-        ilosc_wg_rang = self.plansza_gui.gracz.plansza.podaj_ilosc_niezatopionych_wg_rang()
+        ilosc_wg_rang = self.plansza_gui.gra.plansza.podaj_ilosc_niezatopionych_wg_rang()
         for ranga in Statek.RANGI[::-1]:
             if ilosc_wg_rang[ranga] > 0:
                 ranga_i_ilosc = Statek.SYMBOLE[ranga] + " (" + str(ilosc_wg_rang[ranga]) + ")"
@@ -1177,8 +1273,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
                             tags=(kategoria, "ranga")
                             )
         # statki
-        for i in range(len(statki)):
-            statek = statki[i]
+        for i, statek in enumerate(statki):
             self.insert(
                 statek.RANGA_BAZOWA, "end",
                 str(statek.polozenie),  # tekstowa reprezentacja położenia statku jako ID w drzewie - upraszcza późniejszą translację wybranego elementu drzewa z powrotem na statek na planszy
@@ -1186,6 +1281,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
                     '"' + statek.nazwa + '"',
                     str(statek.polozenie),
                     statek.podaj_nietrafione_na_rozmiar(),
+                    str(statek.sila_ognia),
                     "".join([statek.ORDER for ofiara in statek.ofiary])
                 ),
                 tags=(kategoria, "statek")
@@ -1194,7 +1290,8 @@ class DrzewoFlotyGracza(DrzewoFloty):
     def ustaw_wyglad(self):
         """Konfiguruje wygląd zawartości drzewa."""
         self.tag_configure("kategoria", font=GraGUI.CZCIONKI["mała-pogrubiona"])
-        self.tag_configure("ranga", background=self.KOLORY["podświetlenie-rang"])
+        self.tag_configure("ranga", background=self.KOLORY["rangi"])
+        self.tag_configure("zablokowane", foreground=self.KOLORY["zablokowane"])
 
     def powiaz_podwojne_klikniecie(self):
         """Wiąże callback obsługujący podóœjne kliknięcie."""
@@ -1203,9 +1300,29 @@ class DrzewoFlotyGracza(DrzewoFloty):
     # CALLBACK elementów z tagiem `statek`
     def na_podwojne_klikniecie(self, event=None):
         """Wybiera kliknięty podwójnie statek na planszy gracza."""
-        # TODO: w drzewie nie może dać się wybierać statków które już miały swoją rundę w tej turze!
-        statek = self.plansza_gui.gracz.plansza.podaj_statek(self.focus(), "str")
+        statek = self.plansza_gui.gra.plansza.podaj_statek(self.focus(), tryb="str")
         self.plansza_gui.zmien_statek(statek)
+
+    def wyszarz_zablokowane_statki(self):
+        """Wyszarza zablokowane statki."""
+        wybrany_statek = self.plansza_gui.gra.tura.runda.statek
+        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.statki if statek != wybrany_statek]
+        for iid in lista_iid:
+            tag_ranga, tag_statek = self.item(iid)["tags"][:2]
+            self.item(iid, tags=(tag_ranga, tag_statek, "zablokowane"))
+
+    def kasuj_wyszarzenie_statkow(self):
+        """Kasuje wyszarzenie zablokowanych statków."""
+        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.statki]
+        for iid in lista_iid:
+            tag_ranga, tag_statek = self.item(iid)["tags"][:2]
+            self.item(iid, tags=(tag_ranga, tag_statek))
+
+    def wyszarz_statek(self, statek):
+        """Wyszarza podany statek"""
+        iid = str(statek.polozenie)
+        tag_ranga, tag_statek = self.item(iid)["tags"][:2]
+        self.item(iid, tags=(tag_ranga, tag_statek, "zablokowane"))
 
 
 class DrzewoFlotyPrzeciwnika(DrzewoFloty):
@@ -1217,6 +1334,7 @@ class DrzewoFlotyPrzeciwnika(DrzewoFloty):
         super().__init__(rodzic, plansza_gui)
 
         self.ustaw_kolumny("Rozm")
+        self.configure(displaycolumns=(0, 1, 2, 4))
 
     def dodaj_statek(self):
         """
@@ -1238,8 +1356,8 @@ class KontrolaGry(Sekcja):
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
-        self.plansza_g = kwargs["plansza_gracza"]
-        self.plansza_p = kwargs["plansza_przeciwnika"]
+        self.pg = kwargs["plansza_gracza"]
+        self.pp = kwargs["plansza_przeciwnika"]
         self.ka = None  # sekcja kontroli ataku przekazywana przez GręGUI
         self.kf = None  # sekcja kontroli floty przekazywana przez GręGUI
         self.ustaw_style()
@@ -1256,7 +1374,7 @@ class KontrolaGry(Sekcja):
 
     def ustaw_tytul(self):
         """Ustawia tytuł sekcji. Format tytułu: Tura #[liczba]/Runda #[liczba]"""
-        self.tytul.set(self.plansza_g.gracz.podaj_info_o_rundzie().title())
+        self.tytul.set(self.pg.gra.podaj_info_o_rundzie().title())
 
     def ustaw_style(self):
         """Ustawia style dla sekcji."""
@@ -1284,7 +1402,7 @@ class KontrolaGry(Sekcja):
         etykieta_g = ttk.Label(
             self.etyramka,
             style="Mała.TLabel",
-            text=self.plansza_g.tytul.get() + ":"
+            text=self.pg.tytul.get() + ":"
         ).grid(
             row=0,
             column=0,
@@ -1292,7 +1410,7 @@ class KontrolaGry(Sekcja):
             padx=(28, 13),
             pady=(0, 5)
         )
-        tekst_g = self.podaj_tekst_stanu(self.plansza_g.gracz)
+        tekst_g = self.podaj_tekst_stanu(self.pg.gra)
         self.stan_g = ttk.Label(
             self.etyramka,
             style="GraczKG.TLabel",
@@ -1311,7 +1429,7 @@ class KontrolaGry(Sekcja):
         etykieta_p = ttk.Label(
             self.etyramka,
             style="Mała.TLabel",
-            text=self.plansza_p.tytul.get() + ":"
+            text=self.pp.tytul.get() + ":"
         ).grid(
             row=1,
             column=0,
@@ -1319,7 +1437,7 @@ class KontrolaGry(Sekcja):
             padx=(28, 13),
             pady=(5, 5)
         )
-        tekst_p = self.podaj_tekst_stanu(self.plansza_p.gracz)
+        tekst_p = self.podaj_tekst_stanu(self.pp.gra)
         self.stan_p = ttk.Label(
             self.etyramka,
             style="PrzeciwnikKG.TLabel",
@@ -1335,11 +1453,11 @@ class KontrolaGry(Sekcja):
             pady=(5, 5)
         )
 
-    def podaj_tekst_stanu(self, gracz):
+    def podaj_tekst_stanu(self, gra):
         """Podaje tekst stanu gry dla danego gracza."""
-        tekst = str(gracz.plansza.podaj_ilosc_nietrafionych_pol()) + "/"
-        tekst += str(gracz.plansza.ilosc_pol_statkow) + " ("
-        tekst += gracz.plansza.podaj_procent_nietrafionych_pol() + ")"
+        tekst = str(gra.plansza.podaj_ilosc_nietrafionych_pol()) + "/"
+        tekst += str(gra.plansza.ilosc_pol_statkow) + " ("
+        tekst += gra.plansza.podaj_procent_nietrafionych_pol() + ")"
         return tekst
 
     def buduj_przycisk(self):
@@ -1361,23 +1479,25 @@ class KontrolaGry(Sekcja):
     # CALLBACK przycisku KONIEC RUNDY
     def na_koniec_rundy(self):
         """Kończy rundę."""
-        # TODO: ustawienie pozostałych sekcji na początek rundy
+        zgrany_statek = self.pg.gra.tura.runda.statek
+        self.pg.kasuj_wybor_statku(zgrany_statek)
+        self.pg.zmien_stan_statku(zgrany_statek, "disabled")
+        self.kf.drzewo_g.wyszarz_statek(zgrany_statek)
+        self.pg.gra.tura.dodaj_runde()
+        self.pp.gra.tura.dodaj_runde()
         self.odblokuj_widzety()
-        self.plansza_g.kasuj_wybor_statku(self.plansza_g.gracz.tura.runda.statek)
-        self.plansza_g.gracz.tura.dodaj_runde()
-        self.plansza_p.gracz.tura.dodaj_runde()
-        self.plansza_g.wybierz_statek(self.plansza_g.gracz.tura.runda.statek)
+        self.pg.wybierz_statek(self.pg.gra.tura.runda.statek)
         self.ustaw_tytul()
-        self.komunikator.o_rundzie(self.plansza_g.gracz)
+        self.komunikator.o_rundzie(self.pg.gra)
 
     def odblokuj_widzety(self):
         """
-        Odblokowuje widżety umożliwiające zmianę statku, zablokowane w trakcie rundy po pierwszej salwie.
+        Odblokowuje widżety umożliwiające zmianę statku zablokowane po pierwszej salwie w rundzie oraz comboboksy zablokowane po oddaniu ostatniej salwy.
         """
-        self.ka.combo_statku.state(["!disabled"])
-        self.ka.combo_statku.state(["readonly"])
-        self.kf.przycisk_do_tylu.state(["!disabled"])
-        self.kf.przycisk_do_przodu.state(["!disabled"])
+        self.pg.wlacz_zablokowane_statki()
+        self.pp.wlacz_atak()
+        self.ka.wlacz_comboboksy()
+        self.kf.wlacz_widzety()
 
 
 # *************************************** SEKCJA KOMUNIKATÓW ************************************************
@@ -1500,8 +1620,8 @@ class GraGUI(ttk.Frame):
         super().__init__(rodzic)
         self.grid()
         self.ustaw_style()
-        gracz = Gracz(Plansza(kolumny, rzedy))
-        przeciwnik = Gracz(Plansza(kolumny, rzedy))
+        gracz = Gra(Plansza(kolumny, rzedy))
+        przeciwnik = Gra(Plansza(kolumny, rzedy))
         self.buduj_plansze(gracz, przeciwnik)
         self.buduj_sekcje_kontroli()
         self.buduj_pasek_komunikatow()
@@ -1525,8 +1645,8 @@ class GraGUI(ttk.Frame):
 
     def buduj_plansze(self, gracz, przeciwnik):
         """Buduje plansze gracza i przeciwnika"""
-        self.plansza_g = PlanszaGracza(self, 10, 10, gracz=gracz)
-        self.plansza_p = PlanszaPrzeciwnika(self, 10, 10, gracz=przeciwnik)
+        self.plansza_gracza = PlanszaGracza(self, 10, 10, gra=gracz)
+        self.plansza_przeciwnika = PlanszaPrzeciwnika(self, 10, 10, gra=przeciwnik)
 
     def buduj_sekcje_kontroli(self):
         """Buduje sekcje kontroli: ataku, floty i gry po prawej stronie okna głównego."""
@@ -1534,23 +1654,23 @@ class GraGUI(ttk.Frame):
             self,
             (0, 10, 10, 10),  # odstęp zewnętrzny (lewo, góra, prawo, dół)
             (5, 10, 5, 5),  # odstęp wewnętrzny
-            plansza_gracza=self.plansza_g,
-            plansza_przeciwnika=self.plansza_p
+            plansza_gracza=self.plansza_gracza,
+            plansza_przeciwnika=self.plansza_przeciwnika
         )
         self.kontrola_floty = KontrolaFloty(
             self,
             (0, 0, 10, 10),
             (5, 7, 5, 13),
-            plansza_gracza=self.plansza_g,
-            plansza_przeciwnika=self.plansza_p
+            plansza_gracza=self.plansza_gracza,
+            plansza_przeciwnika=self.plansza_przeciwnika
         )
         self.kontrola_gry = KontrolaGry(
             self,
             (0, 0, 10, 10),
             (5, 10, 5, 5),
             "",
-            plansza_gracza=self.plansza_g,
-            plansza_przeciwnika=self.plansza_p
+            plansza_gracza=self.plansza_gracza,
+            plansza_przeciwnika=self.plansza_przeciwnika
         )
 
     def buduj_pasek_komunikatow(self):
@@ -1558,24 +1678,24 @@ class GraGUI(ttk.Frame):
         self.pasek_komunikatow = PasekKomunikatow(
             self,
             (10, 0, 10, 11),
-            self.plansza_g.gracz.plansza.kolumny,
-            self.plansza_g.gracz.plansza.rzedy
+            self.plansza_gracza.gra.plansza.kolumny,
+            self.plansza_gracza.gra.plansza.rzedy
         )
 
     def ustaw_siatke(self):
         """
         Konfiguruje layout managera. Dopuszcza powiększanie trzeciej kolumny (w poziomie) i czwartego rzędu (w pionie). Zmienia ustawienia dwóch ostatnich rzędów w zależności od wielkości planszy.
         """
-        self.plansza_g.grid(column=0, row=0, rowspan=3, sticky=tk.N)
-        self.plansza_p.grid(column=1, row=0, rowspan=3, sticky=tk.N)
+        self.plansza_gracza.grid(column=0, row=0, rowspan=3, sticky=tk.N)
+        self.plansza_przeciwnika.grid(column=1, row=0, rowspan=3, sticky=tk.N)
         self.kontrola_ataku.grid(column=2, row=0, sticky="nwe")
         self.kontrola_floty.grid(column=2, row=1, sticky="nsew")
         self.kontrola_gry.grid(column=2, row=2, rowspan=2, sticky="nwe")
         self.pasek_komunikatow.grid(column=0, row=3, columnspan=2, sticky="ns")
         # dla plansz mniejszych niż 12 rzędów pasek komunikatów musi zajmować dwa rzędy siatki okna głównego a sekcja kontroli gry jeden (dla większych jest na odwrót)
-        if self.plansza_g.gracz.plansza.rzedy < 12:
-            self.plansza_g.grid(rowspan=2)
-            self.plansza_g.grid(rowspan=2)
+        if self.plansza_gracza.gra.plansza.rzedy < 12:
+            self.plansza_gracza.grid(rowspan=2)
+            self.plansza_gracza.grid(rowspan=2)
             self.kontrola_floty.grid(rowspan=2)
             self.kontrola_gry.grid(row=3, rowspan=1)
             self.pasek_komunikatow.grid(row=2, rowspan=2)
@@ -1585,31 +1705,32 @@ class GraGUI(ttk.Frame):
 
     def przekaz_odnosniki(self):
         """Przekazuje odnośniki pomiędzy sekcjami."""
-        self.plansza_p.drugi_gracz = self.plansza_g.gracz
+        # PG
+        self.plansza_przeciwnika.pg = self.plansza_gracza
         # KA
-        self.plansza_g.ka = self.kontrola_ataku
-        self.plansza_p.ka = self.kontrola_ataku
+        self.plansza_gracza.ka = self.kontrola_ataku
+        self.plansza_przeciwnika.ka = self.kontrola_ataku
         self.kontrola_gry.ka = self.kontrola_ataku
         # KF
-        self.plansza_g.kf = self.kontrola_floty
-        self.plansza_p.kf = self.kontrola_floty
+        self.plansza_gracza.kf = self.kontrola_floty
+        self.plansza_przeciwnika.kf = self.kontrola_floty
         self.kontrola_gry.kf = self.kontrola_floty
 
     def wybierz_statek_startowy(self):
         """Wybiera największy statek na start gry."""
-        self.plansza_g.wybierz_statek(self.plansza_g.gracz.plansza.statki[0])
+        self.plansza_gracza.wybierz_statek(self.plansza_gracza.gra.plansza.statki[0])
         self.kontrola_floty.drzewo_g.see("niezatopione")
 
     def przekaz_komunikator(self):
         """Tworzy, ustawia i przekazuje widżetom komunikator."""
         self.komunikator = Komunikator(self.pasek_komunikatow.tekst, self.CZCIONKI, PoleGUI.KOLORY)
-        self.plansza_p.komunikator = self.komunikator
+        self.plansza_przeciwnika.komunikator = self.komunikator
         self.kontrola_gry.komunikator = self.komunikator
 
     def wyswietl_komunikaty(self):
         """Wyświetla komunikaty w polu tekstowym paska komunikatów."""
-        self.komunikator.o_rozpoczeciu_gry(self.plansza_g.gracz.plansza)
-        self.komunikator.o_rundzie(self.plansza_g.gracz)
+        self.komunikator.o_rozpoczeciu_gry(self.plansza_gracza.gra.plansza)
+        self.komunikator.o_rundzie(self.plansza_gracza.gra)
 
 
 def main():
@@ -1618,7 +1739,6 @@ def main():
     okno_glowne.title("Statki")
 
     GraGUI(okno_glowne, 15, 15)  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów
-
     okno_glowne.resizable(False, False)
     okno_glowne.mainloop()
 

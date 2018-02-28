@@ -90,12 +90,12 @@ class Komunikator:
         self.tekst.ro_delete("end-3c", "end")
         self.tekst.ro_insert("end", ". Zaczynamy!")
 
-    def o_rundzie(self, gracz):
+    def o_rundzie(self, gra):
         """Wyświetla komunikat o nowej rundzie."""
         bazowa_dl_separatora = 120
-        korekta = round((gracz.plansza.kolumny - 8) * 13)
+        korekta = round((gra.plansza.kolumny - 8) * 13)
         dl_separatora = bazowa_dl_separatora + korekta
-        komunikat = gracz.podaj_info_o_rundzie().title()
+        komunikat = gra.podaj_info_o_rundzie().title()
         komunikat = "  ".join(["  ", self.GWIAZDKA, komunikat, self.GWIAZDKA, "   "])
         komunikat = komunikat.center(dl_separatora, "-")
 
