@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Plansza gry wraz z jej podstawowymi elementami.
 """

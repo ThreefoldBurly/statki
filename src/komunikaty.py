@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Komunikaty tekstowe w grze.
 """
@@ -30,15 +28,9 @@ class Komunikator:
         "fregata": "fregatę"
     }
     GWIAZDKA = "✱"
-    KOLORY = {
-        "szare": "dim gray"
-    }
 
-    def __init__(self, tekst, czcionki, kolory_pola):
-        self.tekst = tekst
-        self.CZCIONKI = czcionki
-        self.KOLORY.update(kolory_pola)
-        self.ustaw_tagi()
+    def __init__(self, pole_tekstowe):
+        self.tekst = pole_tekstowe
 
     @staticmethod
     def do_indeksu(liczba):
@@ -53,13 +45,6 @@ class Komunikator:
             return 1
         else:
             return 2
-
-    def ustaw_tagi(self):
-        """Ustawia tagi pola tekstowego zapewniające odpowiednie formatowanie komunikatów."""
-        self.tekst.tag_configure("wyszarzone", foreground=self.KOLORY["szare"])
-        self.tekst.tag_configure("wyśrodkowane", justify=tk.CENTER)
-        self.tekst.tag_configure("pogrubione", font=self.CZCIONKI["mała-pogrubiona"])
-        self.tekst.tag_configure("trafione", background=self.KOLORY["trafione"])
 
     def o_rozpoczeciu_gry(self, plansza_gracza):
         """Wyświetla komunikat o rozpoczęciu gry."""

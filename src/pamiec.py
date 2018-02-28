@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Zapis i odczyt danych z pamięci zewnętrznej.
 """
@@ -24,12 +22,13 @@ class Parser:
             return lista_nazw
 
         linie = []
+        sciezka = "../dane/nazwy.txt"
         try:
-            with codecs.open('dane/nazwy.txt', encoding='utf-8') as plik:
+            with codecs.open(sciezka, encoding='utf-8') as plik:
                 for linia in plik:
                     linie.append(linia)
         except FileNotFoundError:
-            print("Nieudane parsowanie nazw statków. Brak pliku 'dane/nazwy.txt'")
+            print("Nieudane parsowanie nazw statków. Brak pliku {}".format(sciezka))
             raise
 
         for ranga in rangi:
