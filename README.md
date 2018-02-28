@@ -1,5 +1,9 @@
 # statki
 
+*Uwaga dla rekruterów: ten projekt jest po polsku, ponieważ chciałem dla odmiany napisać coś po polsku i przy okazji skorzystać z tej wygody niedodawania wszędzie `u`, którą daje Python 3. Tak naprawdę wolę kodować po angielsku :). W razie wątpliwości zapraszam [tutaj](https://github.com/tburly/warriors)*
+
+---
+
 Gra w Statki na planszy o arbitralnym rozmiarze z nieznacznie zmodyfikowanymi (czyt. *wzbogaconymi*) zasadami ([więcej](https://github.com/tburly/statki/blob/master/meta/zasady.md)).
 
 Podstawowe różnice względem klasycznej wersji:
