@@ -4,8 +4,6 @@ Mechanika i przebieg gry w rozbiciu na tury i rundy - wg opisu zawartego w meta/
 
 from copy import deepcopy
 
-# TODO: mechanika przejścia w nową turę gdy liczba statków w rundzie == 1 (powinna być ujęta w metodzie `dodaj_runde()` i mimo że dotyczy głównie rundy (i jest aktualnie częścią Rundy), musi być wywoływana z gry)
-
 
 class Gra:
     """
@@ -22,6 +20,7 @@ class Gra:
         """Tworzy nową turę i dodaje do listy tur"""
         self.tura = Tura(self.plansza)
         self.tury.append(self.tura)
+        print("Lista statków na początku nowej tury", [str(statek) for statek in self.tura.statki])  # test
 
     def podaj_info_o_rundzie(self):
         """Zwraca informację o rundzie w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków])."""
@@ -38,7 +37,7 @@ class Tura:
 
     def __init__(self, plansza):
         self.plansza = plansza
-        self.migawki_planszy = []  # wykonywane na koniec każdej rundy
+        self.migawki_planszy = [deepcopy(self.plansza)]  # +1 koniec każdej rundy
         self.statki = self.plansza.niezatopione[:]  # śledzona jest tylko ilość elementów nie ich zawartość, więc wystarczy płytka kopia
         self.runda = Runda(self.statki[0])
         self.rundy = [self.runda]

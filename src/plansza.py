@@ -383,18 +383,18 @@ class Plansza:
         licznik = 0
         for statek in self.statki:
             for pole in statek.pola:
-                if pole in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
+                if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
                     licznik += 1
         return self.ilosc_pol_statkow - licznik  # int
 
-    def podaj_procent_nietrafionych_pol(self):
+    def podaj_info_o_nietrafionych(self):
         """
-        Podaje stosunek nietrafionych pól statków do wszystkich pól zajętych przez statki w procentach. Zwraca string w formacie 00.0%
+        Podaje informację o nietrafionych polach w postaci 2 stringów: ilości nietrafionych pól planszy oraz stosunku nietrafionych pól statków do wszystkich pól zajętych przez statki w procentach.
         """
         nietrafione = D(self.podaj_ilosc_nietrafionych_pol())
         wszystkie = D(self.ilosc_pol_statkow)
         procent = round(nietrafione * 100 / wszystkie, 1)
-        return str(procent) + "%"
+        return (str(nietrafione), str(procent) + "%")
 
 
 class Pole:

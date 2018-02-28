@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Główny interfejs gry."""
 
 import tkinter as tk
@@ -116,6 +114,8 @@ class Interfejs(ttk.Frame):
         self.plansza_gracza.kf = self.kontrola_floty
         self.plansza_przeciwnika.kf = self.kontrola_floty
         self.kontrola_gry.kf = self.kontrola_floty
+        # KG
+        self.plansza_przeciwnika.kg = self.kontrola_gry
 
     def wybierz_statek_startowy(self):
         """Wybiera największy statek na rozpoczęcie gry."""

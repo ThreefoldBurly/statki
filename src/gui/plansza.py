@@ -360,6 +360,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         self.pg = None  # jw.
         self.ka = None  # przekazywane przez GręGUI
         self.kf = None  # jw.
+        self.kg = None  # jw.
         self.komunikator = None  # jw.
         self.ustaw_style_przeciwnika()
         self.powiaz_callbacki()
@@ -488,6 +489,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             self.oznacz_pudlo(pole_gui)
         elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
             self.oznacz_trafione(pole_gui, PoleGUI.GLIFY["trafione"])
+            self.kg.aktualizuj_stan_gry("przeciwnika")
             statek = self.gra.plansza.podaj_statek(pole_gui.pole)
             if statek.czy_zatopiony():
                 self.zatop_statek(statek, z_symbolami=True)

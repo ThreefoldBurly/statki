@@ -715,6 +715,7 @@ class KontrolaGry(Sekcja):
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
+        self.nowa_tura = False
         self.pg = kwargs["plansza_gracza"]
         self.pp = kwargs["plansza_przeciwnika"]
         self.ka = None  # sekcja kontroli ataku przekazywana przez GręGUI
@@ -813,10 +814,11 @@ class KontrolaGry(Sekcja):
         )
 
     def podaj_tekst_stanu(self, gra):
-        """Podaje tekst stanu gry dla danego gracza."""
-        tekst = str(gra.plansza.podaj_ilosc_nietrafionych_pol()) + "/"
+        """Podaje tekst stanu gry dla danej planszy."""
+        nietrafione, procent = gra.plansza.podaj_info_o_nietrafionych()
+        tekst = nietrafione + "/"
         tekst += str(gra.plansza.ilosc_pol_statkow) + " ("
-        tekst += gra.plansza.podaj_procent_nietrafionych_pol() + ")"
+        tekst += procent + ")"
         return tekst
 
     def buduj_przycisk(self):
@@ -835,6 +837,22 @@ class KontrolaGry(Sekcja):
             pady=10
         )
 
+    def ustaw_przycisk(self):
+        """Ustawia tekst przycisku KONIEC RUNDY oraz flagę nowej tury."""
+        if len(self.pg.gra.tura.statki) == 1:
+            self.koniec_rundy.configure(text="KONIEC TURY")
+            self.nowa_tura = True
+        else:
+            self.koniec_rundy.configure(text="KONIEC RUNDY")
+            self.nowa_tura = False
+
+    def aktualizuj_stan_gry(self, czyj="gracza"):
+        """Aktualizuje etykietę stanu gry."""
+        if czyj == "gracza":
+            self.stan_g.configure(text=self.podaj_tekst_stanu(self.pg.gra))
+        elif czyj == "przeciwnika":
+            self.stan_p.configure(text=self.podaj_tekst_stanu(self.pp.gra))
+
     # CALLBACK przycisku KONIEC RUNDY
     def na_koniec_rundy(self):
         """Kończy rundę."""
@@ -842,11 +860,11 @@ class KontrolaGry(Sekcja):
         self.pg.kasuj_wybor_statku(zgrany_statek)
         self.pg.zmien_stan_statku(zgrany_statek, "disabled")
         self.kf.drzewo_g.wyszarz_statek(zgrany_statek)
-        self.pg.gra.tura.dodaj_runde()
-        self.pp.gra.tura.dodaj_runde()
+        self.pg.gra.tura.dodaj_runde() if not self.nowa_tura else self.pg.gra.dodaj_ture()
         self.odblokuj_widzety()
         self.pg.wybierz_statek(self.pg.gra.tura.runda.statek)
         self.ustaw_tytul()
+        self.ustaw_przycisk()
         self.komunikator.o_rundzie(self.pg.gra)
 
     def odblokuj_widzety(self):
