@@ -415,7 +415,7 @@ class Pole:
 
     def __init__(self, kolumna, rzad, znacznik=None):
         self.kolumna, self.rzad = kolumna, rzad  # stałe współrzędne pola
-        self.znacznik = znacznik or self.ZNACZNIKI["puste"]  # zmienna stanu pola
+        self.znacznik = znacznik if znacznik is not None else self.ZNACZNIKI["puste"]  # zmienna stanu pola
 
     def __str__(self):
         """Zwraca informację o polu w formacie: litera kolumny+cyfra rzędu np. B9"""

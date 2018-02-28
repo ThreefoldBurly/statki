@@ -191,13 +191,13 @@ class PlanszaGUI(Sekcja):
         else:
             pole_gui.configure(style=PoleGUI.STYLE["trafione"])
 
-    def zatop_statek(self, statek, symbole=False):
+    def zatop_statek(self, statek, z_symbolami=False):
         """Oznacza pola wskazanego statku jako zatopione."""
         for pole in statek.pola:
             pole.znacznik = Pole.ZNACZNIKI["zatopione"]
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             pole_gui.configure(style=PoleGUI.STYLE["zatopione"])
-            if symbole:
+            if z_symbolami:
                 pole_gui.configure(text=statek.SYMBOLE[statek.RANGA_BAZOWA])
 
         self.gra.plansza.zatopione.append(statek)
@@ -372,6 +372,10 @@ class PlanszaGracza(PlanszaGUI):
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             pole_gui.state([stan])
 
+    def oznacz_salwy(self, salwy):
+        """Oznacza otrzymane salwy."""
+        pass  # TODO
+
 class PlanszaPrzeciwnika(PlanszaGUI):
     """Graficzna reprezentacja planszy przeciwnika."""
 
@@ -511,7 +515,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
             self.oznacz_trafione(pole_gui, PoleGUI.GLIFY["trafione"])
             statek = self.gra.plansza.podaj_statek(pole_gui.pole)
             if statek.czy_zatopiony():
-                self.zatop_statek(statek, symbole=True)
+                self.zatop_statek(statek, z_symbolami=True)
                 self.odkryj_obwiednie(statek)
 
     def odkryj_obwiednie(self, statek):
@@ -850,8 +854,6 @@ class KontrolaAtaku(Sekcja):
         """
         Ustawia w comboboksie orientację wybranej salwy. Zachowuje wcześniejszą orientację, jeśli wybrana salwa odpowiada poprzedniej.
         """
-        print("Ostatnia salwa:", self.combo_orientacji.ostatnia_salwa)
-        print("Ostatnia orientacja:", self.combo_orientacji.ostatnia_orientacja)
         salwa = int(salwa_tekst[0])
         if salwa == 1:
             self.combo_orientacji["values"] = [self.ORIENTACJE[0]]
@@ -1271,8 +1273,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
                             tags=(kategoria, "ranga")
                             )
         # statki
-        for i in range(len(statki)):
-            statek = statki[i]
+        for i, statek in enumerate(statki):
             self.insert(
                 statek.RANGA_BAZOWA, "end",
                 str(statek.polozenie),  # tekstowa reprezentacja położenia statku jako ID w drzewie - upraszcza późniejszą translację wybranego elementu drzewa z powrotem na statek na planszy
@@ -1299,8 +1300,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
     # CALLBACK elementów z tagiem `statek`
     def na_podwojne_klikniecie(self, event=None):
         """Wybiera kliknięty podwójnie statek na planszy gracza."""
-        # TODO: w drzewie nie może dać się wybierać statków które już miały swoją rundę w tej turze!
-        statek = self.plansza_gui.gra.plansza.podaj_statek(self.focus(), "str")
+        statek = self.plansza_gui.gra.plansza.podaj_statek(self.focus(), tryb="str")
         self.plansza_gui.zmien_statek(statek)
 
     def wyszarz_zablokowane_statki(self):
@@ -1739,7 +1739,6 @@ def main():
     okno_glowne.title("Statki")
 
     GraGUI(okno_glowne, 15, 15)  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów
-
     okno_glowne.resizable(False, False)
     okno_glowne.mainloop()
 

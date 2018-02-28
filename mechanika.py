@@ -6,6 +6,8 @@ Mechanika i przebieg gry w rozbiciu na tury i rundy - wg opisu zawartego w meta/
 
 from copy import deepcopy
 
+# TODO: mechanika przejścia w nową turę gdy liczba statków w rundzie == 1 (powinna być ujęta w metodzie `dodaj_runde()` i mimo że dotyczy głównie rundy (i jest aktualnie częścią Rundy), musi być wywoływana z gry)
+
 
 class Gra:
     """
@@ -61,11 +63,12 @@ class Runda:
     Abstrakcyjna reprezentacja rundy. Śledzi atakujący statek i zapisuje salwy, które oddał oraz salwy otrzymane od przeciwnika. Startuje z pierwszym statkiem z listy tury.
     """
 
-    def __init__(self, statek):
+    def __init__(self, statek, salwy_otrzymane=None):
         self.statek = statek  # wartość zmieniana przez użytkownika via GUI
         self.sila_ognia = self.statek.sila_ognia[:]
         self.salwy_oddane = []
-        self.salwy_otrzymane = None  # lista salw przeciwnika otrzymywana i zapisywana na początku rundy
+        self.salwy_otrzymane = salwy_otrzymane  # TODO: lista salw przeciwnika otrzymywana i zapisywana na początku rundy
+        # flagi
         self.mozna_zmienic_statek = True
         self.mozna_atakowac = True
 

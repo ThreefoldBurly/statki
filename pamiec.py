@@ -24,9 +24,13 @@ class Parser:
             return lista_nazw
 
         linie = []
-        with codecs.open('dane/nazwy.txt', encoding='utf-8') as plik:
-            for linia in plik:
-                linie.append(linia)
+        try:
+            with codecs.open('dane/nazwy.txt', encoding='utf-8') as plik:
+                for linia in plik:
+                    linie.append(linia)
+        except FileNotFoundError:
+            print("Nieudane parsowanie nazw statków. Brak pliku 'dane/nazwy.txt'")
+            raise
 
         for ranga in rangi:
             lista_nazw = parsuj_wg_rangi(linie, ranga)
@@ -40,7 +44,7 @@ class Parser:
                     czy_OK = False
             return czy_OK
 
-        assert czy_nazwy_OK(), "Nieudane parsowanie nazw statków. Brak pliku 'dane/nazwy.txt' lub plik nie zawiera danych w prawidłowym formacie"
+        assert czy_nazwy_OK(), "Nieudane parsowanie nazw statków. Plik 'dane/nazwy.txt' nie zawiera danych w prawidłowym formacie"
 
         return nazwy
 
