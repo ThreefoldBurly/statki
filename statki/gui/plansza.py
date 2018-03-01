@@ -268,12 +268,12 @@ class PlanszaGracza(PlanszaGUI):
         """
         Przewija wybrany statek do tyłu.
         """
-        if len(self.gra.tura.statki) > 1:  # jeśli jest co przewijać
-            indeks = self.gra.tura.statki.index(self.gra.tura.runda.statek)
+        if len(self.gra.tura.napastnicy) > 1:  # jeśli jest co przewijać
+            indeks = self.gra.tura.napastnicy.index(self.gra.tura.runda.napastnik)
             if indeks > 0:  # jeśli nie jesteśmy na początku kolejki
-                statek = self.gra.tura.statki[indeks - 1]
+                statek = self.gra.tura.napastnicy[indeks - 1]
             else:
-                statek = self.gra.tura.statki[len(self.gra.tura.statki) - 1]
+                statek = self.gra.tura.napastnicy[len(self.gra.tura.napastnicy) - 1]
             self.zmien_statek(statek)
 
     # CALLBACK okna głównego
@@ -281,18 +281,18 @@ class PlanszaGracza(PlanszaGUI):
         """
         Przewija wybrany statek do przodu.
         """
-        if len(self.gra.tura.statki) > 1:  # jeśli jest co przewijać
-            indeks = self.gra.tura.statki.index(self.gra.tura.runda.statek)
-            if indeks < len(self.gra.tura.statki) - 1:  # jeśli nie jesteśmy na końcu kolejki
-                statek = self.gra.tura.statki[indeks + 1]
+        if len(self.gra.tura.napastnicy) > 1:  # jeśli jest co przewijać
+            indeks = self.gra.tura.napastnicy.index(self.gra.tura.runda.napastnik)
+            if indeks < len(self.gra.tura.napastnicy) - 1:  # jeśli nie jesteśmy na końcu kolejki
+                statek = self.gra.tura.napastnicy[indeks + 1]
             else:
-                statek = self.gra.tura.statki[0]
+                statek = self.gra.tura.napastnicy[0]
             self.zmien_statek(statek)
 
     def zmien_statek(self, statek):
         """Zmienia wybrany statek"""
-        if statek in self.gra.tura.statki and self.gra.tura.runda.mozna_zmienic_statek:
-            self.kasuj_wybor_statku(self.gra.tura.runda.statek)
+        if statek in self.gra.tura.napastnicy and self.gra.tura.runda.mozna_zmienic_napastnika:
+            self.kasuj_wybor_statku(self.gra.tura.runda.napastnik)
             self.wybierz_statek(statek)
 
     def wybierz_statek(self, statek):
@@ -303,7 +303,7 @@ class PlanszaGracza(PlanszaGUI):
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane&trafione"])
             else:
                 pole_gui.configure(style=PoleGUI.STYLE["wybrane"])
-        self.gra.tura.runda.ustaw_statek(statek)
+        self.gra.tura.runda.ustaw_napastnika(statek)
         # kontrola widżetów w innych sekcjach
         self.ka.combo_statku.set(statek)
         self.ka.ustaw_combo_salwy()
@@ -335,17 +335,17 @@ class PlanszaGracza(PlanszaGUI):
 
     def wylacz_zablokowane_statki(self):
         """
-        Wyłącza pola zablokowanych statków. Uruchamiana w sekcji kontroli ataku razem z blokadą zmiany statku w momencie wykonania pierwszej salwy.
+        Wyłącza pola zablokowanych statków. Uruchamiana w sekcji kontroli ataku razem z blokadą zmiany napastnika w momencie wykonania pierwszej salwy.
         """
-        wybrany_statek = self.gra.tura.runda.statek
-        for statek in [statek for statek in self.gra.tura.statki if statek != wybrany_statek]:
+        napastnik = self.gra.tura.runda.napastnik
+        for statek in [statek for statek in self.gra.tura.napastnicy if statek != napastnik]:
             self.zmien_stan_statku(statek, "disabled")
 
     def wlacz_zablokowane_statki(self):
         """
-        Włącza pola zablokowanych statków. Uruchamiana w sekcji kontroli gry na koniec rundy - już po dodaniu nowej rundy w turze, ale jeszcze PRZED wyborem nowego statku na początek tury.
+        Włącza pola zablokowanych statków. Uruchamiana w sekcji kontroli gry na koniec rundy - już po dodaniu nowej rundy w turze, ale jeszcze PRZED wyborem nowego napastnika na początek tury.
         """
-        for statek in self.gra.tura.statki:
+        for statek in self.gra.tura.napastnicy:
             self.zmien_stan_statku(statek, "!disabled")
 
     def zmien_stan_statku(self, statek, stan):
@@ -355,7 +355,7 @@ class PlanszaGracza(PlanszaGUI):
             pole_gui.state([stan])
 
     def oznacz_salwy(self, salwy):
-        """Oznacza otrzymane salwy."""
+        """Oznacza otrzymane salwy. Obsługuje ewentualne zatopienia."""
         pass  # TODO
 
 
@@ -452,7 +452,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 
             oddana_salwa = self.pg.gra.tura.runda.salwy_oddane[-1]
-            napastnik = self.pg.gra.tura.runda.statek
+            napastnik = self.pg.gra.tura.runda.napastnik
             # komunikaty
             self.komunikator.o_salwie(oddana_salwa, napastnik)
             if len(self.gra.plansza.zatopione) > ilosc_zatopionych:  # jeśli było zatopienie
@@ -465,19 +465,16 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """Oddaje salwę w pola o podanych współrzędnych."""
         if len(self.gra.tura.runda.salwy_oddane) == 0:
             self.blokuj_zmiane_statku()
-        # współrzędne sortowane od pola najbardziej na NW do pola najbardziej na SE
-        wspolrzedne = sorted(wspolrzedne, key=lambda w: w[0] + w[1])
         pola_salwy = []
         niewypaly = []
-        for kolumna, rzad in wspolrzedne:
+        # współrzędne sortowane od pola najbardziej na NW do pola najbardziej na SE
+        for kolumna, rzad in sorted(wspolrzedne, key=lambda w: w[0] + w[1]):
             if self.gra.plansza.czy_pole_w_planszy(kolumna, rzad):
                 self.odkryj_pole(kolumna, rzad)
                 pola_salwy.append(self.gra.plansza.podaj_pole(kolumna, rzad))
             else:
                 niewypaly.append((kolumna, rzad))
-        oddana_salwa = Salwa(pola_salwy, niewypaly)
-        self.pg.gra.tura.runda.salwy_oddane.append(oddana_salwa)
-        self.pg.gra.tura.runda.sila_ognia.remove(len(oddana_salwa))
+        self.pg.gra.tura.runda.dodaj_salwe_oddana(Salwa(pola_salwy, niewypaly))
         self.ka.ustaw_combo_salwy()
 
     def blokuj_zmiane_statku(self):

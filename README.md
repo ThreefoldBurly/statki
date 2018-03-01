@@ -31,7 +31,7 @@ Podstawowe różnice względem klasycznej wersji:
 
 ---
 
-**statki** to WIP. Aktualnie jestem na etapie budowania interfejsu w Tkinterze, co póki co daje efekty lepsze niż się spodziewałem. Bieżące rozwijanie programu robię na gałęzi [`develop`](https://github.com/tburly/statki/tree/develop), więc tam należy szukać najbardziej aktualnej wersji.
+**statki** to WIP. Aktualnie zbudowałem większość interfejsu w Tkinterze, co dało efekty lepsze niż się spodziewałem. Teraz przechodzę do pracy nad AI przeciwnika (przynajmniej w jakiejś podstawowej formie) oraz implementacji bardziej zaawansowanych zasad gry (jak trafienia, które obniżają rzeczywistą rangę statku oraz premie dla statków za zatopienie statku przeciwnika). Bieżące rozwijanie programu robię w gałęzi [`develop`](https://github.com/tburly/statki/tree/develop), więc tam należy szukać najbardziej aktualnej wersji.
 
 ![Zrzut ekranu z 20180212](/meta/zrzut-ekranu_20180212.png "Zrzut ekranu z 20180212")
 

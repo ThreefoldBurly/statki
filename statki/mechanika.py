@@ -30,8 +30,14 @@ class Gra:
         """Zwraca informację o rundzie w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków])."""
         info = "tura #" + str(len(self.tury))
         info += " / runda #" + str(len(self.tura.rundy))
-        info += " (" + str(len(self.tura.statki)) + ")"
+        info += " (" + str(len(self.tura.napastnicy)) + ")"
         return info  # w minuskule!
+
+    def zrob_ruch(self):
+        """
+        Wykonuje ruch dla przeciwnika. Implementacja w klasach potomnych.
+        """
+        pass
 
 
 class Tura:
@@ -42,21 +48,21 @@ class Tura:
     def __init__(self, plansza):
         self.plansza = plansza
         self.migawki_planszy = [deepcopy(self.plansza)]  # +1 koniec każdej rundy
-        self.statki = self.plansza.niezatopione[:]  # śledzona jest tylko ilość elementów nie ich zawartość, więc wystarczy płytka kopia
-        self.runda = Runda(self.statki[0])
+        self.napastnicy = self.plansza.niezatopione[:]  # śledzona jest tylko ilość elementów nie ich zawartość, więc wystarczy płytka kopia
+        self.runda = Runda(self.napastnicy[0])
         self.rundy = [self.runda]
 
     def dodaj_runde(self):
         """Tworzy nową rundę i dodaje do listy rund"""
-        self.statki.remove(self.runda.statek)
+        self.napastnicy.remove(self.runda.napastnik)
         self.migawki_planszy.append(deepcopy(self.plansza))
-        self.runda = Runda(self.statki[0])
+        self.runda = Runda(self.napastnicy[0])
         self.rundy.append(self.runda)
 
     def filtruj_zatopione(self):
-        """Filtruje z listy statków statki zatopione w ostatniej rundzie przez przeciwnika."""
-        aktualne_statki = [statek for statek in self.statki if statek not in self.plansza.zatopione]
-        self.statki = aktualne_statki
+        """Filtruje z listy napastników statki zatopione w ostatniej rundzie przez przeciwnika."""
+        aktualni_napastnicy = [napastnik for napastnik in self.napastnicy if napastnik not in self.plansza.zatopione]
+        self.napastnicy = aktualni_napastnicy
 
 
 class Runda:
@@ -64,16 +70,97 @@ class Runda:
     Abstrakcyjna reprezentacja rundy. Śledzi atakujący statek i zapisuje salwy, które oddał oraz salwy otrzymane od przeciwnika. Startuje z pierwszym statkiem z listy tury.
     """
 
-    def __init__(self, statek, salwy_otrzymane=None):
-        self.statek = statek  # wartość zmieniana przez użytkownika via GUI
-        self.sila_ognia = self.statek.sila_ognia[:]
+    def __init__(self, statek):
+        self.napastnik = statek  # wartość zmieniana przez użytkownika via GUI
+        self.sila_ognia = self.napastnik.sila_ognia[:]
         self.salwy_oddane = []
-        self.salwy_otrzymane = salwy_otrzymane  # TODO: lista salw przeciwnika otrzymywana i zapisywana na początku rundy
+        self.salwy_otrzymane = []  # lista salw przeciwnika otrzymywana i zapisywana na początku rundy
         # flagi
-        self.mozna_zmienic_statek = True
+        self.mozna_zmienic_napastnika = True
         self.mozna_atakowac = True
 
-    def ustaw_statek(self, statek):
-        """Ustawia podany statek i jego siłę ognia jako aktualne dla rundy."""
-        self.statek = statek
-        self.sila_ognia = statek.sila_ognia[:]
+    def ustaw_napastnika(self, statek):
+        """Ustawia podany statek jako aktualnego napastnika i jego siłę ognia jako aktualną dla rundy."""
+        self.napastnik = statek
+        self.sila_ognia = self.napastnik.sila_ognia[:]
+
+    def dodaj_salwe_oddana(self, salwa):
+        """Dodaje salwę, aktualizuje siłę ognia."""
+        self.salwy_oddane.append(salwa)
+        self.sila_ognia.remove(len(salwa))
+
+
+class AI(Gra):
+    """
+    Abstrakcyjna reprezentacja przebiegu gry na danej planszy w wykonaniu komputera.
+
+    Zremby algorytmu oparte na artykule dotyczącym zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
+
+    Szkielet działania:
+    ~~~~~~~~~~~~~~~~~~~
+    1. Wybór napastnika.
+    2. Wybór salwy.
+    3. Wybór ofiary - polowanie lub celowanie.
+    4. Oddanie salwy.
+    Punkty 2-4 powtarzane są tak długo jak długo są salwy do oddania.
+
+    """
+
+    def __init__(self, plansza_wlasna, plansza_gracza):
+        super().__init__(plansza_wlasna)
+        self.druga_plansza = deepcopy(plansza_gracza)
+
+    def mysl(self):
+        """
+        Myśli, jakie salwy wykonać w tej rundzie.
+        """
+        pass
+
+    def poluj(self):
+        """
+        Poluje na ofiarę - czyli wybiera i zwraca najlepsze możliwe miejsce na oddanie salwy, gdy nie ma żadnej trafionej ofiary.
+        """
+        pass
+
+    def celuj(self):
+        """
+        Wybiera i zwraca najlepsze możliwe miejsce na oddanie salwy, gdy jest jakaś trafiona ofiara.
+        """
+        pass
+
+    def wybierz_napastnika(self):
+        """
+        Wybiera atakujący statek. Wybierany jest statek posiadający największą siłę ognia w danej rundzie.
+        """
+        napastnik = sorted(self.tura.napastnicy, key=lambda s: sum(s.sila_ognia), reverse=True)[0]
+        self.tura.runda.ustaw_napastnika(napastnik)
+
+    def zrob_ruch(self):
+        """
+        Wykonuje ruch dla przeciwnika. Wymyśla salwy i dodaje rundę/turę.
+        """
+        pass
+
+# TODO
+
+
+class GraSieciowa(Gra):
+    """
+    Abstrakcyjna reprezentacja przebiegu gry na danej planszy w wykonaniu drugiego gracza połączonego przez sieć.
+    """
+
+    def __init__(self, plansza_wlasna, plansza_gracza):
+        super().__init__(plansza_wlasna)
+        self.druga_plansza = deepcopy(plansza_gracza)
+
+    def zrob_ruch(self):
+        """
+        Wykonuje ruch dla przeciwnika. Pobiera salwy przez sieć od drugiego gracza i dodaje rundę/turę.
+        """
+        pass
+
+    def pobierz_salwy_oddane(self):
+        """
+        Pobiera przez sieć salwy oddane przez drugiego gracza.
+        """
+        pass

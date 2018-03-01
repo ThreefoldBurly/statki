@@ -96,7 +96,7 @@ class KontrolaAtaku(Sekcja):
             self.etyramka,
             styl="KA.TCombobox",
             font=stale.CZCIONKI["mała"],
-            values=self.pg.gra.tura.statki,
+            values=self.pg.gra.tura.napastnicy,
             width=35
         )
         self.combo_statku.grid(
@@ -155,7 +155,7 @@ class KontrolaAtaku(Sekcja):
         """Zmienia statek na planszy i aktualizuje combo_salwy."""
         event.widget.selection_clear()  # czyści tło pola tekstowego comboboksa
         indeks = event.widget.current()
-        wybrany_statek = self.pg.gra.tura.statki[indeks]
+        wybrany_statek = self.pg.gra.tura.napastnicy[indeks]
         self.pg.zmien_statek(wybrany_statek)
 
     # CALLBACK combo_salwy
@@ -179,7 +179,7 @@ class KontrolaAtaku(Sekcja):
         """Włącza i wypełnia danymi startowymi wszystkie comboboksy. Uruchamiane na początku nowej rundy."""
         self.combo_statku.state(["!disabled"])
         self.combo_statku.state(["readonly"])
-        self.combo_statku["values"] = self.pg.gra.tura.statki
+        self.combo_statku["values"] = self.pg.gra.tura.napastnicy
         self.combo_salwy.state(["!disabled"])
         self.combo_salwy.state(["readonly"])
         self.combo_salwy["values"] = self.pg.gra.tura.runda.sila_ognia
@@ -671,15 +671,15 @@ class DrzewoFlotyGracza(DrzewoFloty):
 
     def wyszarz_zablokowane_statki(self):
         """Wyszarza zablokowane statki."""
-        wybrany_statek = self.plansza_gui.gra.tura.runda.statek
-        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.statki if statek != wybrany_statek]
+        napastnik = self.plansza_gui.gra.tura.runda.napastnik
+        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.napastnicy if statek != napastnik]
         for iid in lista_iid:
             tag_ranga, tag_statek = self.item(iid)["tags"][:2]
             self.item(iid, tags=(tag_ranga, tag_statek, "zablokowane"))
 
     def kasuj_wyszarzenie_statkow(self):
         """Kasuje wyszarzenie zablokowanych statków."""
-        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.statki]
+        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.napastnicy]
         for iid in lista_iid:
             tag_ranga, tag_statek = self.item(iid)["tags"][:2]
             self.item(iid, tags=(tag_ranga, tag_statek))
@@ -847,7 +847,7 @@ class KontrolaGry(Sekcja):
 
     def ustaw_przycisk(self):
         """Ustawia tekst przycisku KONIEC RUNDY oraz flagę nowej tury."""
-        if len(self.pg.gra.tura.statki) == 1:
+        if len(self.pg.gra.tura.napastnicy) == 1:
             self.koniec_rundy.configure(text="KONIEC TURY")
             self.nowa_tura = True
         else:
@@ -864,16 +864,18 @@ class KontrolaGry(Sekcja):
     # CALLBACK przycisku KONIEC RUNDY
     def na_koniec_rundy(self, event=None):
         """Kończy rundę."""
-        zgrany_statek = self.pg.gra.tura.runda.statek
+        zgrany_statek = self.pg.gra.tura.runda.napastnik
         self.pg.kasuj_wybor_statku(zgrany_statek)
         self.pg.zmien_stan_statku(zgrany_statek, "disabled")
         self.kf.drzewo_g.wyszarz_statek(zgrany_statek)
         self.pg.gra.tura.dodaj_runde() if not self.nowa_tura else self.pg.gra.dodaj_ture()
         self.odblokuj_widzety()
-        self.pg.wybierz_statek(self.pg.gra.tura.runda.statek)
+        self.pg.wybierz_statek(self.pg.gra.tura.runda.napastnik)
         self.ustaw_tytul()
         self.ustaw_przycisk()
-        self.komunikator.o_rundzie(self.pg.gra)
+        self.komunikator.o_rundzie(self.pg.gra)  # TODO: komunikat o ruchu przeciwnika
+        # TODO
+        # self.wykonaj_ruch_przeciwnika()
 
     def powiaz_enter(self):
         """Wiąże callback obsługujący naciśnięcie ENTER."""
@@ -888,3 +890,13 @@ class KontrolaGry(Sekcja):
         self.pp.wlacz_atak()
         self.ka.wlacz_comboboksy()
         self.kf.wlacz_widzety()
+
+    def wykonaj_ruch_przeciwnika(self):
+        """
+        Wykonuje ruch przeciwnika.
+        """
+        # self.pp.gra.zrob_ruch()
+        # salwy = self.pp.gra.tura.runda.salwy_oddane
+        # self.pg.oznacz_salwy(salwy)
+        # self.pg.gra.tura.runda.salwy_otrzymane = salwy
+        # self.pg.gra.tura.filtruj_zatopione()

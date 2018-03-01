@@ -115,7 +115,7 @@ Zmiana wybranego statku odbywa się na kilka sposobów:
 We wszystkich ww. przypadkach zmiana dokonywana jest przez wywołanie metody `zmien_statek(statek)` klasy `PlanszaGracza`, która wygląda tak:
 
 `if statek and not statek.czy_zatopiony():
-    self.kasuj_wybor_statku(self.gracz.tura.runda.statek)
+    self.kasuj_wybor_statku(self.gracz.tura.runda.napastnik)
     self.wybierz_statek(statek)`
 
 `kasuj_wybor_statku()` pobiera aktualny statek rundy, a `wybierz_statek()` ustala statek podany do `zmien_statek` jako nowy aktualny statek rundy.
@@ -135,3 +135,24 @@ Przyjrzyjmy się w takim razie, co dokładnie jest podawane metodzie `zmien_stat
 Jeśli za każdym razem zostanie zapewnione, że nie ma blokady zmiany statku w rundzie i że podany jest na liście statków aktualnej tury - statek powinien być móc wybrany. Stąd wynika że ten warunek (i tylko ten) powinien być zawarty w metodzie `zmien_statek()` klasy `PlanszaGracza`.
 
 ----
+
+#### AI
+
+Zremby algorytmu oparte na artykule dotyczącym zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
+
+Szkielet działania:
+~~~~~~~~~~~~~~~~~~~
+1. Wybór napastnika.
+2. Wybór salwy.
+3. Wybór ofiary - polowanie lub celowanie.
+4. Oddanie salwy.
+Punkty 2-4 powtarzane są tak długo jak długo są salwy do oddania.
+
+Ad 1. Wybór napastnika - statek z o największej sile ognia w danej rundzie.
+Ad 2. Wybór salwy - najwięsza dostępna salwa.
+Ad 3. Wybór ofiary:
+    * Polowanie.
+        Algorytm powinien brać pod uwagę:
+        1. wybrane na początku gry ustawienia dotyczące umieszczania statków na planszy (parametry rozkładu Gaussa losowania rozmiaru statku)
+        2. algorytm umieszczania statków (brak stykania się)
+        Na podstawie 1) powinna odbyć się symulacja najbardziej prawdopodobnych wybranych rozmiarów i ilości statków przeciwnika.
