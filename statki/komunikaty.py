@@ -1,10 +1,13 @@
 """
-Komunikaty tekstowe w grze.
+
+    statki.komunikaty
+    ~~~~~~~~~~~~~~~~~
+
+    Komunikaty tekstowe w grze.
+
 """
 
-import tkinter as tk
-
-from plansza import Pole, Statek
+from statki.plansza import Statek
 
 
 class Komunikator:

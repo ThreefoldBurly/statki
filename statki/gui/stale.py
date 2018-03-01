@@ -1,4 +1,11 @@
-"""Stałe współdzielone przez moduły GUI."""
+"""
+
+    statki.gui.stale
+    ~~~~~~~~~~~~~~~~
+
+    Stałe współdzielone przez moduły GUI.
+
+"""
 
 CZCIONKI = {
     "mała": ("TkDefaultFont", 8),

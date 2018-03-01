@@ -1,11 +1,16 @@
 """
-Plansza gry wraz z jej podstawowymi elementami.
+
+    statki.plansza
+    ~~~~~~~~~~~~~~
+
+    Plansza gry wraz z jej podstawowymi elementami.
+
 """
 
 from random import randint, choice, gauss
 from decimal import Decimal as D
 
-from pamiec import Parser
+from statki.pamiec import Parser
 
 
 class Plansza:

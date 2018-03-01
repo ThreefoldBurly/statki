@@ -1,11 +1,18 @@
-"""Główny interfejs gry."""
+"""
+
+    statki.gui.interfejs
+    ~~~~~~~~~~~~~~~~~~~~
+
+    Główny interfejs gry.
+
+"""
 
 import tkinter as tk
 from tkinter import ttk
 
-from plansza import Plansza
-from mechanika import Gra
-from komunikaty import Komunikator
+from statki.plansza import Plansza
+from statki.mechanika import Gra
+from statki.komunikaty import Komunikator
 from .plansza import PlanszaGracza, PlanszaPrzeciwnika
 from .kontrola import KontrolaAtaku, KontrolaFloty, KontrolaGry
 from .komunikaty import PasekKomunikatow

@@ -1,5 +1,10 @@
 """
-Zapis i odczyt danych z pamięci zewnętrznej.
+
+    statki.pamiec
+    ~~~~~~~~~~~~~
+
+    Zapis i odczyt danych z pamięci zewnętrznej.
+
 """
 
 import codecs
@@ -22,7 +27,7 @@ class Parser:
             return lista_nazw
 
         linie = []
-        sciezka = "../dane/nazwy.txt"
+        sciezka = "dane/nazwy.txt"
         try:
             with codecs.open(sciezka, encoding='utf-8') as plik:
                 for linia in plik:

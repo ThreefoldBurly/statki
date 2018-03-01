@@ -1,9 +1,16 @@
-"""Graficzna reprezentacja plansz: gracza i przeciwnika."""
+"""
+
+    statki.gui.plansza
+    ~~~~~~~~~~~~~~~~~~
+
+    Graficzna reprezentacja plansz: gracza i przeciwnika.
+
+"""
 
 import tkinter as tk
 from tkinter import ttk
 
-from plansza import Plansza, Pole, Salwa
+from statki.plansza import Plansza, Pole, Salwa
 from .sekcja import Sekcja
 
 

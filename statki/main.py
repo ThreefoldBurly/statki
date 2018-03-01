@@ -1,10 +1,15 @@
-#!/usr/bin/env python3
+"""
 
-"""Uruchamianie gry."""
+    statki.main
+    ~~~~~~~~~~~
+
+    Uruchamianie gry.
+
+"""
 
 import tkinter as tk
 
-from gui.interfejs import Interfejs
+from statki.gui.interfejs import Interfejs
 
 
 def main():

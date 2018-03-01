@@ -1,11 +1,18 @@
-"""Sekcje kontroli zajmujące prawą stronę okna głównego gry."""
+"""
+
+    statki.gui.kontrola
+    ~~~~~~~~~~~~~~~~~~~
+
+    Sekcje kontroli zajmujące prawą stronę głównego interfejsu gry.
+
+"""
 
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 import math
 
-from plansza import Statek
+from statki.plansza import Statek
 from .sekcja import Sekcja
 from . import stale
 
@@ -429,7 +436,7 @@ class KontrolaFloty(Sekcja):
             return ikona
 
         # przycisk do tyłu
-        ikona_do_tylu = zaladuj_ikone("../zasoby/ikona_statku/statek-w-lewo_32x32.png")
+        ikona_do_tylu = zaladuj_ikone("zasoby/ikona_statku/statek-w-lewo_32x32.png")
         self.przycisk_do_tylu = ttk.Button(
             self.etyramka,
             # text="Poprzedni",
@@ -440,7 +447,7 @@ class KontrolaFloty(Sekcja):
         self.przycisk_do_tylu.image = ikona_do_tylu  # konieczne ze względu na bug Tkintera (https://stackoverflow.com/questions/22200003/tkinter-button-not-showing-image)
         self.przycisk_do_tylu.grid(row=1, column=0, sticky=tk.W, pady=(13, 0), padx=35)
         # przycisk do przodu
-        ikona_do_przodu = zaladuj_ikone("../zasoby/ikona_statku/statek-w-prawo_32x32.png")
+        ikona_do_przodu = zaladuj_ikone("zasoby/ikona_statku/statek-w-prawo_32x32.png")
         self.przycisk_do_przodu = ttk.Button(
             self.etyramka,
             # text="Kolejny",
@@ -699,7 +706,7 @@ class DrzewoFlotyPrzeciwnika(DrzewoFloty):
         """
         Dodaje zatopiony statek przeciwnika. Przy pierwszym dodaniu statku danej rangi tworzy odpowiedni folder rangi.
         """
-        pass
+        pass  # TODO
 
 
 class KontrolaGry(Sekcja):
@@ -725,6 +732,7 @@ class KontrolaGry(Sekcja):
         self.ustaw_tytul()
         self.buduj_etykiety()
         self.buduj_przycisk()
+        self.powiaz_enter()
         self.komunikator = None  # przekazywane przez GręGUI
 
     def ustaw_etyramke(self):
@@ -854,7 +862,7 @@ class KontrolaGry(Sekcja):
             self.stan_p.configure(text=self.podaj_tekst_stanu(self.pp.gra))
 
     # CALLBACK przycisku KONIEC RUNDY
-    def na_koniec_rundy(self):
+    def na_koniec_rundy(self, event=None):
         """Kończy rundę."""
         zgrany_statek = self.pg.gra.tura.runda.statek
         self.pg.kasuj_wybor_statku(zgrany_statek)
@@ -866,6 +874,11 @@ class KontrolaGry(Sekcja):
         self.ustaw_tytul()
         self.ustaw_przycisk()
         self.komunikator.o_rundzie(self.pg.gra)
+
+    def powiaz_enter(self):
+        """Wiąże callback obsługujący naciśnięcie ENTER."""
+        self.winfo_toplevel().bind("<Return>", self.na_koniec_rundy)
+        self.winfo_toplevel().bind("<KP_Enter>", self.na_koniec_rundy)
 
     def odblokuj_widzety(self):
         """

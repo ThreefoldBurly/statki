@@ -1,4 +1,11 @@
-"""Sekcja komunikatów znajdująca się na dole okna głównego gry."""
+"""
+
+    statki.gui.komunikaty
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    Sekcja komunikatów znajdująca się na dole głównego interfejsu gry.
+
+"""
 
 import tkinter as tk
 from tkinter import ttk

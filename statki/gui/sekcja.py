@@ -1,4 +1,11 @@
-"""Sekcja okna głównego."""
+"""
+
+    statki.gui.sekcja
+    ~~~~~~~~~~~~~~~~~
+
+    Sekcja głównego interfejsu gry.
+
+"""
 
 import tkinter as tk
 from tkinter import ttk
