@@ -1,19 +1,21 @@
-#!/usr/bin/env python3
-
 """
-Plansza gry wraz z jej podstawowymi elementami.
+
+    statki.plansza
+    ~~~~~~~~~~~~~~
+
+    Plansza gry wraz z jej podstawowymi elementami.
+
 """
 
 from random import randint, choice, gauss
 from decimal import Decimal as D
 
-from pamiec import Parser
+from statki.pamiec import Parser
 
 
 class Plansza:
     """
-    Abstrakcyjna reprezentacja planszy do gry w Statki.
-    Zapisuje całą informację o stanie gry po stronie jednego gracza w danym momencie. Z tego wynika, że dla pełnego obrazu stanu gry (w danym momencie) potrzebne są 2 obiekty tej klasy - jeden dla gracza, drugi dla przeciwnika. Moduł gui.py powiela tę dychotomię.
+    Reprezentacja planszy do gry w Statki. Zapisuje całą informację o stanie gry po stronie jednego gracza w danym momencie. Na początku gry tworzone są 2 obiekty tej klasy - jeden dla gracza, drugi dla przeciwnika. Moduł `statki.gui.plansza` powiela tę dychotomię.
     """
     MIN_ROZMIAR_STATKU = 1
     MAX_ROZMIAR_STATKU = 20
@@ -59,6 +61,7 @@ class Plansza:
         39: "AM",
         40: "AN"
     }
+    KIERUNKI = ["N", "E", "S", "W", "NE", "SE", "SW", "NW"]
 
     def __init__(self, kolumny, rzedy):
         # numeryczne stałe planszy
@@ -85,7 +88,7 @@ class Plansza:
             pola.append(rzad)
         return pola
 
-    def drukuj_sie(self):
+    def drukuj_sie(self):  # do testów
         """Drukuje planszę w standard output."""
         # numeracja kolumn
         print()
@@ -103,177 +106,107 @@ class Plansza:
             print("  ".join([pole.znacznik for pole in self.pola[i]]))
 
     def podaj_pole(self, kolumna, rzad):
-        """Podaje wskazane pole."""
-        return self.pola[rzad - 1][kolumna - 1]
-
-    def oznacz_pole(self, kolumna, rzad, znacznik):
-        """Oznacza wskazane polę wskazanym znacznikiem."""
-        self.pola[rzad - 1][kolumna - 1].znacznik = znacznik
-
-    def czy_pole_puste(self, kolumna, rzad):
-        """Sprawdza czy wskazane pole jest puste."""
-        if self.pola[rzad - 1][kolumna - 1].znacznik == Pole.ZNACZNIKI["puste"]:
-            return True
+        """
+        Podaje pole wg wskazanych współrzędnych. Jeśli podane współrzędne wykraczają poza zakres planszy zwraca None.
+        """
+        if self.czy_w_planszy(kolumna, rzad):
+            return self.pola[rzad - 1][kolumna - 1]
         else:
-            return False
+            return None
 
-    def czy_pole_w_planszy(self, kolumna, rzad):
-        """Sprawdza czy wskazane pole jest w obrębie planszy."""
+    def czy_w_planszy(self, kolumna, rzad):
+        """Sprawdza czy wskazane wspolrzedne są w obrębie planszy."""
         if rzad < 1 or rzad > self.rzedy or kolumna < 1 or kolumna > self.kolumny:
             return False
         else:
             return True
 
+    def podaj_sasiednie_pole(self, pole, kierunek):
+        """Podaje pole sąsiednie dla wskazanego pola wg podanego kierunku."""
+        kolumna, rzad = pole.podaj_wspolrzedne()
+        if kierunek == "E":
+            kolumna += 1
+        elif kierunek == "W":
+            kolumna -= 1
+        elif kierunek == "N":
+            rzad -= 1
+        elif kierunek == "S":
+            rzad += 1
+        elif kierunek == "NE":
+            kolumna += 1
+            rzad -= 1
+        elif kierunek == "SE":
+            kolumna += 1
+            rzad += 1
+        elif kierunek == "SW":
+            kolumna -= 1
+            rzad += 1
+        elif kierunek == "NW":
+            kolumna -= 1
+            rzad -= 1
+
+        return self.podaj_pole(kolumna, rzad)  # None jeśli poza planszą!
+
     def umiesc_statek(self, kolumna, rzad, rozmiar):
         """
         Stara się umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu metoda zwraca umieszczony statek, w razie porażki zwraca None (czyszcząc oznaczone wcześniej pola).
         """
-        kierunki = ["prawo", "lewo", "gora", "dol"]
-        licznik_oznaczen = 0
         licznik_iteracji = 0
-        sciezka = []
-        ozn_pola = []
+        pola_statku = []
+        pole = self.podaj_pole(kolumna, rzad)  # pole początkowe
 
-        while licznik_oznaczen < rozmiar:
+        def dodaj_pole_statku(pole):
+            """Dodaje pole statku w danej iteracji."""
+            pole.znacznik = Pole.ZNACZNIKI["statek"]
+            pola_statku.append(pole)
 
+        while len(pola_statku) < rozmiar:
             if licznik_iteracji > rozmiar * 5:  # za dużo iteracji - NIEUDANE UMIESZCZENIE
                 return None
 
-            if licznik_iteracji == 0:  # pole startowe
-                if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                    self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
-                    licznik_oznaczen += 1
-                    ozn_pola.append(self.podaj_pole(kolumna, rzad))
+            if licznik_iteracji == 0:  # pole początkowe
+                if pole is not None and pole.znacznik == Pole.ZNACZNIKI["puste"]:
+                    dodaj_pole_statku(pole)
                 else:
                     return None  # NIEUDANE UMIESZCZENIE
             else:
-                oznaczono = False
-                pula_kierunkow = kierunki[:]
+                pula_kierunkow = self.KIERUNKI[:4]
 
-                while not oznaczono:
-
-                    # obsługa zapętlenia - pętla może się wykonać maksymalnie 4 razy (tyle ile możliwych kierunków ruchu)
-                    if len(pula_kierunkow) < 1:  # wyczerpaliśmy wszystkie możliwe kierunki - trzeba wracać (o ile jest gdzie!)
-                        if len(sciezka) > 0:
-                            ostatni_kierunek = sciezka[len(sciezka) - 1]
-                            if ostatni_kierunek == "prawo":
-                                kolumna -= 1
-                                sciezka.pop()
-                            elif ostatni_kierunek == "lewo":
-                                kolumna += 1
-                                sciezka.pop()
-                            elif ostatni_kierunek == "gora":
-                                rzad += 1
-                                sciezka.pop()
-                            elif ostatni_kierunek == "dol":
-                                rzad -= 1
-                                sciezka.pop()
+                while True:
+                    if len(pula_kierunkow) < 1:  # powrót po wyczerpaniu kierunków
+                        if len(pola_statku) > 0:
+                            pole = pola_statku[-1]
                             break
-
-                        else:  # nie ma gdzie wracać, jesteśmy w punkcie startowym - NIEUDANE UMIESZCZENIE statku
-                            for pole in ozn_pola:  # czyszczenie planszy
-                                kolumna, rzad = pole.podaj_wspolrzedne()
-                                self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["puste"])
+                        else:  # powrót do pola początkowego - NIEUDANE UMIESZCZENIE
+                            for pole in pola_statku:  # czyszczenie nieudanego umieszczenia
+                                pole.znacznik == Pole.ZNACZNIKI["puste"]
                             return None
 
-                    kierunek = pula_kierunkow[randint(0, len(pula_kierunkow) - 1)]
-                    if kierunek == "prawo":
-                        kolumna += 1
-                        if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
-                            oznaczono = True
-                            licznik_oznaczen += 1
-                            sciezka.append(kierunek)
-                            ozn_pola.append(self.podaj_pole(kolumna, rzad))
-
-                        else:
-                            kolumna -= 1
-                            pula_kierunkow.remove(kierunek)
-                    elif kierunek == "lewo":
-                        kolumna -= 1
-                        if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
-                            oznaczono = True
-                            licznik_oznaczen += 1
-                            sciezka.append(kierunek)
-                            ozn_pola.append(self.podaj_pole(kolumna, rzad))
-
-                        else:
-                            kolumna += 1
-                            pula_kierunkow.remove(kierunek)
-                    elif kierunek == "gora":
-                        rzad -= 1
-                        if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
-                            oznaczono = True
-                            licznik_oznaczen += 1
-                            sciezka.append(kierunek)
-                            ozn_pola.append(self.podaj_pole(kolumna, rzad))
-
-                        else:
-                            rzad += 1
-                            pula_kierunkow.remove(kierunek)
-                    else:  # idziemy w dół
-                        rzad += 1
-                        if self.czy_pole_w_planszy(kolumna, rzad) and self.czy_pole_puste(kolumna, rzad):
-                            self.oznacz_pole(kolumna, rzad, Pole.ZNACZNIKI["statek"])
-                            oznaczono = True
-                            licznik_oznaczen += 1
-                            sciezka.append(kierunek)
-                            ozn_pola.append(self.podaj_pole(kolumna, rzad))
-
-                        else:
-                            rzad -= 1
-                            pula_kierunkow.remove(kierunek)
+                    # próba dodania w losowym kierunku spośród ciągle obecnych w puli
+                    kierunek = choice(pula_kierunkow)
+                    sasiad = self.podaj_sasiednie_pole(pole, kierunek)
+                    if sasiad is not None and sasiad.znacznik == Pole.ZNACZNIKI["puste"]:
+                        pole = sasiad
+                        dodaj_pole_statku(pole)
+                        break
+                    else:
+                        pula_kierunkow.remove(kierunek)
 
             licznik_iteracji += 1
 
-        if rozmiar == 1:
-            return Kuter(id(self), ozn_pola)
-        elif rozmiar in range(2, 4):
-            return Patrolowiec(id(self), ozn_pola)
-        elif rozmiar in range(4, 7):
-            return Korweta(id(self), ozn_pola)
-        elif rozmiar in range(7, 10):
-            return Fregata(id(self), ozn_pola)
-        elif rozmiar in range(10, 13):
-            return Niszczyciel(id(self), ozn_pola)
-        elif rozmiar in range(13, 17):
-            return Krazownik(id(self), ozn_pola)
-        elif rozmiar in range(17, 21):
-            return Pancernik(id(self), ozn_pola)
+        return Statek.fabryka(id(self), pola_statku)
 
     def umiesc_obwiednie_statku(self, statek):
-        """Umieszcza na planszy obwiednię wskazanego statku (który ją zapamiętuje)."""
-
-        # wystarczy zaznaczyć wszystkich 8 bezpośrednich sąsiadów danego pola (sprawdzając za kazdym razem czy sa w planszy i czy sa puste)
+        """Umieszcza na planszy i w statku obwiednię wskazanego statku."""
         for pole in statek.pola:
-            kolumna, rzad = pole.podaj_wspolrzedne()
-            a = 0  # współczynnik przesunięcia w pionie (x)
-            b = 0  # współczynnik przesunięcia w poziomie (y)
-
-            for i in [j for j in range(9) if j != 4]:
-                if i in range(3):  # 1szy rząd sąsiadów
-                    a = -1
-                    b = i - 1
-                elif i in range(3, 6):  # 2gi rząd sąsiadów
-                    a = 0
-                    b = i - 4
-                else:  # 3ci rząd sąsiadów
-                    a = 1
-                    b = i - 7
-
-                x = kolumna + a
-                y = rzad + b
-
-                if self.czy_pole_w_planszy(x, y):
-                    sasiad = self.podaj_pole(x, y)
-
-                    if sasiad.znacznik != Pole.ZNACZNIKI["statek"]:  # jeśli to nie statek...
-                        if sasiad.znacznik == Pole.ZNACZNIKI["obwiednia"]:  # to może być obwiednia innego statku...
-                            statek.obwiednia.append(sasiad)
-                        else:  # albo puste pole - to zaznaczamy
-                            self.oznacz_pole(x, y, Pole.ZNACZNIKI["obwiednia"])
+            for kierunek in self.KIERUNKI:
+                sasiad = self.podaj_sasiednie_pole(pole, kierunek)
+                if sasiad is not None:
+                    if sasiad.znacznik == Pole.ZNACZNIKI["puste"]:
+                        sasiad.znacznik = Pole.ZNACZNIKI["obwiednia"]
+                        statek.obwiednia.append(sasiad)
+                    elif sasiad.znacznik == Pole.ZNACZNIKI["obwiednia"]:
+                        if sasiad not in statek.obwiednia:
                             statek.obwiednia.append(sasiad)
 
     def podaj_statek(self, pole, tryb="pole"):
@@ -385,24 +318,23 @@ class Plansza:
         licznik = 0
         for statek in self.statki:
             for pole in statek.pola:
-                if pole in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
+                if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
                     licznik += 1
         return self.ilosc_pol_statkow - licznik  # int
 
-    def podaj_procent_nietrafionych_pol(self):
+    def podaj_info_o_nietrafionych(self):
         """
-        Podaje stosunek nietrafionych pól statków do wszystkich pól zajętych przez statki w procentach. Zwraca string w formacie 00.0%
+        Podaje informację o nietrafionych polach w postaci 2 stringów: ilości nietrafionych pól planszy oraz stosunku nietrafionych pól statków do wszystkich pól zajętych przez statki w procentach.
         """
         nietrafione = D(self.podaj_ilosc_nietrafionych_pol())
         wszystkie = D(self.ilosc_pol_statkow)
         procent = round(nietrafione * 100 / wszystkie, 1)
-        return str(procent) + "%"
+        return (str(nietrafione), str(procent) + "%")
 
 
 class Pole:
     """
-    Abstrakcyjna reprezentacja pola planszy.
-    Posiada 6 podstawowych stanów pola oznaczonych znacznikami. Z czego tylko pierwsze 3 biorą udział przy tworzeniu planszy, a pozostałe 3 pojawiają się tylko jako efekt działań graczy via GUI.
+    Reprezentacja pola planszy. Posiada 6 podstawowych stanów pola oznaczonych znacznikami. Z czego tylko pierwsze 3 są używane przy inicjalizacji planszy, a pozostałe 3 pojawiają się tylko jako efekt działań graczy.
     """
     ZNACZNIKI = {
         "puste": "0",
@@ -439,21 +371,22 @@ class Pole:
         """Podaje współrzędne pola."""
         return (self.kolumna, self.rzad)
 
-    def w_nawiasach(self):
-        """Zwraca informację o polu w formacie: (litera kolumny+cyfra rzędu) np. (B9)"""
+    def str_w_nawiasach(self):
+        """Zwraca informację o polu w formacie __str__ tylko dodaje nawiasy, np. (B9)"""
         return "(" + str(self) + ")"
 
 
 class Salwa:
     """
-    Abstrakcyjna reprezentacja salwy oddawanej przez statek w postaci kolekcji pól planszy, w którą strzela statek (UWAGA - nie są to pola planszy statku, który strzela!)
+    Kolekcja pól planszy, w które strzela napastnik (UWAGA - nie są to pola planszy napastnika) wraz ze źródłem (jego położeniem).
     """
 
-    def __init__(self, pola, niewypaly):
+    def __init__(self, zrodlo, pola, niewypaly=None):
+        self.zrodlo = zrodlo
         self.pola = pola
         self.trafienia = [True if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]) else False for pole in self.pola]
         self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI["pudło"] else False for pole in self.pola]
-        self.niewypaly = niewypaly  # strzały poza planszę
+        self.niewypaly = niewypaly if niewypaly is not None else []  # strzały poza planszę
 
     def __str__(self):
         """Zwraca reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6)."""
@@ -471,8 +404,7 @@ class Salwa:
 
 class Statek:
     """
-    Abstrakcyjna reprezentacja statku (kolekcji pól planszy o określonych parametrach).
-    Inicjalizowane są tylko obiekty klas potomnych.
+    Reprezentacja statku. Inicjalizowane są tylko obiekty klas potomnych.
     """
 
     RANGI = ["kuter", "patrolowiec", "korweta", "fregata", "niszczyciel", "krążownik", "pancernik"]
@@ -508,6 +440,25 @@ class Statek:
         "pancernik": range(17, 20)
     }
     ORDER = "★"
+
+    @staticmethod
+    def fabryka(id_planszy, pola_statku):
+        """Tworzy statki odpowiedniego typu."""
+        rozmiar = len(pola_statku)
+        if rozmiar == 1:
+            return Kuter(id_planszy, pola_statku)
+        elif rozmiar in range(2, 4):
+            return Patrolowiec(id_planszy, pola_statku)
+        elif rozmiar in range(4, 7):
+            return Korweta(id_planszy, pola_statku)
+        elif rozmiar in range(7, 10):
+            return Fregata(id_planszy, pola_statku)
+        elif rozmiar in range(10, 13):
+            return Niszczyciel(id_planszy, pola_statku)
+        elif rozmiar in range(13, 17):
+            return Krazownik(id_planszy, pola_statku)
+        elif rozmiar in range(17, 21):
+            return Pancernik(id_planszy, pola_statku)
 
     def __init__(self, id_planszy, pola):
         self.id_planszy = id_planszy

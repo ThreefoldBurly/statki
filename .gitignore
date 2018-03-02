@@ -3,6 +3,8 @@
 *.sublime-workspace
 
 # Python compiled files
+**/__pycache__
 *.pyc
 
-temp*.py
+# temporary code
+testy/temp*.py

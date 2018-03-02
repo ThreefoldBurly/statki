@@ -1,0 +1,8 @@
+"""
+
+    statki
+    ~~~~~~
+
+    Pakiet bazowy.
+
+"""

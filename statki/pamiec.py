@@ -1,7 +1,10 @@
-#!/usr/bin/env python3
-
 """
-Zapis i odczyt danych z pamięci zewnętrznej.
+
+    statki.pamiec
+    ~~~~~~~~~~~~~
+
+    Zapis i odczyt danych z pamięci zewnętrznej.
+
 """
 
 import codecs
@@ -24,18 +27,20 @@ class Parser:
             return lista_nazw
 
         linie = []
+        sciezka = "dane/nazwy.txt"
         try:
-            with codecs.open('dane/nazwy.txt', encoding='utf-8') as plik:
+            with codecs.open(sciezka, encoding='utf-8') as plik:
                 for linia in plik:
                     linie.append(linia)
         except FileNotFoundError:
-            print("Nieudane parsowanie nazw statków. Brak pliku 'dane/nazwy.txt'")
+            print("Nieudane parsowanie nazw statków. Brak pliku {}".format(sciezka))
             raise
 
         for ranga in rangi:
             lista_nazw = parsuj_wg_rangi(linie, ranga)
             print("\nRanga: {}. Dodano nazw: [{}]".format(ranga, len(lista_nazw)))  # test
             nazwy[ranga] = lista_nazw
+        print()  # test
 
         def czy_nazwy_OK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
             czy_OK = True

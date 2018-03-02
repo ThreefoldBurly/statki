@@ -1,12 +1,13 @@
-#!/usr/bin/env python3
-
-"""
-Komunikaty tekstowe w grze.
 """
 
-import tkinter as tk
+    statki.komunikaty
+    ~~~~~~~~~~~~~~~~~
 
-from plansza import Pole, Statek
+    Komunikaty tekstowe w grze.
+
+"""
+
+from statki.plansza import Statek
 
 
 class Komunikator:
@@ -30,15 +31,9 @@ class Komunikator:
         "fregata": "fregatę"
     }
     GWIAZDKA = "✱"
-    KOLORY = {
-        "szare": "dim gray"
-    }
 
-    def __init__(self, tekst, czcionki, kolory_pola):
-        self.tekst = tekst
-        self.CZCIONKI = czcionki
-        self.KOLORY.update(kolory_pola)
-        self.ustaw_tagi()
+    def __init__(self, pole_tekstowe):
+        self.tekst = pole_tekstowe
 
     @staticmethod
     def do_indeksu(liczba):
@@ -53,13 +48,6 @@ class Komunikator:
             return 1
         else:
             return 2
-
-    def ustaw_tagi(self):
-        """Ustawia tagi pola tekstowego zapewniające odpowiednie formatowanie komunikatów."""
-        self.tekst.tag_configure("wyszarzone", foreground=self.KOLORY["szare"])
-        self.tekst.tag_configure("wyśrodkowane", justify=tk.CENTER)
-        self.tekst.tag_configure("pogrubione", font=self.CZCIONKI["mała-pogrubiona"])
-        self.tekst.tag_configure("trafione", background=self.KOLORY["trafione"])
 
     def o_rozpoczeciu_gry(self, plansza_gracza):
         """Wyświetla komunikat o rozpoczęciu gry."""
@@ -114,9 +102,9 @@ class Komunikator:
         self.tekst.ro_insert("end", komunikat)
         for i in range(len(salwa.pola)):
             if salwa.trafienia[i]:
-                self.tekst.ro_insert("end", salwa.pola[i].w_nawiasach(), ("pogrubione", "trafione"))
+                self.tekst.ro_insert("end", salwa.pola[i].str_w_nawiasach(), ("pogrubione", "trafione"))
             else:
-                self.tekst.ro_insert("end", salwa.pola[i].w_nawiasach(), "pogrubione")
+                self.tekst.ro_insert("end", salwa.pola[i].str_w_nawiasach(), "pogrubione")
             if i == 0:
                 if len(salwa.pola) == 2:
                     self.tekst.ro_insert("end", " i ")
