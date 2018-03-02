@@ -40,6 +40,7 @@ class Parser:
             lista_nazw = parsuj_wg_rangi(linie, ranga)
             print("\nRanga: {}. Dodano nazw: [{}]".format(ranga, len(lista_nazw)))  # test
             nazwy[ranga] = lista_nazw
+        print()  # test
 
         def czy_nazwy_OK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
             czy_OK = True

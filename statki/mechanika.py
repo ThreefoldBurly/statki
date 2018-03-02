@@ -8,11 +8,14 @@
 """
 
 from copy import deepcopy
+from random import choice
+
+from statki.plansza import Pole
 
 
 class Gra:
     """
-    Abstrakcyjna reprezentacja przebiegu gry na danej planszy. Zapisuje kolejne tury.
+    Reprezentacja przebiegu gry na danej planszy. Zapisuje kolejne tury.
     """
 
     def __init__(self, plansza):
@@ -42,7 +45,7 @@ class Gra:
 
 class Tura:
     """
-    Abstrakcyjna reprezentacja tury. Zapisuje kolejne rundy i śledzi statki zdolne do ataku w kolejnych rundach. Startuje z listą niezatopionych statków.
+    Reprezentacja przebiegu tury. Zapisuje kolejne rundy i śledzi statki zdolne do ataku w kolejnych rundach. Startuje z listą niezatopionych statków.
     """
 
     def __init__(self, plansza):
@@ -67,11 +70,11 @@ class Tura:
 
 class Runda:
     """
-    Abstrakcyjna reprezentacja rundy. Śledzi atakujący statek i zapisuje salwy, które oddał oraz salwy otrzymane od przeciwnika. Startuje z pierwszym statkiem z listy tury.
+    Reprezentacja przebiegu rundy. Śledzi aktualnego napastnika i zapisuje salwy, które oddał oraz salwy otrzymane od przeciwnika. Startuje z pierwszym statkiem z listy napastników tury.
     """
 
     def __init__(self, statek):
-        self.napastnik = statek  # wartość zmieniana przez użytkownika via GUI
+        self.napastnik = statek
         self.sila_ognia = self.napastnik.sila_ognia[:]
         self.salwy_oddane = []
         self.salwy_otrzymane = []  # lista salw przeciwnika otrzymywana i zapisywana na początku rundy
@@ -92,15 +95,15 @@ class Runda:
 
 class AI(Gra):
     """
-    Abstrakcyjna reprezentacja przebiegu gry na danej planszy w wykonaniu komputera.
+    Reprezentacja przebiegu gry na danej planszy w wykonaniu komputera.
 
     Zremby algorytmu oparte na artykule dotyczącym zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
 
     Szkielet działania:
     ~~~~~~~~~~~~~~~~~~~
     1. Wybór napastnika.
-    2. Wybór salwy.
-    3. Wybór ofiary - polowanie lub celowanie.
+    2. Aktualizacja wielkości salwy.
+    3. Wybór położenia i orientacji salwy (polowanie lub celowanie).
     4. Oddanie salwy.
     Punkty 2-4 powtarzane są tak długo jak długo są salwy do oddania.
 
@@ -112,41 +115,56 @@ class AI(Gra):
 
     def mysl(self):
         """
-        Myśli, jakie salwy wykonać w tej rundzie.
+        Wybiera strategię ataku.
         """
-        pass
+        if Pole.ZNACZNIKI["trafione"] in self.plansza.pola:
+            self.celuj()
+        else:
+            self.poluj()
 
     def poluj(self):
         """
-        Poluje na ofiarę - czyli wybiera i zwraca najlepsze możliwe miejsce na oddanie salwy, gdy nie ma żadnej trafionej ofiary.
+        Atakuje, nie wiedząc, gdzie jest ofiara.
         """
-        pass
+        odwiedzone = [Pole.ZNACZNIKI["pudło"], Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]]
+        wolne_pola = [pole for pole in self.plansza.pola if pole.znacznik not in odwiedzone]
+
+        while True:
+            wybor = choice(wolne_pola)
+            # TODO
 
     def celuj(self):
         """
-        Wybiera i zwraca najlepsze możliwe miejsce na oddanie salwy, gdy jest jakaś trafiona ofiara.
+        Atakuje, wiedząc, gdzie jest ofiara.
         """
         pass
 
+    def podaj_orientacje(self, pole):
+        """Podaje możliwe orientacje salwy dla danego pola."""
+        orientacje = []
+        # TODO
+        return orientacje
+
     def wybierz_napastnika(self):
         """
-        Wybiera atakujący statek. Wybierany jest statek posiadający największą siłę ognia w danej rundzie.
+        Wybiera napastnika. Wybierany jest statek posiadający największą siłę ognia w danej rundzie.
         """
         napastnik = sorted(self.tura.napastnicy, key=lambda s: sum(s.sila_ognia), reverse=True)[0]
         self.tura.runda.ustaw_napastnika(napastnik)
 
     def zrob_ruch(self):
         """
-        Wykonuje ruch dla przeciwnika. Wymyśla salwy i dodaje rundę/turę.
+        Wykonuje ruch dla przeciwnika. Wybiera napastnika, wymyśla i oddaje salwy, dodaje kolejną rundę/turę.
         """
-        pass
+        self.wybierz_napastnika()
+        while len(self.tura.runda.sila_ognia) > 0:
+            self.mysl()
+        self.dodaj_ture() if len(self.tura.napastnicy) == 1 else self.tura.dodaj_runde()
 
-# TODO
 
-
-class GraSieciowa(Gra):
+class GraSieciowa(Gra):  # TODO
     """
-    Abstrakcyjna reprezentacja przebiegu gry na danej planszy w wykonaniu drugiego gracza połączonego przez sieć.
+    Reprezentacja przebiegu gry na danej planszy w wykonaniu drugiego gracza połączonego przez sieć.
     """
 
     def __init__(self, plansza_wlasna, plansza_gracza):

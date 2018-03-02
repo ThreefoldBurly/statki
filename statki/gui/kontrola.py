@@ -868,6 +868,7 @@ class KontrolaGry(Sekcja):
         self.pg.kasuj_wybor_statku(zgrany_statek)
         self.pg.zmien_stan_statku(zgrany_statek, "disabled")
         self.kf.drzewo_g.wyszarz_statek(zgrany_statek)
+        self.pp.gra.tura.runda.salwy_otrzymane = self.pg.gra.tura.runda.salwy_oddane
         self.pg.gra.tura.dodaj_runde() if not self.nowa_tura else self.pg.gra.dodaj_ture()
         self.odblokuj_widzety()
         self.pg.wybierz_statek(self.pg.gra.tura.runda.napastnik)

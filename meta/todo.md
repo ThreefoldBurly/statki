@@ -143,14 +143,14 @@ Zremby algorytmu oparte na artykule dotyczącym zwyczajnych Statków (w wersji a
 Szkielet działania:
 ~~~~~~~~~~~~~~~~~~~
 1. Wybór napastnika.
-2. Wybór salwy.
-3. Wybór ofiary - polowanie lub celowanie.
+2. Aktualizacja wielkości salwy.
+3. Wybór położenia i orientacji salwy (polowanie lub celowanie).
 4. Oddanie salwy.
 Punkty 2-4 powtarzane są tak długo jak długo są salwy do oddania.
 
 Ad 1. Wybór napastnika - statek z o największej sile ognia w danej rundzie.
-Ad 2. Wybór salwy - najwięsza dostępna salwa.
-Ad 3. Wybór ofiary:
+Ad 2. Aktualizacja wielkości salwy.
+Ad 3. Wybór salwy:
     * Polowanie.
         Algorytm powinien brać pod uwagę:
         1. wybrane na początku gry ustawienia dotyczące umieszczania statków na planszy (parametry rozkładu Gaussa losowania rozmiaru statku)

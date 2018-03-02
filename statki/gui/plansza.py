@@ -469,16 +469,17 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         niewypaly = []
         # współrzędne sortowane od pola najbardziej na NW do pola najbardziej na SE
         for kolumna, rzad in sorted(wspolrzedne, key=lambda w: w[0] + w[1]):
-            if self.gra.plansza.czy_pole_w_planszy(kolumna, rzad):
+            if self.gra.plansza.czy_w_planszy(kolumna, rzad):
                 self.odkryj_pole(kolumna, rzad)
                 pola_salwy.append(self.gra.plansza.podaj_pole(kolumna, rzad))
             else:
                 niewypaly.append((kolumna, rzad))
-        self.pg.gra.tura.runda.dodaj_salwe_oddana(Salwa(pola_salwy, niewypaly))
+        napastnik = self.pg.gra.tura.runda.napastnik
+        self.pg.gra.tura.runda.dodaj_salwe_oddana(Salwa(napastnik.polozenie, pola_salwy, niewypaly))
         self.ka.ustaw_combo_salwy()
 
     def blokuj_zmiane_statku(self):
-        """Blokuje możliwość zmiany statku na planszy gracza po oddaniu pierwszej salwy w widżetach."""
+        """Blokuje w widżetach możliwość zmiany statku po oddaniu pierwszej salwy."""
         self.pg.gra.tura.runda.mozna_zmienic_statek = False
         self.pg.wylacz_zablokowane_statki()
         self.ka.combo_statku.state(["disabled"])
@@ -616,7 +617,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         Zmienia stan (włącza na wejściu/wyłącza na wyjściu) celownika (pól, w które oddawana jest salwa po naciśnięciu lewego klawisza myszy) wg podanych współrzędnych.
         """
         for kolumna, rzad in wspolrzedne:
-            if self.gra.plansza.czy_pole_w_planszy(kolumna, rzad):
+            if self.gra.plansza.czy_w_planszy(kolumna, rzad):
                 pole_gui = self.podaj_pole_gui(kolumna, rzad)
                 pole_gui.state([stan])
 
@@ -631,7 +632,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         wspolrzedne = sorted(wspolrzedne, key=lambda w: w[0] + w[1])
         for i in range(len(wspolrzedne)):
             kolumna, rzad = wspolrzedne[i]
-            if self.gra.plansza.czy_pole_w_planszy(kolumna, rzad):
+            if self.gra.plansza.czy_w_planszy(kolumna, rzad):
                 if i == 0:
                     ustaw_pozycje(stan, self.ka.pozycje_salwy.pierwsza)
                 elif i == 1:

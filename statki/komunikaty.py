@@ -102,9 +102,9 @@ class Komunikator:
         self.tekst.ro_insert("end", komunikat)
         for i in range(len(salwa.pola)):
             if salwa.trafienia[i]:
-                self.tekst.ro_insert("end", salwa.pola[i].w_nawiasach(), ("pogrubione", "trafione"))
+                self.tekst.ro_insert("end", salwa.pola[i].str_w_nawiasach(), ("pogrubione", "trafione"))
             else:
-                self.tekst.ro_insert("end", salwa.pola[i].w_nawiasach(), "pogrubione")
+                self.tekst.ro_insert("end", salwa.pola[i].str_w_nawiasach(), "pogrubione")
             if i == 0:
                 if len(salwa.pola) == 2:
                     self.tekst.ro_insert("end", " i ")
