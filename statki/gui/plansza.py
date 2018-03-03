@@ -327,10 +327,10 @@ class PlanszaGracza(PlanszaGUI):
         """Odkrywa wszystkie pola planszy."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
-                statek = self.gra.plansza.podaj_statek(pole_gui.pole)
                 if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
                     pole_gui.configure(style=PoleGUI.STYLE["woda"])
                 else:
+                    statek = self.gra.plansza.podaj_statek(pole_gui.pole)
                     pole_gui.configure(text=statek.SYMBOLE[statek.RANGA_BAZOWA])
 
     def wylacz_zablokowane_statki(self):
@@ -418,37 +418,37 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         if self.pg.gra.tura.runda.mozna_atakowac:
             ilosc_zatopionych = len(self.gra.plansza.zatopione)
             # 1 pole
-            if self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[0]:
+            if self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[0]:
                 self.oddaj_salwe((kolumna, rzad))
             # 2 pola (w prawo)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[1]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[1]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna + 1, rzad))
             # 2 pola (w dół)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[2]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[2]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1))
             # 2 pola (w lewo)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[3]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[3]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad))
             # 2 pola (w górę)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[4]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[4]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1))
             # 3 pola poziomo
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[5]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[5]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
             # 3 pola pionowo
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[6]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[6]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
             # 3 pola L
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[7]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[7]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
             # 3 pola Г
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[8]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[8]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
             # 3 pola Ꞁ
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[9]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[9]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
             # 3 pola ⅃
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[10]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[10]:
                 self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 
             oddana_salwa = self.pg.gra.tura.runda.salwy_oddane[-1]
@@ -518,46 +518,46 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         if self.pg.gra.tura.runda.mozna_atakowac:
             kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
             # 1 pole
-            if self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[0]:
+            if self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[0]:
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad))
             # 2 pola (w prawo)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[1]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[1]:
                 self.zmien_celownik("active", (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna + 1, rzad))
             # 2 pola (w dół)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[2]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[2]:
                 self.zmien_celownik("active", (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1))
             # 2 pola (w lewo)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[3]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[3]:
                 self.zmien_celownik("active", (kolumna - 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad))
             # 2 pola (w górę)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[4]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[4]:
                 self.zmien_celownik("active", (kolumna, rzad - 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1))
             # 3 pola poziomo
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[5]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[5]:
                 self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
             # 3 pola pionowo
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[6]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[6]:
                 self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
             # 3 pola L
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[7]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[7]:
                 self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
             # 3 pola Г
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[8]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[8]:
                 self.zmien_celownik("active", (kolumna, rzad + 1), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
             # 3 pola Ꞁ
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[9]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[9]:
                 self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
             # 3 pola ⅃
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[10]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[10]:
                 self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad - 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 
@@ -569,46 +569,46 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         if self.pg.gra.tura.runda.mozna_atakowac:
             kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
             # 1 pole
-            if self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[0]:
+            if self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[0]:
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad))
             # 2 pola (w prawo)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[1]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[1]:
                 self.zmien_celownik("!active", (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna + 1, rzad))
             # 2 pola (w dół)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[2]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[2]:
                 self.zmien_celownik("!active", (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1))
             # 2 pola (w lewo)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[3]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[3]:
                 self.zmien_celownik("!active", (kolumna - 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad))
             # 2 pola (w górę)
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[4]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[4]:
                 self.zmien_celownik("!active", (kolumna, rzad - 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1))
             # 3 pola poziomo
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[5]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[5]:
                 self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
             # 3 pola pionowo
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[6]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[6]:
                 self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
             # 3 pola L
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[7]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[7]:
                 self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
             # 3 pola Г
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[8]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[8]:
                 self.zmien_celownik("!active", (kolumna, rzad + 1), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
             # 3 pola Ꞁ
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[9]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[9]:
                 self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
             # 3 pola ⅃
-            elif self.ka.combo_orientacji.get() == self.ka.ORIENTACJE[10]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[10]:
                 self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad - 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 

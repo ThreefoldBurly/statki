@@ -141,18 +141,15 @@ Jeśli za każdym razem zostanie zapewnione, że nie ma blokady zmiany statku w 
 Zremby algorytmu oparte na artykule dotyczącym zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
 
 Szkielet działania:
-~~~~~~~~~~~~~~~~~~~
 1. Wybór napastnika.
-2. Aktualizacja wielkości salwy.
-3. Wybór położenia i orientacji salwy (polowanie lub celowanie).
-4. Oddanie salwy.
+2. Wybór położenia i orientacji salwy (polowanie lub celowanie).
+3. Oddanie salwy.
 Punkty 2-4 powtarzane są tak długo jak długo są salwy do oddania.
 
 Ad 1. Wybór napastnika - statek z o największej sile ognia w danej rundzie.
-Ad 2. Aktualizacja wielkości salwy.
-Ad 3. Wybór salwy:
-    * Polowanie.
-        Algorytm powinien brać pod uwagę:
+Ad 2. Wybór salwy - polowanie lub celowanie:
+        <del>Algorytm powinien brać pod uwagę:
         1. wybrane na początku gry ustawienia dotyczące umieszczania statków na planszy (parametry rozkładu Gaussa losowania rozmiaru statku)
         2. algorytm umieszczania statków (brak stykania się)
-        Na podstawie 1) powinna odbyć się symulacja najbardziej prawdopodobnych wybranych rozmiarów i ilości statków przeciwnika.
+        Na podstawie 1) powinna odbyć się symulacja najbardziej prawdopodobnych wybranych rozmiarów i ilości statków przeciwnika.</del>
+        Wystarczy przeprowadzić symulację umieszczania statków na planszy wg wybranych wcześniej w grze parametrów i zapisać ilość wystąpień pola statku w danej lokalizacji planszy. Mając taką mapę aproksymującą statystyczne występowanie statków na planszy będzie można zarówno wybrać za każdym razem najlepszy cel polowania jak i przy celowaniu ocenić wszystkie możliwe do oddania salwy.

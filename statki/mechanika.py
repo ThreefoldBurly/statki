@@ -10,7 +10,7 @@
 from copy import deepcopy
 from random import choice
 
-from statki.plansza import Pole
+from statki.plansza import Plansza, Pole, Salwa
 
 
 class Gra:
@@ -97,17 +97,33 @@ class AI(Gra):
     """
     Reprezentacja przebiegu gry na danej planszy w wykonaniu komputera.
 
-    Zremby algorytmu oparte na artykule dotyczącym zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
-
     Szkielet działania:
     ~~~~~~~~~~~~~~~~~~~
     1. Wybór napastnika.
-    2. Aktualizacja wielkości salwy.
-    3. Wybór położenia i orientacji salwy (polowanie lub celowanie).
-    4. Oddanie salwy.
+    2. Wybór celu i orientacji salwy (polowanie lub celowanie).
+    3. Oddanie salwy.
     Punkty 2-4 powtarzane są tak długo jak długo są salwy do oddania.
 
+    To AI dokonuje prostych, losowych wyborów. Bardziej zaawansowana implementacja w klasach potomnych.
     """
+
+    # KIERUNKI = ["E", "S", "W", "N", "NE", "SE", "SW", "NW"]
+    # ORIENTACJE = ["•", "•• prawo", "╏ dół", "•• lewo", "╏ góra", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
+
+    ORIENTACJE_SALWY = {
+        Salwa.ORIENTACJE[0]: [],
+        Salwa.ORIENTACJE[1]: [Plansza.KIERUNKI[0]],
+        Salwa.ORIENTACJE[2]: [Plansza.KIERUNKI[1]],
+        Salwa.ORIENTACJE[3]: [Plansza.KIERUNKI[2]],
+        Salwa.ORIENTACJE[4]: [Plansza.KIERUNKI[3]],
+        Salwa.ORIENTACJE[5]: [Plansza.KIERUNKI[0], Plansza.KIERUNKI[2]],
+        Salwa.ORIENTACJE[6]: [Plansza.KIERUNKI[1], Plansza.KIERUNKI[3]],
+        Salwa.ORIENTACJE[7]: [Plansza.KIERUNKI[0], Plansza.KIERUNKI[3]],
+        Salwa.ORIENTACJE[8]: [Plansza.KIERUNKI[0], Plansza.KIERUNKI[1]],
+        Salwa.ORIENTACJE[9]: [Plansza.KIERUNKI[1], Plansza.KIERUNKI[2]],
+        Salwa.ORIENTACJE[10]: [Plansza.KIERUNKI[2], Plansza.KIERUNKI[3]]
+    }
+    ODWIEDZONE = [Pole.ZNACZNIKI["pudło"], Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]]
 
     def __init__(self, plansza_wlasna, plansza_gracza):
         super().__init__(plansza_wlasna)
@@ -126,12 +142,11 @@ class AI(Gra):
         """
         Atakuje, nie wiedząc, gdzie jest ofiara.
         """
-        odwiedzone = [Pole.ZNACZNIKI["pudło"], Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]]
-        wolne_pola = [pole for pole in self.plansza.pola if pole.znacznik not in odwiedzone]
+        wolne_pola = [pole for pole in self.plansza.pola if pole.znacznik not in self.ODWIEDZONE]
 
-        while True:
-            wybor = choice(wolne_pola)
-            # TODO
+        cel = choice(wolne_pola)
+        orientacja_salwy = self.wybierz_orientacje(cel)
+        self.tura.runda.dodaj_salwe_oddana(Salwa(orientacja_salwy))
 
     def celuj(self):
         """
@@ -139,11 +154,31 @@ class AI(Gra):
         """
         pass
 
-    def podaj_orientacje(self, pole):
-        """Podaje możliwe orientacje salwy dla danego pola."""
-        orientacje = []
-        # TODO
-        return orientacje
+    def wybierz_orientacje(self, cel):
+        """
+        Wybiera najlepszą orientację salwy dla wskazanego celu. Przy ocenie bierze pod uwagę tylko ilość rażonych pól.
+        """
+        orientacje_salwy = []
+        wielkosc_salwy = self.tura.runda.napastnik.sila_ognia[0]
+        if wielkosc_salwy == 1:
+            orientacje_salwy.append([cel])
+        elif wielkosc_salwy == 2:
+            for orientacja in Salwa.ORIENTACJE[1:5]:
+                orientacje_salwy.append(self.podaj_pola_salwy(cel, self.ORIENTACJE_SALWY[orientacja]))
+        elif wielkosc_salwy == 3:
+            for orientacja in Salwa.ORIENTACJE[5:]:
+                orientacje_salwy.append(self.podaj_pola_salwy(cel, self.ORIENTACJE_SALWY[orientacja]))
+
+        return sorted(orientacje_salwy, key=lambda o: len([pole for pole in o if pole.znacznik not in self.ODWIEDZONE]), reverse=True)[0]
+
+    def podaj_pola_salwy(self, cel, kierunki):
+        """Podaje pola salwy wg podanego celu."""
+        pola_salwy = [cel]
+        for kierunek in kierunki:
+            sasiad = self.druga_plansza.podaj_sasiednie_pole(cel, kierunek)
+            if sasiad is not None:
+                pola_salwy.append(sasiad)
+        return pola_salwy
 
     def wybierz_napastnika(self):
         """
@@ -161,6 +196,24 @@ class AI(Gra):
             self.mysl()
         self.dodaj_ture() if len(self.tura.napastnicy) == 1 else self.tura.dodaj_runde()
 
+
+class MocneAI(AI):
+    """
+    AI wykorzystujące do polowania i celowania symulację statystycznego występowania statków na planszy.
+
+    Inspiracja algorytmu pochodzi z tego artykułu dotyczącego zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
+    """
+
+    def __init__(self, plansza_wlasna, plansza_gracza):
+        super().__init__(plansza_wlasna)
+        self.druga_plansza = deepcopy(plansza_gracza)
+
+    def wybierz_orientacje(self, cel):
+        """
+        Wybiera najlepszą orientację salwy dla wskazanego celu. Przy ocenie bierze pod uwagę tylko ilość rażonych pól.
+        """
+
+        pass  # TODO: przeładowanie metody rodzica
 
 class GraSieciowa(Gra):  # TODO
     """

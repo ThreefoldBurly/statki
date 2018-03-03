@@ -12,7 +12,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import math
 
-from statki.plansza import Statek
+from statki.plansza import Statek, Salwa
 from .sekcja import Sekcja
 from . import stale
 
@@ -21,8 +21,6 @@ class KontrolaAtaku(Sekcja):
     """
     Sekcja kontroli ataku znajdująca się w prawym górnym rogu głównego interfejsu gry. Dopuszcza powiększanie w poziomie.
     """
-
-    ORIENTACJE = ["•", "•• prawo", "╏ dół", "•• lewo", "╏ góra", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Atak", **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
@@ -210,15 +208,15 @@ class KontrolaAtaku(Sekcja):
         """
         salwa = int(salwa_tekst[0])
         if salwa == 1:
-            self.combo_orientacji["values"] = [self.ORIENTACJE[0]]
+            self.combo_orientacji["values"] = [Salwa.ORIENTACJE[0]]
             self.wylacz_pozycje_salwy("druga")
             self.wylacz_pozycje_salwy("trzecia")
         elif salwa == 2:
-            self.combo_orientacji["values"] = self.ORIENTACJE[1:5]
+            self.combo_orientacji["values"] = Salwa.ORIENTACJE[1:5]
             self.wlacz_pozycje_salwy("druga")
             self.wylacz_pozycje_salwy("trzecia")
         elif salwa == 3:
-            self.combo_orientacji["values"] = self.ORIENTACJE[5:]
+            self.combo_orientacji["values"] = Salwa.ORIENTACJE[5:]
             self.wlacz_pozycje_salwy("druga")
             self.wlacz_pozycje_salwy("trzecia")
 
