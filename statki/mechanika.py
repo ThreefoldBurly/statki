@@ -133,7 +133,8 @@ class AI(Gra):
         """
         Wybiera strategię ataku.
         """
-        if Pole.ZNACZNIKI["trafione"] in self.plansza.pola:
+        znaczniki = [pole.znacznik for rzad in self.druga_plansza.pola for pole in rzad]
+        if Pole.ZNACZNIKI["trafione"] in znaczniki:
             self.celuj()
         else:
             self.poluj()
@@ -142,11 +143,18 @@ class AI(Gra):
         """
         Atakuje, nie wiedząc, gdzie jest ofiara.
         """
-        wolne_pola = [pole for pole in self.plansza.pola if pole.znacznik not in self.ODWIEDZONE]
-
+        wielkosc_salwy = self.tura.runda.napastnik.sila_ognia[0]
+        pola = [pole for rzad in self.druga_plansza.pola for pole in rzad]
+        wolne_pola = [pole for pole in pola if pole.znacznik not in self.ODWIEDZONE]
         cel = choice(wolne_pola)
         orientacja_salwy = self.wybierz_orientacje(cel)
-        self.tura.runda.dodaj_salwe_oddana(Salwa(orientacja_salwy))
+        self.druga_plansza.odkryj_pola(orientacja_salwy)
+        self.druga_plansza.oznacz_zatopione()
+        self.tura.runda.dodaj_salwe_oddana(Salwa(
+            self.tura.runda.napastnik.polozenie,
+            orientacja_salwy,
+            [None for i in range(wielkosc_salwy - len(orientacja_salwy))]
+        ))
 
     def celuj(self):
         """
@@ -214,6 +222,7 @@ class MocneAI(AI):
         """
 
         pass  # TODO: przeładowanie metody rodzica
+
 
 class GraSieciowa(Gra):  # TODO
     """

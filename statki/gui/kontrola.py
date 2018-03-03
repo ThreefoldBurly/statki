@@ -293,10 +293,10 @@ class PozycjeSalwy(ttk.Frame):
         self.druga = tk.StringVar()
         self.trzecia = tk.StringVar()
         self.ustal_tlo_sytemowe()
-        self.ustaw_sie()
+        self.ustaw()
         self.buduj_etykiety()
 
-    def ustaw_sie(self):
+    def ustaw(self):
         """Ustawia interfejs pod widżety."""
         self.grid(row=4, column=0, columnspan=2, sticky="we", pady=(0, 10))
 
@@ -507,7 +507,7 @@ class DrzewoFloty(ttk.Treeview):
         self.wys_wiersza = 15
 
         self.ustaw_style()
-        self.ustaw_sie()
+        self.ustaw()
         self.wstaw_suwaki(rodzic)
         self.powiaz_escape()
 
@@ -524,7 +524,7 @@ class DrzewoFloty(ttk.Treeview):
             font=stale.CZCIONKI["mała"]
         )
 
-    def ustaw_sie(self):
+    def ustaw(self):
         """Konfiguruje to drzewo."""
         self.configure(
             style="KF.Treeview",

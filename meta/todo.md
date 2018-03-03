@@ -142,7 +142,7 @@ Zremby algorytmu oparte na artykule dotyczącym zwyczajnych Statków (w wersji a
 
 Szkielet działania:
 1. Wybór napastnika.
-2. Wybór położenia i orientacji salwy (polowanie lub celowanie).
+2. Wybór celu i orientacji salwy (polowanie lub celowanie).
 3. Oddanie salwy.
 Punkty 2-4 powtarzane są tak długo jak długo są salwy do oddania.
 

@@ -13,50 +13,22 @@ import codecs
 class Parser:
     """Parsuje nazwy statków z 'dane/nazwy.txt'."""
 
-    @staticmethod
-    def sparsuj_nazwy(rangi):
-        """Parsuje z pliku tekstowego 'dane/nazwy.txt' listę nazw dla każdej rangi statku (całość jako słownik)"""
-        nazwy = {}
+    SCIEZKA_NAZW = "dane/nazwy.txt"
 
-        def parsuj_wg_rangi(linie, ranga):  # funkcja pomocnicza dla bloku poniżej
-            lista_nazw = []
-            for linia in linie:
-                if ranga in linia:
-                    linia = linia.rstrip('\n')
-                    lista_nazw.append(linia.split(':::')[0])
-            return lista_nazw
-
-        linie = []
-        sciezka = "dane/nazwy.txt"
+    @classmethod
+    def podaj_nazwy_statkow(cls, nazwa_rangi):
+        """Podaje sparsowaną listę nazw statków dla danej rangi."""
+        nazwy = []
         try:
-            with codecs.open(sciezka, encoding='utf-8') as plik:
-                for linia in plik:
-                    linie.append(linia)
+            with codecs.open(cls.SCIEZKA_NAZW, encoding='utf-8') as plik:
+                for linia in [linia.rstrip("\n") for linia in plik if nazwa_rangi in linia]:
+                    nazwy.append(linia.split(':::')[0])
         except FileNotFoundError:
-            print("Nieudane parsowanie nazw statków. Brak pliku {}".format(sciezka))
+            print("Nieudane parsowanie nazw statków. Brak pliku '{}'".format(cls.SCIEZKA_NAZW))
             raise
 
-        for ranga in rangi:
-            lista_nazw = parsuj_wg_rangi(linie, ranga)
-            print("\nRanga: {}. Dodano nazw: [{}]".format(ranga, len(lista_nazw)))  # test
-            nazwy[ranga] = lista_nazw
-        print()  # test
+        assert len(nazwy) > 0, "Nieudane parsowanie nazw statków. Plik '{}' nie zawiera danych w prawidłowym formacie".format(cls.SCIEZKA_NAZW)
 
-        def czy_nazwy_OK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
-            czy_OK = True
-            for ranga in nazwy:
-                if len(nazwy[ranga]) == 0:
-                    czy_OK = False
-            return czy_OK
+        print("\nRanga: {}. Dodano nazw: [{}]".format(nazwa_rangi, len(nazwy)))  # test
 
-        assert czy_nazwy_OK(), "Nieudane parsowanie nazw statków. Plik 'dane/nazwy.txt' nie zawiera danych w prawidłowym formacie"
-
-        return nazwy
-
-    @staticmethod
-    def sklonuj_nazwy(nazwy_wg_rangi):
-        """Klonuje słownik nazw wg rangi, wykonując kopię każdej składowej listy."""
-        nazwy = {}
-        for klucz in nazwy_wg_rangi:
-            nazwy[klucz] = nazwy_wg_rangi[klucz][:]
         return nazwy

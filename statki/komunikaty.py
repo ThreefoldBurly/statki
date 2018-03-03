@@ -32,9 +32,6 @@ class Komunikator:
     }
     GWIAZDKA = "✱"
 
-    def __init__(self, pole_tekstowe):
-        self.tekst = pole_tekstowe
-
     @staticmethod
     def do_indeksu(liczba):
         """Zamienia liczbę na indeks wartości w słowniku liczby mnogiej."""
@@ -48,6 +45,9 @@ class Komunikator:
             return 1
         else:
             return 2
+
+    def __init__(self, pole_tekstowe):
+        self.tekst = pole_tekstowe
 
     def o_rozpoczeciu_gry(self, plansza_gracza):
         """Wyświetla komunikat o rozpoczęciu gry."""

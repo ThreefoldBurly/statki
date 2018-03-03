@@ -70,7 +70,7 @@ class Plansza:
 
         self.wypelnij_statkami()
         self.o_statkach()  # test
-        self.drukuj_sie()  # test
+        self.drukuj()  # test
         self.ilosc_pol_statkow = sum([statek.rozmiar for statek in self.statki])
         self.zatopione = []  # statki zatopione tej planszy
         self.niezatopione = self.statki[:]  # statki niezatopione tej planszy
@@ -81,11 +81,11 @@ class Plansza:
         for y in range(1, self.rzedy + 1):
             rzad = []
             for x in range(1, self.kolumny + 1):
-                rzad.append(Pole(x, y))
+                rzad.append(Pole(id(self), x, y))
             pola.append(rzad)
         return pola
 
-    def drukuj_sie(self):  # do testów
+    def drukuj(self):  # do testów
         """Drukuje planszę w standard output."""
         # numeracja kolumn
         print()
@@ -193,7 +193,7 @@ class Plansza:
 
             licznik_iteracji += 1
 
-        return Statek.fabryka(id(self), pola_statku)
+        return Statek.fabryka(pola_statku)
 
     def umiesc_obwiednie_statku(self, statek):
         """Umieszcza na planszy i w statku obwiednię wskazanego statku."""
@@ -293,6 +293,23 @@ class Plansza:
 
         self.statki.sort(key=lambda s: s.rozmiar, reverse=True)  # od największego do najmniejszego
 
+    def odkryj_pola(self, pola):
+        """Odkrywa wskazane pola."""
+        for pole in pola:
+            if pole.znacznik in [Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]]:
+                pole.znacznik = Pole.ZNACZNIKI["pudło"]
+            elif pole.znacznik == Pole.ZNACZNIKI["statek"]:
+                pole.znacznik = Pole.ZNACZNIKI["trafione"]
+
+    def oznacz_zatopione(self):
+        """Oznacza statki posiadające wszystkie pola trafione jako zatopione."""
+        for statek in self.niezatopione[:]:
+            if not statek.czy_zatopiony():
+                if all([True for pole in statek.pola if pole.znacznik == Pole.ZNACZNIKI["trafione"]]):
+                    statek.zatop()
+                    self.niezatopione.remove(statek)
+                    self.zatopione.append(statek)
+
     def o_statkach(self):  # do testów
         """Drukuje informację o umieszczonych statkach"""
         print()
@@ -339,18 +356,21 @@ class Plansza:
 
 class Pole:
     """
-    Reprezentacja pola planszy. Posiada 6 podstawowych stanów pola oznaczonych znacznikami. Z czego tylko pierwsze 3 są używane przy inicjalizacji planszy, a pozostałe 3 pojawiają się tylko jako efekt działań graczy.
+    Reprezentacja pola planszy. Posiada 6 podstawowych stanów pola oznaczonych znacznikami. Z czego tylko pierwsze 3 są używane przy inicjalizacji planszy (pola zakryte), a pozostałe 3 pojawiają się tylko jako efekt działań graczy (pola odkryte).
     """
     ZNACZNIKI = {
+        # zakryte
         "puste": "0",
         "obwiednia": ".",
         "statek": "&",
+        # odkryte
         "pudło": "x",
         "trafione": "T",
         "zatopione": "Z"
     }
 
-    def __init__(self, kolumna, rzad, znacznik=None):
+    def __init__(self, id_planszy, kolumna, rzad, znacznik=None):
+        self.id_planszy = id_planszy
         self.kolumna, self.rzad = kolumna, rzad
         self.znacznik = znacznik if znacznik is not None else self.ZNACZNIKI["puste"]  # zmienna stanu pola
 
@@ -360,7 +380,7 @@ class Pole:
 
     def __eq__(self, other):
         """
-        Przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes)
+        Przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes). Pola są równe jeśli: 1) należą do tej samej planszy, 2) ich współrzędne są równe i 3) ich znaczniki są równe.
         """
         if isinstance(self, other.__class__):
             return self.__dict__ == other.__dict__
@@ -389,11 +409,24 @@ class Salwa:
     ORIENTACJE = ["•", "•• prawo", "╏ dół", "•• lewo", "╏ góra", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
 
     def __init__(self, zrodlo, pola, niewypaly=None):
-        self.zrodlo = zrodlo
+        self.zrodlo = zrodlo  # polozenie statku który oddał salwę
         self.pola = pola
         self.trafienia = [True if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]) else False for pole in self.pola]
         self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI["pudło"] else False for pole in self.pola]
         self.niewypaly = niewypaly if niewypaly is not None else []  # strzały poza planszę
+
+    def __eq__(self, other):
+        """
+        Przeładowanie operatora '=='. Salwy są równe, jeśli wszystkie ich pola są równe.
+        """
+        if isinstance(self, other.__class__):
+            if len(self) == len(other):
+                for pole_tu, pole_tam in zip(self.pola, other.pola):
+                    if pole_tu != pole_tam:
+                        return False
+                return True
+            return False
+        return NotImplemented
 
     def __str__(self):
         """Zwraca reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6)."""
@@ -414,62 +447,29 @@ class Statek:
     Reprezentacja statku. Tworzone są tylko instancje klas potomnych.
     """
 
-    RANGI = ["kuter", "patrolowiec", "korweta", "fregata", "niszczyciel", "krążownik", "pancernik"]
-    NAZWY_WG_RANGI = Parser.sparsuj_nazwy(RANGI)  # słownik w formacie {ranga: [lista nazw]}
-    pula_nazw = Parser.sklonuj_nazwy(NAZWY_WG_RANGI)  # słownik zawierający listy (wg rang statków) aktualnie dostępnych nazw dla instancji klasy
-    # słownik aktualnie dostępnych liczebników rzymskich, do wykorzystania na wypadek wyczerpania listy dostępnych nazw (użycie tego kiedykolwiek jest mało prawdopodobne)
-    liczebniki = dict([[ranga, ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]] for ranga in RANGI])
-
-    SILY_OGNIA = {  # listy ilości pól, w które statek o określonej randze może strzelić w rundzie
-        "kuter": [1],
-        "patrolowiec": [2],
-        "korweta": [3],
-        "fregata": [2, 2],
-        "niszczyciel": [3, 2],
-        "krążownik": [3, 3],
-        "pancernik": [3, 2, 2]
-    }
-    SYMBOLE = {
-        "kuter": "T",
-        "patrolowiec": "L",
-        "korweta": "W",
-        "fregata": "F",
-        "niszczyciel": "N",
-        "krążownik": "K",
-        "pancernik": "P"
-    }
-    ZAKRESY = {
-        "kuter": range(1, 2),
-        "patrolowiec": range(2, 4),
-        "korweta": range(4, 7),
-        "fregata": range(7, 10),
-        "niszczyciel": range(10, 13),
-        "krążownik": range(13, 17),
-        "pancernik": range(17, 20)
-    }
+    RANGI = Ranga.podaj_liste_rang()
     ORDER = "★"
 
-    @staticmethod
-    def fabryka(id_planszy, pola_statku):
+    @classmethod
+    def fabryka(cls, pola_statku):
         """Tworzy statki odpowiedniego typu."""
         rozmiar = len(pola_statku)
-        if rozmiar == 1:
-            return Kuter(id_planszy, pola_statku)
-        elif rozmiar in range(2, 4):
-            return Patrolowiec(id_planszy, pola_statku)
-        elif rozmiar in range(4, 7):
-            return Korweta(id_planszy, pola_statku)
-        elif rozmiar in range(7, 10):
-            return Fregata(id_planszy, pola_statku)
-        elif rozmiar in range(10, 13):
-            return Niszczyciel(id_planszy, pola_statku)
-        elif rozmiar in range(13, 17):
-            return Krazownik(id_planszy, pola_statku)
-        elif rozmiar in range(17, 21):
-            return Pancernik(id_planszy, pola_statku)
+        if rozmiar in cls.RANGI[0].zakres:
+            return Kuter(pola_statku)
+        elif rozmiar in cls.RANGI[1].zakres:
+            return Patrolowiec(pola_statku)
+        elif rozmiar in cls.RANGI[2].zakres:
+            return Korweta(pola_statku)
+        elif rozmiar in cls.RANGI[3].zakres:
+            return Fregata(pola_statku)
+        elif rozmiar in cls.RANGI[4].zakres:
+            return Niszczyciel(pola_statku)
+        elif rozmiar in cls.RANGI[5].zakres:
+            return Krazownik(pola_statku)
+        elif rozmiar in cls.RANGI[6].zakres:
+            return Pancernik(pola_statku)
 
-    def __init__(self, id_planszy, pola):
-        self.id_planszy = id_planszy
+    def __init__(self, pola):
         self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # sortowanie od pola najbardziej na NW (self.polozenie) do pola najbardziej na SE
         self.polozenie = self.pola[0]
         self.obwiednia = []  # lista pól obwiedni wokół statku
@@ -478,20 +478,18 @@ class Statek:
 
     def __eq__(self, other):
         """
-        Przeładowanie operatora '=='. Statki są równe, jeśli: 1) są na tej samej planszy, 2) wszystkie ich pola są równe, 3) ich rangi bazowe są równe i 4) ich nazwy są równe.
+        Przeładowanie operatora '=='. Statki są równe, jeśli: 1) wszystkie ich pola są równe, 2) ich rangi bazowe są równe i 3) ich nazwy są równe.
         """
         if isinstance(self, other.__class__):
-            if self.id_planszy == other.id_planszy:
-                if self.rozmiar == other.rozmiar:
-                    for pole_tu, pole_tam in zip(self.pola, other.pola):
-                        if pole_tu != pole_tam:
-                            return False
-                    if self.RANGA_BAZOWA != other.RANGA_BAZOWA:
+            if self.rozmiar == other.rozmiar:
+                for pole_tu, pole_tam in zip(self.pola, other.pola):
+                    if pole_tu != pole_tam:
                         return False
-                    if self.nazwa != other.nazwa:
-                        return False
-                    return True
-                return False
+                if self.RANGA_BAZOWA != other.RANGA_BAZOWA:
+                    return False
+                if self.nazwa != other.nazwa:
+                    return False
+                return True
             return False
         return NotImplemented
 
@@ -519,37 +517,6 @@ class Statek:
 
         return info
 
-    @classmethod
-    def zresetuj_nazwy(cls, ranga):
-        """
-        Resetuje wyczerpaną listę nazw dostępnych dla instancji klasy, pobierając ze słownika NAZWY_WG_RANGI pełną listę nazw, dodając do każdej nazwy kolejny liczebnik rzymski i zwracając tak zmienioną listę.
-        Przy rozmiarach planszy dyktowanych przez GUI prawdopodobieństwo konieczności użycia tej metody jest nikłe.
-        """
-        assert len(cls.liczebniki[ranga]) > 0, "Wyczerpano liczbę możliwych nazw dla statków"
-        liczebnik = cls.liczebniki[ranga][0]
-
-        nowa_lista = []
-        for nazwa in cls.NAZWY_WG_RANGI[ranga]:
-            nowa_lista.append(" ".join([nazwa, liczebnik]))
-
-        cls.liczebniki[ranga].remove(liczebnik)
-        return nowa_lista
-
-    @classmethod
-    def losuj_nazwe(cls, ranga):
-        """
-        Losuje nazwę dla statku o określonej randze z dostępnej puli nazw. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z listy.
-        """
-        lista_nazw = Statek.pula_nazw[ranga]
-        if len(lista_nazw) > 0:
-            nazwa = choice(lista_nazw)
-        else:  # obsługa wyczerpania dostępnych nazw dla danej rangi
-            lista_nazw = Statek.pula_nazw[ranga] = cls.zresetuj_nazwy(ranga)
-            nazwa = choice(lista_nazw)
-
-        lista_nazw.remove(nazwa)
-        return nazwa
-
     def ile_otrzymanych_trafien(self):
         """Podaje ilość otrzymanych trafień."""
         licznik_trafien = 0
@@ -564,6 +531,11 @@ class Statek:
             return True
         else:
             return False
+
+    def zatop(self):
+        """Zatapia ten statek."""
+        for pole in self.pola:
+            pole.znacznik = Pole.ZNACZNIKI["zatopione"]
 
     def o_zatopieniu(self):
         """Zwraca komunikat o swoim zatopieniu."""
@@ -596,9 +568,9 @@ class Kuter(Statek):
 
     def __init__(self, id_planszy, pola):
         super().__init__(id_planszy, pola)
+        self.nazwa = self.RANGA_BAZOWA.losuj_nazwe_statku()
         self.ranga = self.RANGA_BAZOWA  # ranga rzeczywista - zależna od ilości trafień
-        self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # sila_ognia rzeczywista - zależna od aktualnej rangi rzeczywistej
+        self.sila_ognia = self.ranga.sila_ognia[:]  # sila_ognia rzeczywista - zależna od aktualnej rangi rzeczywistej
 
 
 class Patrolowiec(Statek):
@@ -608,9 +580,9 @@ class Patrolowiec(Statek):
 
     def __init__(self, id_planszy, pola):
         super().__init__(id_planszy, pola)
+        self.nazwa = self.RANGA_BAZOWA.losuj_nazwe_statku()
         self.ranga = self.RANGA_BAZOWA  # jw.
-        self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.ranga.sila_ognia[:]  # jw.
 
 
 class Korweta(Statek):
@@ -620,9 +592,9 @@ class Korweta(Statek):
 
     def __init__(self, id_planszy, pola):
         super().__init__(id_planszy, pola)
+        self.nazwa = self.RANGA_BAZOWA.losuj_nazwe_statku()
         self.ranga = self.RANGA_BAZOWA  # jw.
-        self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.ranga.sila_ognia[:]  # jw.
 
 
 class Fregata(Statek):
@@ -632,9 +604,9 @@ class Fregata(Statek):
 
     def __init__(self, id_planszy, pola):
         super().__init__(id_planszy, pola)
+        self.nazwa = self.RANGA_BAZOWA.losuj_nazwe_statku()
         self.ranga = self.RANGA_BAZOWA  # jw.
-        self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.ranga.sila_ognia[:]  # jw.
 
 
 class Niszczyciel(Statek):
@@ -644,9 +616,9 @@ class Niszczyciel(Statek):
 
     def __init__(self, id_planszy, pola):
         super().__init__(id_planszy, pola)
+        self.nazwa = self.RANGA_BAZOWA.losuj_nazwe_statku()
         self.ranga = self.RANGA_BAZOWA  # jw.
-        self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.ranga.sila_ognia[:]  # jw.
 
 
 class Krazownik(Statek):
@@ -656,9 +628,9 @@ class Krazownik(Statek):
 
     def __init__(self, id_planszy, pola):
         super().__init__(id_planszy, pola)
+        self.nazwa = self.RANGA_BAZOWA.losuj_nazwe_statku()
         self.ranga = self.RANGA_BAZOWA  # jw.
-        self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.ranga.sila_ognia[:]  # jw.
 
 
 class Pancernik(Statek):
@@ -668,6 +640,69 @@ class Pancernik(Statek):
 
     def __init__(self, id_planszy, pola):
         super().__init__(id_planszy, pola)
+        self.nazwa = self.RANGA_BAZOWA.losuj_nazwe_statku()
         self.ranga = self.RANGA_BAZOWA  # jw.
-        self.nazwa = self.losuj_nazwe(self.ranga)
-        self.sila_ognia = self.SILY_OGNIA[self.ranga][:]  # jw.
+        self.sila_ognia = self.ranga.sila_ognia[:]  # jw.
+
+
+class Ranga():
+    """
+    Reprezentacja rangi statku.
+    """
+
+    # TODO: wydzielenie tych parametrów poza kod - ładowanie z zewnętrznego pliku (JSON)
+    @staticmethod
+    def podaj_liste_rang():
+        rangi = []
+        rangi.append(Ranga("kuter", "T", range(1, 2), [1]))
+        rangi.append(Ranga("patrolowiec", "L", range(2, 4), [2]))
+        rangi.append(Ranga("korweta", "W", range(4, 7)), [3])
+        rangi.append(Ranga("fregata", "F", range(7, 10)), [2, 2])
+        rangi.append(Ranga("niszczyciel", "N", range(10, 13), [3, 2]))
+        rangi.append(Ranga("krążownik", "K", range(13, 17), [3, 3]))
+        rangi.append(Ranga("pancernik", "P", range(17, 21), [3, 2, 2]))
+        return rangi
+
+    def __init__(self, nazwa, symbol, zakres, sila_ognia):
+        self.nazwa = nazwa
+        self.symbol = symbol
+        self.zakres = zakres  # zakres rozmiarów statku
+        self.sila_ognia = sila_ognia
+        self.nazwy_statkow = Parser.podaj_nazwy_statkow(self.nazwa)
+        self.pula_nazw_statkow = self.nazwy_statkow[:]  # pula aktualnie dostępnych nazw statków dla tej rangi
+        self.liczebniki = ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]  # liczebniki rzymskie dodawane do nazw statków po wyczerpaniu puli (potrzebne bardziej do testów - przy założonych ograniczeniach rozmiarów planszy (i w efekcie możliwej ilości statków) konieczność użycia tej zmiennej jest zbliżona do zera)
+
+    def __eq__(self, other):
+        """
+        Przeładowanie operatora '=='. Rangi są równe, jeśli ich nazwy są równe.
+        """
+        if isinstance(self, other.__class__):
+            if self.nazwa == other.nazwa:
+                return True
+            return False
+        return NotImplemented
+
+    def __hash__(self):
+        """
+        Przeładowanie operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach)
+        """
+        return hash(tuple(sorted(self.__dict__.items())))
+
+    def resetuj_pule_nazw(self):
+        """
+        Resetuje wyczerpaną pulę nazw statków, dodając do każdej nazwy kolejny liczebnik rzymski. Przy rozmiarach planszy dyktowanych przez GUI prawdopodobieństwo konieczności użycia chociaż raz tej metody jest nikłe.
+        """
+        assert len(self.liczebniki) > 0, "Wyczerpano liczbę możliwych nazw dla statków ({})".format(len(self.nazwy_statkow * len(liczebniki)))
+
+        liczebnik = self.liczebniki.pop(0)
+        self.pula_nazw = [" ".join([nazwa, liczebnik]) for nazwa in self.nazwy_statkow]
+
+    def losuj_nazwe_statku(self):
+        """
+        Losuje nazwę dla statku z dostępnej puli nazw. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z puli.
+        """
+        if len(self.pula_nazw_statkow) < 1:
+            self.resetuj_pule_nazw()
+        nazwa = choice(self.pula_nazw_statkow)
+        self.pula_nazw_statkow.remove(nazwa)
+        return nazwa
