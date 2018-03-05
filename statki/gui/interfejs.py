@@ -42,11 +42,11 @@ class Interfejs(ttk.Frame):
         self.styl = ttk.Style()
         self.styl.configure(
             "Bold.TLabel",
-            font=stale.CZCIONKI["pogrubiona"]
+            font=stale.CZCIONKI.pogrubiona
         )
         self.styl.configure(
             "Mała.TLabel",
-            font=stale.CZCIONKI["mała"]
+            font=stale.CZCIONKI.mala
         )
 
     def buduj_plansze(self, gracz, przeciwnik):

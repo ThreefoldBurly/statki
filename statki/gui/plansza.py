@@ -9,6 +9,7 @@
 
 import tkinter as tk
 from tkinter import ttk
+from collections import namedtuple
 
 from statki.plansza import Plansza, Pole, Salwa
 from .sekcja import Sekcja
@@ -17,35 +18,41 @@ from .sekcja import Sekcja
 class PoleGUI(ttk.Button):
     """Graficzna reprezentacja pola planszy."""
 
-    GLIFY = {
-        "pudło": "•",
-        "trafione": "�"
-    }
-    KOLORY = {
-        "woda": "powder blue",
-        "woda-active": "light cyan",
-        "pudło": "DeepSkyBlue3",
-        "pudło-active": "deep sky blue",
-        "trafione": "light coral",
-        "trafione-active": "light pink",
-        "zatopione": "ivory4",
-        "zatopione-active": "ivory3",
-        "wybrane": "khaki2",
-        "wybrane-active": "lemon chiffon",
-        "wybrane&trafione": "OrangeRed2",
-        "wybrane&trafione-active": "chocolate1",
-        "atak-active": "DarkSeaGreen1"
-    }
-    STYLE = {
-        "woda": "Woda.TButton",
-        "pudło": "Pudło.TButton",
-        "trafione": "Trafione.TButton",
-        "zatopione": "Zatopione.TButton",
-        "wybrane": "Wybrane.TButton",
-        "wybrane&trafione": "Wybrane&Trafione.TButton",
-        "atak": "Atak.TButton",
-        "bazowe": "TButton"
-    }
+    Glify = namedtuple("Glify", "pudlo trafiony")
+    GLIFY = Glify(pudlo="•", trafiony="�")
+
+    Kolory = namedtuple("Kolory", [
+        "woda", "woda_active", "pudlo", "pudlo_active", "trafiony", "trafiony_active", "zatopiony",
+        "zatopiony_active", "wybrany", "wybrany_active", "wybrany_trafiony", "wybrany_trafiony_active",
+        "atak_active"
+    ])
+    KOLORY = Kolory(
+        woda="powder blue",
+        woda_active="light cyan",
+        pudlo="DeepSkyBlue3",
+        pudlo_active="deep sky blue",
+        trafiony="light coral",
+        trafiony_active="light pink",
+        zatopiony="ivory4",
+        zatopiony_active="ivory3",
+        wybrany="khaki2",
+        wybrany_active="lemon chiffon",
+        wybrany_trafiony="OrangeRed2",
+        wybrany_trafiony_active="chocolate1",
+        atak_active="DarkSeaGreen1"
+    )
+
+    Style = namedtuple("Style", "woda pudlo trafiony zatopiony wybrany wybrany_trafiony atak bazowy")
+    STYLE = Style(
+        woda="Woda.TButton",
+        pudlo="Pudło.TButton",
+        trafiony="Trafiony.TButton",
+        zatopiony="Zatopiony.TButton",
+        wybrany="Wybrany.TButton",
+        wybrany_trafiony="Wybrany&Trafiony.TButton",
+        atak="Atak.TButton",
+        bazowy="TButton"
+    )
 
     def __init__(self, rodzic, pole, *args, **kwargs):
         super().__init__(rodzic, *args, **kwargs)
@@ -71,47 +78,47 @@ class PlanszaGUI(Sekcja):
         self.styl = ttk.Style()
         # woda
         self.styl.configure(
-            PoleGUI.STYLE["woda"],
+            PoleGUI.STYLE.woda,
             relief="sunken",
-            background=PoleGUI.KOLORY["woda"]
+            background=PoleGUI.KOLORY.woda
         )
         self.styl.map(
-            PoleGUI.STYLE["woda"],
+            PoleGUI.STYLE.woda,
             relief=[("active", "sunken"), ("disabled", "sunken")],
-            background=[("active", PoleGUI.KOLORY["woda-active"]), ("disabled", "gray")]
+            background=[("active", PoleGUI.KOLORY.woda_active), ("disabled", "gray")]
         )
         # pudło
         self.styl.configure(
-            PoleGUI.STYLE["pudło"],
+            PoleGUI.STYLE.pudlo,
             relief="sunken",
-            background=PoleGUI.KOLORY["pudło"]
+            background=PoleGUI.KOLORY.pudlo
         )
         self.styl.map(
-            PoleGUI.STYLE["pudło"],
+            PoleGUI.STYLE.pudlo,
             relief=[("active", "sunken"), ("disabled", "sunken")],
-            background=[("active", PoleGUI.KOLORY["pudło-active"]), ("disabled", "gray")]
+            background=[("active", PoleGUI.KOLORY.pudlo_active), ("disabled", "gray")]
         )
         # trafione
         self.styl.configure(
-            PoleGUI.STYLE["trafione"],
-            background=PoleGUI.KOLORY["trafione"]
+            PoleGUI.STYLE.trafiony,
+            background=PoleGUI.KOLORY.trafiony
         )
         self.styl.map(
-            PoleGUI.STYLE["trafione"],
-            background=[("active", PoleGUI.KOLORY["trafione-active"]), ("disabled", "gray")]
+            PoleGUI.STYLE.trafiony,
+            background=[("active", PoleGUI.KOLORY.trafiony_active), ("disabled", "gray")]
         )
         # zatopione
         self.styl.configure(
-            PoleGUI.STYLE["zatopione"],
+            PoleGUI.STYLE.zatopiony,
             relief="sunken",
             foreground="white",
-            background=PoleGUI.KOLORY["zatopione"]
+            background=PoleGUI.KOLORY.zatopiony
         )
         self.styl.map(
-            PoleGUI.STYLE["zatopione"],
+            PoleGUI.STYLE.zatopiony,
             relief=[("active", "sunken"), ("disabled", "sunken")],
             foreground=[("active", "white"), ("disabled", "white")],
-            background=[("active", PoleGUI.KOLORY["zatopione-active"]), ("disabled", "gray")]
+            background=[("active", PoleGUI.KOLORY.zatopiony_active), ("disabled", "gray")]
         )
 
     def buduj_etykiety(self):
@@ -162,23 +169,23 @@ class PlanszaGUI(Sekcja):
 
     def oznacz_pudlo(self, pole_gui):
         """Oznacza podane pole jako pudło."""
-        pole_gui.pole.znacznik = Pole.ZNACZNIKI["pudło"]
-        pole_gui.configure(style=PoleGUI.STYLE["pudło"], text=PoleGUI.GLIFY["pudło"])
+        pole_gui.pole.znacznik = Pole.ZNACZNIKI.pudlo
+        pole_gui.configure(style=PoleGUI.STYLE.pudlo, text=PoleGUI.GLIFY.pudlo)
 
     def oznacz_trafione(self, pole_gui, symbol=None):
         """Oznacza podane pole jako trafione."""
-        pole_gui.pole.znacznik = Pole.ZNACZNIKI["trafione"]
+        pole_gui.pole.znacznik = Pole.ZNACZNIKI.trafiony
         if symbol:
-            pole_gui.configure(style=PoleGUI.STYLE["trafione"], text=symbol)
+            pole_gui.configure(style=PoleGUI.STYLE.trafiony, text=symbol)
         else:
-            pole_gui.configure(style=PoleGUI.STYLE["trafione"])
+            pole_gui.configure(style=PoleGUI.STYLE.trafiony)
 
     def zatop_statek(self, statek, z_symbolami=False):
         """Oznacza pola wskazanego statku jako zatopione."""
         for pole in statek.pola:
-            pole.znacznik = Pole.ZNACZNIKI["zatopione"]
+            pole.znacznik = Pole.ZNACZNIKI.zatopiony
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
-            pole_gui.configure(style=PoleGUI.STYLE["zatopione"])
+            pole_gui.configure(style=PoleGUI.STYLE.zatopiony)
             if z_symbolami:
                 pole_gui.configure(text=statek.RANGA_BAZOWA.symbol)
 
@@ -207,21 +214,21 @@ class PlanszaGracza(PlanszaGUI):
         """Definiuje style dla pól."""
         # wybrane
         self.styl.configure(
-            PoleGUI.STYLE["wybrane"],
-            background=PoleGUI.KOLORY["wybrane"]
+            PoleGUI.STYLE.wybrany,
+            background=PoleGUI.KOLORY.wybrany
         )
         self.styl.map(
-            PoleGUI.STYLE["wybrane"],
-            background=[("active", PoleGUI.KOLORY["wybrane-active"]), ("disabled", "gray")]
+            PoleGUI.STYLE.wybrany,
+            background=[("active", PoleGUI.KOLORY.wybrany_active), ("disabled", "gray")]
         )
         # wybrane&trafione
         self.styl.configure(
-            PoleGUI.STYLE["wybrane&trafione"],
-            background=PoleGUI.KOLORY["wybrane&trafione"]
+            PoleGUI.STYLE.wybrany_trafiony,
+            background=PoleGUI.KOLORY.wybrany_trafiony
         )
         self.styl.map(
-            PoleGUI.STYLE["wybrane&trafione"],
-            background=[("active", PoleGUI.KOLORY["wybrane&trafione-active"]), ("disabled", "gray")]
+            PoleGUI.STYLE.wybrany_trafiony,
+            background=[("active", PoleGUI.KOLORY.wybrany_trafiony_active), ("disabled", "gray")]
         )
 
     def powiaz_callbacki(self):
@@ -299,10 +306,10 @@ class PlanszaGracza(PlanszaGUI):
         """Wybiera statek na planszy"""
         for pole in statek.pola:
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
-            if pole_gui.pole.znacznik == Pole.ZNACZNIKI["trafione"]:
-                pole_gui.configure(style=PoleGUI.STYLE["wybrane&trafione"])
+            if pole_gui.pole.znacznik == Pole.ZNACZNIKI.trafiony:
+                pole_gui.configure(style=PoleGUI.STYLE.wybrany_trafiony)
             else:
-                pole_gui.configure(style=PoleGUI.STYLE["wybrane"])
+                pole_gui.configure(style=PoleGUI.STYLE.wybrany)
         self.gra.tura.runda.ustaw_napastnika(statek)
         # kontrola widżetów w innych sekcjach
         self.ka.combo_statku.set(statek)
@@ -318,17 +325,17 @@ class PlanszaGracza(PlanszaGUI):
         """Kasuje wybór statku na planszy"""
         for pole in statek.pola:
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
-            if pole_gui.pole.znacznik == Pole.ZNACZNIKI["trafione"]:
-                pole_gui.configure(style=PoleGUI.STYLE["trafione"])
+            if pole_gui.pole.znacznik == Pole.ZNACZNIKI.trafiony:
+                pole_gui.configure(style=PoleGUI.STYLE.trafiony)
             else:
-                pole_gui.configure(style=PoleGUI.STYLE["bazowe"])
+                pole_gui.configure(style=PoleGUI.STYLE.bazowy)
 
     def odkryj_wszystkie_pola(self):
         """Odkrywa wszystkie pola planszy."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
-                if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
-                    pole_gui.configure(style=PoleGUI.STYLE["woda"])
+                if pole_gui.pole.znacznik in (Pole.ZNACZNIKI.pusty, Pole.ZNACZNIKI.obwiednia):
+                    pole_gui.configure(style=PoleGUI.STYLE.woda)
                 else:
                     statek = self.gra.plansza.podaj_statek(pole_gui.pole)
                     pole_gui.configure(text=statek.RANGA_BAZOWA.symbol)
@@ -377,25 +384,25 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """Definiuje style dla pól."""
         # atak
         self.styl.map(
-            PoleGUI.STYLE["atak"],
-            background=[("active", PoleGUI.KOLORY["atak-active"])]
+            PoleGUI.STYLE.atak,
+            background=[("active", PoleGUI.KOLORY.atak_active)]
         )
 
     def wlacz_atak(self):
         """Włącza nieodkryte pola oraz celownik."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
-                if pole_gui.configure("style")[-1] in [PoleGUI.STYLE["bazowe"], ""]:
+                if pole_gui.configure("style")[-1] in [PoleGUI.STYLE.bazowy, ""]:
                     pole_gui.state(["!disabled"])
-                    pole_gui.configure(style=PoleGUI.STYLE["atak"])
+                    pole_gui.configure(style=PoleGUI.STYLE.atak)
 
     def wylacz_atak(self):
         """Wyłącza nieodkryte pola oraz celownik."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
-                if pole_gui.configure("style")[-1] == PoleGUI.STYLE["atak"]:
+                if pole_gui.configure("style")[-1] == PoleGUI.STYLE.atak:
                     pole_gui.state(["disabled"])
-                    pole_gui.configure(style=PoleGUI.STYLE["bazowe"])
+                    pole_gui.configure(style=PoleGUI.STYLE.bazowy)
 
     def powiaz_callbacki(self):
         """Wiąże callbacki we wszystkich polach."""
@@ -418,37 +425,37 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         if self.pg.gra.tura.runda.mozna_atakowac:
             ilosc_zatopionych = len(self.gra.plansza.zatopione)
             # 1 pole
-            if self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[0]:
+            if self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.C:
                 self.oddaj_salwe((kolumna, rzad))
             # 2 pola (w prawo)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[1]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.E:
                 self.oddaj_salwe((kolumna, rzad), (kolumna + 1, rzad))
             # 2 pola (w dół)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[2]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.S:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1))
             # 2 pola (w lewo)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[3]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.W:
                 self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad))
             # 2 pola (w górę)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[4]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.N:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1))
             # 3 pola poziomo
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[5]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.WE:
                 self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
             # 3 pola pionowo
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[6]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.NS:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
             # 3 pola L
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[7]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.NE:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
             # 3 pola Г
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[8]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.SE:
                 self.oddaj_salwe((kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
             # 3 pola Ꞁ
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[9]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.SW:
                 self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
             # 3 pola ⅃
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[10]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.NW:
                 self.oddaj_salwe((kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 
             oddana_salwa = self.pg.gra.tura.runda.salwy_oddane[-1]
@@ -490,10 +497,10 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     def odkryj_pole(self, kolumna, rzad):
         """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Jeśli trzeba, zatapia trafiony statek (i odkrywa pola jego obwiedni)."""
         pole_gui = self.podaj_pole_gui(kolumna, rzad)
-        if pole_gui.pole.znacznik in (Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]):
+        if pole_gui.pole.znacznik in (Pole.ZNACZNIKI.pusty, Pole.ZNACZNIKI.obwiednia):
             self.oznacz_pudlo(pole_gui)
-        elif pole_gui.pole.znacznik == Pole.ZNACZNIKI["statek"]:
-            self.oznacz_trafione(pole_gui, PoleGUI.GLIFY["trafione"])
+        elif pole_gui.pole.znacznik == Pole.ZNACZNIKI.statek:
+            self.oznacz_trafione(pole_gui, PoleGUI.GLIFY.trafiony)
             self.kg.aktualizuj_stan_gry("przeciwnika")
             statek = self.gra.plansza.podaj_statek(pole_gui.pole)
             if statek.czy_zatopiony():
@@ -505,8 +512,8 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         for pole in statek.obwiednia:
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             # configure("style") zwraca krotkę, której ostatnim elementem jest nazwa stylu
-            if pole_gui.configure("style")[-1] not in (PoleGUI.STYLE["woda"], PoleGUI.STYLE["pudło"]):
-                pole_gui.configure(style=PoleGUI.STYLE["woda"])
+            if pole_gui.configure("style")[-1] not in (PoleGUI.STYLE.woda, PoleGUI.STYLE.pudlo):
+                pole_gui.configure(style=PoleGUI.STYLE.woda)
         # test
         print(statek.o_zatopieniu())
 
@@ -518,46 +525,46 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         if self.pg.gra.tura.runda.mozna_atakowac:
             kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
             # 1 pole
-            if self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[0]:
+            if self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.C:
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad))
             # 2 pola (w prawo)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[1]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.E:
                 self.zmien_celownik("active", (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna + 1, rzad))
             # 2 pola (w dół)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[2]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.S:
                 self.zmien_celownik("active", (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1))
             # 2 pola (w lewo)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[3]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.W:
                 self.zmien_celownik("active", (kolumna - 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad))
             # 2 pola (w górę)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[4]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.N:
                 self.zmien_celownik("active", (kolumna, rzad - 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1))
             # 3 pola poziomo
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[5]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.WE:
                 self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
             # 3 pola pionowo
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[6]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.NS:
                 self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
             # 3 pola L
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[7]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.NE:
                 self.zmien_celownik("active", (kolumna, rzad - 1), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
             # 3 pola Г
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[8]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.SE:
                 self.zmien_celownik("active", (kolumna, rzad + 1), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
             # 3 pola Ꞁ
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[9]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.SW:
                 self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
             # 3 pola ⅃
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[10]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.NW:
                 self.zmien_celownik("active", (kolumna - 1, rzad), (kolumna, rzad - 1))
                 self.aktualizuj_pozycje_pol("wejście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 
@@ -569,46 +576,46 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         if self.pg.gra.tura.runda.mozna_atakowac:
             kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
             # 1 pole
-            if self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[0]:
+            if self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.C:
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad))
             # 2 pola (w prawo)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[1]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.E:
                 self.zmien_celownik("!active", (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna + 1, rzad))
             # 2 pola (w dół)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[2]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.S:
                 self.zmien_celownik("!active", (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1))
             # 2 pola (w lewo)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[3]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.W:
                 self.zmien_celownik("!active", (kolumna - 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad))
             # 2 pola (w górę)
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[4]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.N:
                 self.zmien_celownik("!active", (kolumna, rzad - 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1))
             # 3 pola poziomo
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[5]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.WE:
                 self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna + 1, rzad))
             # 3 pola pionowo
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[6]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.NS:
                 self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna, rzad + 1))
             # 3 pola L
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[7]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.NE:
                 self.zmien_celownik("!active", (kolumna, rzad - 1), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad - 1), (kolumna + 1, rzad))
             # 3 pola Г
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[8]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.SE:
                 self.zmien_celownik("!active", (kolumna, rzad + 1), (kolumna + 1, rzad))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna, rzad + 1), (kolumna + 1, rzad))
             # 3 pola Ꞁ
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[9]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.SW:
                 self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad + 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad + 1))
             # 3 pola ⅃
-            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE[10]:
+            elif self.ka.combo_orientacji.get() == Salwa.ORIENTACJE.NW:
                 self.zmien_celownik("!active", (kolumna - 1, rzad), (kolumna, rzad - 1))
                 self.aktualizuj_pozycje_pol("wyjście", (kolumna, rzad), (kolumna - 1, rzad), (kolumna, rzad - 1))
 

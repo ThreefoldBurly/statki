@@ -70,7 +70,7 @@ class PasekKomunikatow(ttk.Frame):
             self,
             width=self.podaj_szerokosc(),
             height=self.podaj_wysokosc(),
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             wrap=tk.WORD,
             bg=self.TLO_SYSTEMOWE,
             state=tk.DISABLED
@@ -112,7 +112,7 @@ class PoleTekstowe(tk.Text):
 
     def ustaw_tagi(self):
         """Ustawia tagi zapewniające odpowiednie formatowanie komunikatów."""
-        self.tag_configure("wyszarzone", foreground=stale.KOLORY["szare"])
+        self.tag_configure("wyszarzone", foreground=stale.KOLORY.szary)
         self.tag_configure("wyśrodkowane", justify=tk.CENTER)
-        self.tag_configure("pogrubione", font=stale.CZCIONKI["mała-pogrubiona"])
-        self.tag_configure("trafione", background=PoleGUI.KOLORY["trafione"])
+        self.tag_configure("pogrubione", font=stale.CZCIONKI.mala_pogrubiona)
+        self.tag_configure("trafione", background=PoleGUI.KOLORY.trafiony)

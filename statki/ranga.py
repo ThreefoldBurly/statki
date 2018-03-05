@@ -25,7 +25,7 @@ class Ranga:
         self.sila_ognia = sila_ognia
         self.nazwy_statkow = nazwy_statkow
         self.pula_nazw_statkow = self.nazwy_statkow[:]  # pula aktualnie dostępnych nazw statków dla tej rangi
-        self.liczebniki = ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]  # liczebniki rzymskie dodawane do nazw statków po wyczerpaniu puli (potrzebne bardziej do testów - przy założonych ograniczeniach rozmiarów planszy (i w efekcie możliwej ilości statków) konieczność użycia tej zmiennej jest zbliżona do zera)
+        self.liczebniki = liczebniki  # liczebniki rzymskie dodawane do nazw statków po wyczerpaniu puli (potrzebne bardziej do testów - przy założonych ograniczeniach rozmiarów planszy (i w efekcie możliwej ilości statków) konieczność użycia tej zmiennej jest zbliżona do zera)
         self.liczba_mnoga = liczba_mnoga
         self.biernik = biernik
 

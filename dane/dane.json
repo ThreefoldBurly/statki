@@ -1,4 +1,6 @@
 {
+    "minmax": [1, 20],
+    "wypelnianie": [20, 9.5, -12],
     "rangi": [
         {
             "nazwa": "kuter",

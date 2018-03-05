@@ -9,6 +9,7 @@
 
 from random import randint, choice, gauss
 from decimal import Decimal as D
+from collections import namedtuple
 
 from statki.pamiec import Parser
 
@@ -17,22 +18,23 @@ class Plansza:
     """
     Reprezentacja planszy do gry. Zapisuje całą informację o stanie gry po stronie jednego gracza w danym momencie. Na początku gry tworzone są 2 obiekty tej klasy - jeden dla gracza, drugi dla przeciwnika. Moduł `statki.gui.plansza` powiela tę dychotomię.
     """
-    MIN_ROZMIAR_STATKU = 1
-    MAX_ROZMIAR_STATKU = 20
     ALFABET = {
         1: "A", 2: "B", 3: "C", 4: "D", 5: "E", 6: "F", 7: "G", 8: "H", 9: "I", 10: "J",
         11: "K", 12: "L", 13: "M", 14: "N", 15: "O", 16: "P", 17: "Q", 18: "R", 19: "S", 20: "T",
         21: "U", 22: "V", 23: "W", 24: "X", 25: "Y", 26: "Z", 27: "AA", 28: "AB", 29: "AC", 30: "AD",
         31: "AE", 32: "AF", 33: "AG", 34: "AH", 35: "AI", 36: "AJ", 37: "AK", 38: "AL", 39: "AM", 40: "AN"
     }
-    KIERUNKI = ["E", "S", "W", "N", "NE", "SE", "SW", "NW"]
+    MIN_ROZMIAR_STATKU, MAX_ROZMIAR_STATKU = Parser.podaj_minmax_rozmiar_statku()
+    ZAPELNIENIE, ODCH_ST, PRZ_MEDIANY = Parser.podaj_parametry_wypelniania()
+
+    Kierunki = namedtuple("Kierunki", "E S W N NE SE SW NW")
+    KIERUNKI = Kierunki("E", "S", "W", "N", "NE", "SE", "SW", "NW")
 
     def __init__(self, kolumny, rzedy):
         self.kolumny, self.rzedy, self.rozmiar = kolumny, rzedy, rzedy * kolumny
         self.pola = self.stworz_pola()  # matryca (lista rzędów (list)) pól
         self.statki = []
-
-        self.wypelnij_statkami()
+        self.wypelnij_statkami(self.ZAPELNIENIE, self.ODCH_ST, self.PRZ_MEDIANY)
         self.o_statkach()  # test
         self.drukuj()  # test
         self.ilosc_pol_statkow = sum([statek.rozmiar for statek in self.statki])
@@ -86,24 +88,24 @@ class Plansza:
     def podaj_sasiednie_pole(self, pole, kierunek):
         """Podaje pole sąsiednie dla wskazanego pola wg podanego kierunku."""
         kolumna, rzad = pole.podaj_wspolrzedne()
-        if kierunek == self.KIERUNKI[1]:  # E
+        if kierunek == self.KIERUNKI.E:
             kolumna += 1
-        elif kierunek == self.KIERUNKI[2]:  # S
+        elif kierunek == self.KIERUNKI.S:
             rzad += 1
-        elif kierunek == self.KIERUNKI[3]:  # W
+        elif kierunek == self.KIERUNKI.W:
             kolumna -= 1
-        elif kierunek == self.KIERUNKI[0]:  # N
+        elif kierunek == self.KIERUNKI.N:
             rzad -= 1
-        elif kierunek == self.KIERUNKI[4]:  # NE
+        elif kierunek == self.KIERUNKI.NE:
             kolumna += 1
             rzad -= 1
-        elif kierunek == self.KIERUNKI[5]:  # SE
+        elif kierunek == self.KIERUNKI.SE:
             kolumna += 1
             rzad += 1
-        elif kierunek == self.KIERUNKI[6]:  # SW
+        elif kierunek == self.KIERUNKI.SW:
             kolumna -= 1
             rzad += 1
-        elif kierunek == self.KIERUNKI[7]:  # NW
+        elif kierunek == self.KIERUNKI.NW:
             kolumna -= 1
             rzad -= 1
 
@@ -118,7 +120,7 @@ class Plansza:
         pole = self.podaj_pole(kolumna, rzad)  # pole początkowe
 
         def dodaj_pole_statku(pole):
-            pole.znacznik = Pole.ZNACZNIKI["statek"]
+            pole.znacznik = Pole.ZNACZNIKI.statek
             pola_statku.append(pole)
 
         while len(pola_statku) < rozmiar:
@@ -126,12 +128,12 @@ class Plansza:
                 return None
 
             if licznik_iteracji == 0:  # pole początkowe
-                if pole is not None and pole.znacznik == Pole.ZNACZNIKI["puste"]:
+                if pole is not None and pole.znacznik == Pole.ZNACZNIKI.pusty:
                     dodaj_pole_statku(pole)
                 else:
                     return None  # NIEUDANE UMIESZCZENIE
             else:
-                pula_kierunkow = self.KIERUNKI[:4]
+                pula_kierunkow = list(self.KIERUNKI[:4])
 
                 while True:
                     if len(pula_kierunkow) < 1:  # powrót po wyczerpaniu kierunków
@@ -141,13 +143,13 @@ class Plansza:
                             break
                         else:  # powrót do pola początkowego - NIEUDANE UMIESZCZENIE
                             for pole in pola_statku:  # czyszczenie nieudanego umieszczenia
-                                pole.znacznik = Pole.ZNACZNIKI["puste"]
+                                pole.znacznik = Pole.ZNACZNIKI.pusty
                             return None
 
                     # próba dodania w losowym kierunku spośród ciągle obecnych w puli
                     kierunek = choice(pula_kierunkow)
                     sasiad = self.podaj_sasiednie_pole(pole, kierunek)
-                    if sasiad is not None and sasiad.znacznik == Pole.ZNACZNIKI["puste"]:
+                    if sasiad is not None and sasiad.znacznik == Pole.ZNACZNIKI.pusty:
                         pole = sasiad
                         dodaj_pole_statku(pole)
                         break
@@ -164,10 +166,10 @@ class Plansza:
             for kierunek in self.KIERUNKI:
                 sasiad = self.podaj_sasiednie_pole(pole, kierunek)
                 if sasiad is not None:
-                    if sasiad.znacznik == Pole.ZNACZNIKI["puste"]:
-                        sasiad.znacznik = Pole.ZNACZNIKI["obwiednia"]
+                    if sasiad.znacznik == Pole.ZNACZNIKI.pusty:
+                        sasiad.znacznik = Pole.ZNACZNIKI.obwiednia
                         statek.obwiednia.append(sasiad)
-                    elif sasiad.znacznik == Pole.ZNACZNIKI["obwiednia"]:
+                    elif sasiad.znacznik == Pole.ZNACZNIKI.obwiednia:
                         if sasiad not in statek.obwiednia:
                             statek.obwiednia.append(sasiad)
 
@@ -259,16 +261,16 @@ class Plansza:
     def odkryj_pola(self, pola):
         """Odkrywa wskazane pola."""
         for pole in pola:
-            if pole.znacznik in [Pole.ZNACZNIKI["puste"], Pole.ZNACZNIKI["obwiednia"]]:
-                pole.znacznik = Pole.ZNACZNIKI["pudło"]
-            elif pole.znacznik == Pole.ZNACZNIKI["statek"]:
-                pole.znacznik = Pole.ZNACZNIKI["trafione"]
+            if pole.znacznik in [Pole.ZNACZNIKI.pusty, Pole.ZNACZNIKI.obwiednia]:
+                pole.znacznik = Pole.ZNACZNIKI.pudlo
+            elif pole.znacznik == Pole.ZNACZNIKI.statek:
+                pole.znacznik = Pole.ZNACZNIKI.trafiony
 
     def oznacz_zatopione(self):
         """Oznacza statki posiadające wszystkie pola trafione jako zatopione."""
         for statek in self.niezatopione[:]:
             if not statek.czy_zatopiony():
-                if all([True for pole in statek.pola if pole.znacznik == Pole.ZNACZNIKI["trafione"]]):
+                if all([True for pole in statek.pola if pole.znacznik == Pole.ZNACZNIKI.trafiony]):
                     statek.zatop()
                     self.niezatopione.remove(statek)
                     self.zatopione.append(statek)
@@ -303,7 +305,7 @@ class Plansza:
         licznik = 0
         for statek in self.statki:
             for pole in statek.pola:
-                if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
+                if pole.znacznik in (Pole.ZNACZNIKI.trafiony, Pole.ZNACZNIKI.zatopiony):
                     licznik += 1
         return self.ilosc_pol_statkow - licznik  # int
 
@@ -321,22 +323,22 @@ class Pole:
     """
     Reprezentacja pola planszy. Posiada 6 podstawowych stanów pola oznaczonych znacznikami. Z czego tylko pierwsze 3 są używane przy inicjalizacji planszy (pola zakryte), a pozostałe 3 pojawiają się tylko jako efekt działań graczy (pola odkryte).
     """
-    # TODO: zamienić na namedtuple
-    ZNACZNIKI = {
+    Znaczniki = namedtuple("Znaczniki", "pusty obwiednia statek pudlo trafiony zatopiony")
+    ZNACZNIKI = Znaczniki(
         # zakryte
-        "puste": "0",
-        "obwiednia": ".",
-        "statek": "&",
+        pusty="0",
+        obwiednia=".",
+        statek="&",
         # odkryte
-        "pudło": "x",
-        "trafione": "T",
-        "zatopione": "Z"
-    }
+        pudlo="x",
+        trafiony="T",
+        zatopiony="Z"
+    )
 
     def __init__(self, id_planszy, kolumna, rzad, znacznik=None):
         self.id_planszy = id_planszy
         self.kolumna, self.rzad = kolumna, rzad
-        self.znacznik = znacznik if znacznik is not None else self.ZNACZNIKI["puste"]
+        self.znacznik = znacznik if znacznik is not None else self.ZNACZNIKI.pusty
 
     def __str__(self):
         """Zwraca informację o polu w formacie: litera kolumny+cyfra rzędu np. B9"""
@@ -369,14 +371,26 @@ class Salwa:
     """
     Kolekcja pól planszy, w które strzela napastnik (UWAGA - nie są to pola planszy napastnika) wraz ze źródłem (jego położeniem).
     """
-
-    ORIENTACJE = ["•", "•• prawo", "╏ dół", "•• lewo", "╏ góra", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
+    Orientacje = namedtuple("Orientacje", "C E S W N WE NS NE SE SW NW")
+    ORIENTACJE = Orientacje(
+        C="•",
+        E="•• prawo",
+        S="╏ dół",
+        W="•• lewo",
+        N="╏ góra",
+        WE="•••",
+        NS="┇",
+        NE="L",
+        SE="Г",
+        SW="Ꞁ",
+        NW="⅃"
+    )
 
     def __init__(self, zrodlo, pola, niewypaly=None):
         self.zrodlo = zrodlo  # polozenie statku który oddał salwę
         self.pola = pola
-        self.trafienia = [True if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]) else False for pole in self.pola]
-        self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI["pudło"] else False for pole in self.pola]
+        self.trafienia = [True if pole.znacznik in (Pole.ZNACZNIKI.trafiony, Pole.ZNACZNIKI.zatopiony) else False for pole in self.pola]
+        self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI.pudlo else False for pole in self.pola]
         self.niewypaly = niewypaly if niewypaly is not None else []  # strzały poza planszę
 
     def __eq__(self, other):
@@ -485,7 +499,7 @@ class Statek:
         """Podaje ilość otrzymanych trafień."""
         licznik_trafien = 0
         for pole in self.pola:
-            if pole.znacznik in (Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]):
+            if pole.znacznik in (Pole.ZNACZNIKI.trafiony, Pole.ZNACZNIKI.zatopiony):
                 licznik_trafien += 1
         return licznik_trafien
 
@@ -499,7 +513,7 @@ class Statek:
     def zatop(self):
         """Zatapia ten statek."""
         for pole in self.pola:
-            pole.znacznik = Pole.ZNACZNIKI["zatopione"]
+            pole.znacznik = Pole.ZNACZNIKI.zatopiony
 
     def o_zatopieniu(self):
         """Zwraca komunikat o swoim zatopieniu."""

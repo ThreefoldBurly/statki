@@ -10,11 +10,14 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from collections import namedtuple
 import math
 
 from statki.plansza import Statek, Salwa
 from .sekcja import Sekcja
 from . import stale
+
+Kolory = namedtuple("Kolory", "")
 
 
 class KontrolaAtaku(Sekcja):
@@ -45,7 +48,7 @@ class KontrolaAtaku(Sekcja):
         self.styl.configure(
             "PozycjaPolaKA.TLabel",
             anchor=tk.CENTER,
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             width=4
         )
 
@@ -93,7 +96,7 @@ class KontrolaAtaku(Sekcja):
         self.combo_statku = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             values=self.pg.gra.tura.napastnicy,
             width=35
         )
@@ -103,13 +106,13 @@ class KontrolaAtaku(Sekcja):
             columnspan=2,
             sticky=tk.W
         )
-        self.combo_statku.configure(font=stale.CZCIONKI["mała"])  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
+        self.combo_statku.configure(font=stale.CZCIONKI.mala)  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
 
         # wybór salwy
         self.combo_salwy = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             width=6
         )
         self.combo_salwy.grid(
@@ -118,13 +121,13 @@ class KontrolaAtaku(Sekcja):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_salwy.configure(font=stale.CZCIONKI["mała"])
+        self.combo_salwy.configure(font=stale.CZCIONKI.mala)
 
         # wybór orientacji
         self.combo_orientacji = ComboOrientacji(
             self.etyramka,
             styl="KA.TCombobox",
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             width=7
         )
         self.combo_orientacji.grid(
@@ -133,7 +136,7 @@ class KontrolaAtaku(Sekcja):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_orientacji.configure(font=stale.CZCIONKI["mała"])
+        self.combo_orientacji.configure(font=stale.CZCIONKI.mala)
 
     def przestaw_na_readonly(self):
         """Ustawia stan comboboksów jako `readonly`"""
@@ -357,7 +360,7 @@ class PozycjeSalwy(ttk.Frame):
         if pozycja.get() == "":
             etykieta.configure(background=self.TLO_SYSTEMOWE)
         else:
-            etykieta.configure(background=stale.KOLORY["pozycja-pola"])
+            etykieta.configure(background=stale.KOLORY.pozycja_pola)
 
     def wyczysc(self):
         self.pierwsza.set("")
@@ -478,7 +481,7 @@ class KontrolaFloty(Sekcja):
         if self.pozycja_pola.get() == "":
             self.etykieta_pozycji_pola.configure(background=self.TLO_SYSTEMOWE)
         else:
-            self.etykieta_pozycji_pola.configure(background=stale.KOLORY["pozycja-pola"])
+            self.etykieta_pozycji_pola.configure(background=stale.KOLORY.pozycja_pola)
 
     def wlacz_widzety(self):
         """
@@ -494,12 +497,13 @@ class DrzewoFloty(ttk.Treeview):
     Drzewo wyświetlające statki floty (gracza/przeciwnika). Szczegółowa implementacja w klasach potomnych.
     """
 
-    KOLORY = {
-        "zablokowane": "gray64",
-        "rangi": "LemonChiffon2",
-        "rangi-zatopione": "plum3",  # TODO
-        "rangi-przeciwnik": "DarkOliveGreen2"  # TODO
-    }
+    Kolory = namedtuple("Kolory", "zablokowany rangi rangi_zatopiony rangi_przeciwnik")
+    KOLORY = Kolory(
+        zablokowany="gray64",
+        rangi="LemonChiffon2",
+        rangi_zatopiony="plum3",  # TODO
+        rangi_przeciwnik="DarkOliveGreen2"  # TODO
+    )
 
     def __init__(self, rodzic, plansza_gui):
         super().__init__(rodzic)
@@ -516,12 +520,12 @@ class DrzewoFloty(ttk.Treeview):
         self.styl = ttk.Style()
         self.styl.configure(
             "KF.Treeview",
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             rowheight=self.wys_wiersza
         )
         self.styl.configure(
             "KF.Treeview.Heading",
-            font=stale.CZCIONKI["mała"]
+            font=stale.CZCIONKI.mala
         )
 
     def ustaw(self):
@@ -653,9 +657,9 @@ class DrzewoFlotyGracza(DrzewoFloty):
 
     def ustaw_wyglad(self):
         """Konfiguruje wygląd zawartości drzewa."""
-        self.tag_configure("kategoria", font=stale.CZCIONKI["mała-pogrubiona"])
-        self.tag_configure("ranga", background=self.KOLORY["rangi"])
-        self.tag_configure("zablokowane", foreground=self.KOLORY["zablokowane"])
+        self.tag_configure("kategoria", font=stale.CZCIONKI.mala_pogrubiona)
+        self.tag_configure("ranga", background=self.KOLORY.rangi)
+        self.tag_configure("zablokowane", foreground=self.KOLORY.zablokowany)
 
     def powiaz_podwojne_klikniecie(self):
         """Wiąże callback obsługujący podóœjne kliknięcie."""
@@ -711,11 +715,11 @@ class KontrolaGry(Sekcja):
     """
     Sekcja kontroli gry znajdująca się w prawym dolnym rogu głównego interfejsu gry. Dopuszcza powiększanie w poziomie.
     """
-
-    KOLORY = {
-        "stan-gry-g": "LemonChiffon4",
-        "stan-gry-p": "LemonChiffon4"
-    }
+    Kolory = namedtuple("Kolory", "stan_gry_g stan_gry_p")
+    KOLORY = Kolory(
+        stan_gry_g="LemonChiffon4",
+        stan_gry_p="LemonChiffon4"
+    )
     SZER_STANU = 15  # szerokość stanu gry (etykiety) w znakach
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
@@ -747,19 +751,19 @@ class KontrolaGry(Sekcja):
         self.styl = ttk.Style()
         self.styl.configure(
             "GraczKG.TLabel",
-            font=stale.CZCIONKI["duża-pogrubiona"],
-            # background=stale.KOLORY["pozycja-pola"],
-            foreground=self.KOLORY["stan-gry-g"]
+            font=stale.CZCIONKI.duza_pogrubiona,
+            # background=stale.KOLORY.pozycja_pola,
+            foreground=self.KOLORY.stan_gry_g
         )
         self.styl.configure(
             "PrzeciwnikKG.TLabel",
-            font=stale.CZCIONKI["duża-pogrubiona"],
-            # background=stale.KOLORY["pozycja-pola"],
-            foreground=self.KOLORY["stan-gry-p"]
+            font=stale.CZCIONKI.duza_pogrubiona,
+            # background=stale.KOLORY.pozycja_pola,
+            foreground=self.KOLORY.stan_gry_p
         )
         self.styl.configure(
             "KG.TButton",
-            font=stale.CZCIONKI["pogrubiona"]
+            font=stale.CZCIONKI.pogrubiona
         )
 
     def buduj_etykiety(self):

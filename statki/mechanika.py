@@ -107,23 +107,20 @@ class AI(Gra):
     To AI dokonuje prostych, losowych wyborów. Bardziej zaawansowana implementacja w klasach potomnych.
     """
 
-    # KIERUNKI = ["E", "S", "W", "N", "NE", "SE", "SW", "NW"]
-    # ORIENTACJE = ["•", "•• prawo", "╏ dół", "•• lewo", "╏ góra", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
-
-    ORIENTACJE_SALWY = {
-        Salwa.ORIENTACJE[0]: [],
-        Salwa.ORIENTACJE[1]: [Plansza.KIERUNKI[0]],
-        Salwa.ORIENTACJE[2]: [Plansza.KIERUNKI[1]],
-        Salwa.ORIENTACJE[3]: [Plansza.KIERUNKI[2]],
-        Salwa.ORIENTACJE[4]: [Plansza.KIERUNKI[3]],
-        Salwa.ORIENTACJE[5]: [Plansza.KIERUNKI[0], Plansza.KIERUNKI[2]],
-        Salwa.ORIENTACJE[6]: [Plansza.KIERUNKI[1], Plansza.KIERUNKI[3]],
-        Salwa.ORIENTACJE[7]: [Plansza.KIERUNKI[0], Plansza.KIERUNKI[3]],
-        Salwa.ORIENTACJE[8]: [Plansza.KIERUNKI[0], Plansza.KIERUNKI[1]],
-        Salwa.ORIENTACJE[9]: [Plansza.KIERUNKI[1], Plansza.KIERUNKI[2]],
-        Salwa.ORIENTACJE[10]: [Plansza.KIERUNKI[2], Plansza.KIERUNKI[3]]
+    KIERUNKI_SALWY = {
+        Salwa.ORIENTACJE.C: [],
+        Salwa.ORIENTACJE.E: [Plansza.KIERUNKI.E],
+        Salwa.ORIENTACJE.S: [Plansza.KIERUNKI.S],
+        Salwa.ORIENTACJE.W: [Plansza.KIERUNKI.W],
+        Salwa.ORIENTACJE.N: [Plansza.KIERUNKI.N],
+        Salwa.ORIENTACJE.WE: [Plansza.KIERUNKI.E, Plansza.KIERUNKI.W],
+        Salwa.ORIENTACJE.NS: [Plansza.KIERUNKI.S, Plansza.KIERUNKI.N],
+        Salwa.ORIENTACJE.NE: [Plansza.KIERUNKI.E, Plansza.KIERUNKI.N],
+        Salwa.ORIENTACJE.SE: [Plansza.KIERUNKI.E, Plansza.KIERUNKI.S],
+        Salwa.ORIENTACJE.SW: [Plansza.KIERUNKI.S, Plansza.KIERUNKI.W],
+        Salwa.ORIENTACJE.NW: [Plansza.KIERUNKI.W, Plansza.KIERUNKI.N]
     }
-    ODWIEDZONE = [Pole.ZNACZNIKI["pudło"], Pole.ZNACZNIKI["trafione"], Pole.ZNACZNIKI["zatopione"]]
+    ODWIEDZONE = [Pole.ZNACZNIKI.pudlo, Pole.ZNACZNIKI.trafiony, Pole.ZNACZNIKI.zatopiony]
 
     def __init__(self, plansza_wlasna, plansza_gracza):
         super().__init__(plansza_wlasna)
@@ -147,13 +144,13 @@ class AI(Gra):
         pola = [pole for rzad in self.druga_plansza.pola for pole in rzad]
         wolne_pola = [pole for pole in pola if pole.znacznik not in self.ODWIEDZONE]
         cel = choice(wolne_pola)
-        orientacja_salwy = self.wybierz_orientacje(cel)
-        self.druga_plansza.odkryj_pola(orientacja_salwy)
+        konfiguracja_pol = self.wybierz_konfiguracje_pol(cel)
+        self.druga_plansza.odkryj_pola(konfiguracja_pol)
         self.druga_plansza.oznacz_zatopione()
         self.tura.runda.dodaj_salwe_oddana(Salwa(
             self.tura.runda.napastnik.polozenie,
-            orientacja_salwy,
-            [None for i in range(wielkosc_salwy - len(orientacja_salwy))]
+            konfiguracja_pol,
+            [None for i in range(wielkosc_salwy - len(konfiguracja_pol))]
         ))
 
     def celuj(self):
@@ -162,31 +159,31 @@ class AI(Gra):
         """
         pass
 
-    def wybierz_orientacje(self, cel):
+    def wybierz_konfiguracje_pol(self, cel):
         """
-        Wybiera najlepszą orientację salwy dla wskazanego celu. Przy ocenie bierze pod uwagę tylko ilość rażonych pól.
+        Wybiera najlepszą konfiguracje pól salwy dla wskazanego celu. Przy ocenie bierze pod uwagę tylko ilość rażonych pól.
         """
-        orientacje_salwy = []
+        konfiguracje_pol = []
         wielkosc_salwy = self.tura.runda.napastnik.sila_ognia[0]
         if wielkosc_salwy == 1:
-            orientacje_salwy.append([cel])
+            konfiguracje_pol.append([cel])
         elif wielkosc_salwy == 2:
             for orientacja in Salwa.ORIENTACJE[1:5]:
-                orientacje_salwy.append(self.podaj_pola_salwy(cel, self.ORIENTACJE_SALWY[orientacja]))
+                konfiguracje_pol.append(self.podaj_konfiguracje_pol(cel, self.KIERUNKI_SALWY[orientacja]))
         elif wielkosc_salwy == 3:
             for orientacja in Salwa.ORIENTACJE[5:]:
-                orientacje_salwy.append(self.podaj_pola_salwy(cel, self.ORIENTACJE_SALWY[orientacja]))
+                konfiguracje_pol.append(self.podaj_konfiguracje_pol(cel, self.KIERUNKI_SALWY[orientacja]))
 
-        return sorted(orientacje_salwy, key=lambda o: len([pole for pole in o if pole.znacznik not in self.ODWIEDZONE]), reverse=True)[0]
+        return sorted(konfiguracje_pol, key=lambda o: len([pole for pole in o if pole.znacznik not in self.ODWIEDZONE]), reverse=True)[0]
 
-    def podaj_pola_salwy(self, cel, kierunki):
-        """Podaje pola salwy wg podanego celu."""
-        pola_salwy = [cel]
+    def podaj_konfiguracje_pol(self, cel, kierunki):
+        """Podaje konfigurację pól salwy wg podanego celu."""
+        konfiguracja_pol = [cel]
         for kierunek in kierunki:
             sasiad = self.druga_plansza.podaj_sasiednie_pole(cel, kierunek)
             if sasiad is not None:
-                pola_salwy.append(sasiad)
-        return pola_salwy
+                konfiguracja_pol.append(sasiad)
+        return konfiguracja_pol
 
     def wybierz_napastnika(self):
         """
@@ -216,7 +213,7 @@ class MocneAI(AI):
         super().__init__(plansza_wlasna)
         self.druga_plansza = deepcopy(plansza_gracza)
 
-    def wybierz_orientacje(self, cel):
+    def wybierz_konfiguracje_pol(self, cel):
         """
         Wybiera najlepszą orientację salwy dla wskazanego celu. Przy ocenie bierze pod uwagę tylko ilość rażonych pól.
         """
