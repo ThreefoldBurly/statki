@@ -17,23 +17,9 @@ class Komunikator:
         "kolumna": ["kolumna", "kolumny", "kolumn"],
         "rząd": ["rząd", "rzędy", "rzędów"],
         "pole": ["pole", "pola", "pól"],
-        "statek": ["statek", "statki", "statków"],
-        "kuter": ["kuter", "kutry", "kutrów"],
-        "patrolowiec": ["patrolowiec", "patrolowce", "patrolowców"],
-        "korweta": ["korweta", "korwety", "korwet"],
-        "fregata": ["fregata", "fregaty", "fregat"],
-        "niszczyciel": ["niszczyciel", "niszczyciele", "niszczycieli"],
-        "krążownik": ["krążownik", "krążowniki", "krążowników"],
-        "pancernik": ["pancernik", "pancerniki", "pancerników"]
-    }
-    BIERNIKI = {
-        "korweta": "korwetę",
-        "fregata": "fregatę"
+        "statek": ["statek", "statki", "statków"]
     }
     GWIAZDKA = "✱"
-
-    def __init__(self, pole_tekstowe):
-        self.tekst = pole_tekstowe
 
     @staticmethod
     def do_indeksu(liczba):
@@ -48,6 +34,9 @@ class Komunikator:
             return 1
         else:
             return 2
+
+    def __init__(self, pole_tekstowe):
+        self.tekst = pole_tekstowe
 
     def o_rozpoczeciu_gry(self, plansza_gracza):
         """Wyświetla komunikat o rozpoczęciu gry."""
@@ -71,9 +60,9 @@ class Komunikator:
         komunikat += self.LICZBA_MNOGA["pole"][self.do_indeksu(ilosc_pol_statkow)] + ". W tym: "
         self.tekst.ro_insert("end", komunikat)
         for ranga in Statek.RANGI:
-            self.tekst.ro_insert("end", str(wg_rang[ranga]), "pogrubione")
-            komunikat = " " + self.LICZBA_MNOGA[ranga][self.do_indeksu(wg_rang[ranga])]
-            komunikat += " (" + Statek.SYMBOLE[ranga] + "), "
+            self.tekst.ro_insert("end", str(wg_rang[ranga.nazwa]), "pogrubione")
+            komunikat = " " + ranga.liczba_mnoga[self.do_indeksu(wg_rang[ranga.nazwa])]
+            komunikat += " (" + ranga.symbol + "), "
             self.tekst.ro_insert("end", komunikat)
         self.tekst.ro_delete("end-3c", "end")
         self.tekst.ro_insert("end", ". Zaczynamy!")
@@ -122,12 +111,7 @@ class Komunikator:
             self.tekst.ro_insert("end", statek_info[0].title() + '"')
         else:
             if przypadek == "biernik":
-                statek_ranga = statek_info[0][:-1]
-                if statek_ranga in Statek.RANGI[2:4]:
-                    statek_ranga = self.BIERNIKI[statek_ranga]
-                    self.tekst.ro_insert("end", statek_ranga + ' "')
-                else:
-                    self.tekst.ro_insert("end", statek_info[0] + '"')
+                self.tekst.ro_insert("end", statek.RANGA_BAZOWA.biernik + ' "')
             else:
                 self.tekst.ro_insert("end", statek_info[0] + '"')
         self.tekst.ro_insert("end", statek_info[1], "pogrubione")

@@ -12,7 +12,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import math
 
-from statki.plansza import Statek
+from statki.plansza import Statek, Salwa
 from .sekcja import Sekcja
 from . import stale
 
@@ -21,8 +21,6 @@ class KontrolaAtaku(Sekcja):
     """
     Sekcja kontroli ataku znajdująca się w prawym górnym rogu głównego interfejsu gry. Dopuszcza powiększanie w poziomie.
     """
-
-    ORIENTACJE = ["•", "•• prawo", "╏ dół", "•• lewo", "╏ góra", "•••", "┇", "L", "Г", "Ꞁ", "⅃"]
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul="Atak", **kwargs):
         super().__init__(rodzic, odstep_zewn, odstep_wewn, tytul)
@@ -210,15 +208,15 @@ class KontrolaAtaku(Sekcja):
         """
         salwa = int(salwa_tekst[0])
         if salwa == 1:
-            self.combo_orientacji["values"] = [self.ORIENTACJE[0]]
+            self.combo_orientacji["values"] = [Salwa.ORIENTACJE[0]]
             self.wylacz_pozycje_salwy("druga")
             self.wylacz_pozycje_salwy("trzecia")
         elif salwa == 2:
-            self.combo_orientacji["values"] = self.ORIENTACJE[1:5]
+            self.combo_orientacji["values"] = Salwa.ORIENTACJE[1:5]
             self.wlacz_pozycje_salwy("druga")
             self.wylacz_pozycje_salwy("trzecia")
         elif salwa == 3:
-            self.combo_orientacji["values"] = self.ORIENTACJE[5:]
+            self.combo_orientacji["values"] = Salwa.ORIENTACJE[5:]
             self.wlacz_pozycje_salwy("druga")
             self.wlacz_pozycje_salwy("trzecia")
 
@@ -295,10 +293,10 @@ class PozycjeSalwy(ttk.Frame):
         self.druga = tk.StringVar()
         self.trzecia = tk.StringVar()
         self.ustal_tlo_sytemowe()
-        self.ustaw_sie()
+        self.ustaw()
         self.buduj_etykiety()
 
-    def ustaw_sie(self):
+    def ustaw(self):
         """Ustawia interfejs pod widżety."""
         self.grid(row=4, column=0, columnspan=2, sticky="we", pady=(0, 10))
 
@@ -509,7 +507,7 @@ class DrzewoFloty(ttk.Treeview):
         self.wys_wiersza = 15
 
         self.ustaw_style()
-        self.ustaw_sie()
+        self.ustaw()
         self.wstaw_suwaki(rodzic)
         self.powiaz_escape()
 
@@ -526,7 +524,7 @@ class DrzewoFloty(ttk.Treeview):
             font=stale.CZCIONKI["mała"]
         )
 
-    def ustaw_sie(self):
+    def ustaw(self):
         """Konfiguruje to drzewo."""
         self.configure(
             style="KF.Treeview",
@@ -630,10 +628,10 @@ class DrzewoFlotyGracza(DrzewoFloty):
         # rangi
         ilosc_wg_rang = self.plansza_gui.gra.plansza.podaj_ilosc_niezatopionych_wg_rang()
         for ranga in Statek.RANGI[::-1]:
-            if ilosc_wg_rang[ranga] > 0:
-                ranga_i_ilosc = Statek.SYMBOLE[ranga] + " (" + str(ilosc_wg_rang[ranga]) + ")"
+            if ilosc_wg_rang[ranga.nazwa] > 0:
+                ranga_i_ilosc = ranga.symbol + " (" + str(ilosc_wg_rang[ranga.nazwa]) + ")"
                 self.insert(kategoria, "end",
-                            ranga,
+                            ranga.nazwa,
                             text=ranga_i_ilosc,
                             open=True,
                             tags=(kategoria, "ranga")
@@ -641,7 +639,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
         # statki
         for i, statek in enumerate(statki):
             self.insert(
-                statek.RANGA_BAZOWA, "end",
+                statek.RANGA_BAZOWA.nazwa, "end",
                 str(statek.polozenie),  # tekstowa reprezentacja położenia statku jako ID w drzewie - upraszcza późniejszą translację wybranego elementu drzewa z powrotem na statek na planszy
                 values=(
                     '"' + statek.nazwa + '"',

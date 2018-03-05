@@ -8,55 +8,45 @@
 """
 
 import codecs
+import json
+
+
+from statki.ranga import Ranga, Rangi
 
 
 class Parser:
-    """Parsuje nazwy statków z 'dane/nazwy.txt'."""
+    """Parsuje dane z 'dane/dane.json'."""
 
-    @staticmethod
-    def sparsuj_nazwy(rangi):
-        """Parsuje z pliku tekstowego 'dane/nazwy.txt' listę nazw dla każdej rangi statku (całość jako słownik)"""
-        nazwy = {}
+    SCIEZKA_DANE = "dane/dane.json"
 
-        def parsuj_wg_rangi(linie, ranga):  # funkcja pomocnicza dla bloku poniżej
-            lista_nazw = []
-            for linia in linie:
-                if ranga in linia:
-                    linia = linia.rstrip('\n')
-                    lista_nazw.append(linia.split(':::')[0])
-            return lista_nazw
+    @classmethod
+    def podaj_rangi(cls):
+        """Podaje sparsowaną listę obiektów klasy 'statki.ranga.Ranga.'"""
 
-        linie = []
-        sciezka = "dane/nazwy.txt"
+        lista_rang = []
         try:
-            with codecs.open(sciezka, encoding='utf-8') as plik:
-                for linia in plik:
-                    linie.append(linia)
+            with codecs.open(cls.SCIEZKA_DANE, encoding='utf-8') as plik:
+                dane = json.load(plik)
+                dane_dla_rang = dane["rangi"]  # słownik
+                liczebniki = dane["liczebniki"]
         except FileNotFoundError:
-            print("Nieudane parsowanie nazw statków. Brak pliku {}".format(sciezka))
+            print("Nieudane parsowanie danych dla rang. Brak pliku '{}'".format(cls.SCIEZKA_DANE))
+            raise
+        except ValueError:
+            print("Nieudane parsowanie danych dla rang. Plik '{}' w nieprawidłowym formacie".format(cls.SCIEZKA_DANE))
             raise
 
-        for ranga in rangi:
-            lista_nazw = parsuj_wg_rangi(linie, ranga)
-            print("\nRanga: {}. Dodano nazw: [{}]".format(ranga, len(lista_nazw)))  # test
-            nazwy[ranga] = lista_nazw
-        print()  # test
+        for ranga_dane in dane_dla_rang:
+            lista_rang.append(Ranga(
+                ranga_dane["nazwa"],
+                ranga_dane["symbol"],
+                range(ranga_dane["zakres"][0], ranga_dane["zakres"][1]),
+                ranga_dane["sila_ognia"],
+                ranga_dane["nazwy_statkow"],
+                liczebniki,
+                ranga_dane["liczba_mnoga"],
+                ranga_dane["biernik"]
+            ))
+            print("\nRanga: {}. Sparsowano nazw: [{}]".format(ranga_dane["nazwa"], len(ranga_dane["nazwy_statkow"])))  # test
 
-        def czy_nazwy_OK():  # czy do wszystkich rang statków przypisano jakieś nazwy?
-            czy_OK = True
-            for ranga in nazwy:
-                if len(nazwy[ranga]) == 0:
-                    czy_OK = False
-            return czy_OK
-
-        assert czy_nazwy_OK(), "Nieudane parsowanie nazw statków. Plik 'dane/nazwy.txt' nie zawiera danych w prawidłowym formacie"
-
-        return nazwy
-
-    @staticmethod
-    def sklonuj_nazwy(nazwy_wg_rangi):
-        """Klonuje słownik nazw wg rangi, wykonując kopię każdej składowej listy."""
-        nazwy = {}
-        for klucz in nazwy_wg_rangi:
-            nazwy[klucz] = nazwy_wg_rangi[klucz][:]
-        return nazwy
+        return Rangi._make(lista_rang)
