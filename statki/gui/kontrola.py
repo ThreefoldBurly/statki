@@ -628,10 +628,10 @@ class DrzewoFlotyGracza(DrzewoFloty):
         # rangi
         ilosc_wg_rang = self.plansza_gui.gra.plansza.podaj_ilosc_niezatopionych_wg_rang()
         for ranga in Statek.RANGI[::-1]:
-            if ilosc_wg_rang[ranga] > 0:
-                ranga_i_ilosc = Statek.SYMBOLE[ranga] + " (" + str(ilosc_wg_rang[ranga]) + ")"
+            if ilosc_wg_rang[ranga.nazwa] > 0:
+                ranga_i_ilosc = ranga.symbol + " (" + str(ilosc_wg_rang[ranga.nazwa]) + ")"
                 self.insert(kategoria, "end",
-                            ranga,
+                            ranga.nazwa,
                             text=ranga_i_ilosc,
                             open=True,
                             tags=(kategoria, "ranga")
@@ -639,7 +639,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
         # statki
         for i, statek in enumerate(statki):
             self.insert(
-                statek.RANGA_BAZOWA, "end",
+                statek.RANGA_BAZOWA.nazwa, "end",
                 str(statek.polozenie),  # tekstowa reprezentacja położenia statku jako ID w drzewie - upraszcza późniejszą translację wybranego elementu drzewa z powrotem na statek na planszy
                 values=(
                     '"' + statek.nazwa + '"',

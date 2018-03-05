@@ -180,7 +180,7 @@ class PlanszaGUI(Sekcja):
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             pole_gui.configure(style=PoleGUI.STYLE["zatopione"])
             if z_symbolami:
-                pole_gui.configure(text=statek.SYMBOLE[statek.RANGA_BAZOWA])
+                pole_gui.configure(text=statek.RANGA_BAZOWA.symbol)
 
         self.gra.plansza.zatopione.append(statek)
         self.gra.plansza.niezatopione.remove(statek)
@@ -331,7 +331,7 @@ class PlanszaGracza(PlanszaGUI):
                     pole_gui.configure(style=PoleGUI.STYLE["woda"])
                 else:
                     statek = self.gra.plansza.podaj_statek(pole_gui.pole)
-                    pole_gui.configure(text=statek.SYMBOLE[statek.RANGA_BAZOWA])
+                    pole_gui.configure(text=statek.RANGA_BAZOWA.symbol)
 
     def wylacz_zablokowane_statki(self):
         """

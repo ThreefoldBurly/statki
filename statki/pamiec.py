@@ -8,27 +8,45 @@
 """
 
 import codecs
+import json
+
+
+from statki.ranga import Ranga, Rangi
 
 
 class Parser:
-    """Parsuje nazwy statków z 'dane/nazwy.txt'."""
+    """Parsuje dane z 'dane/dane.json'."""
 
-    SCIEZKA_NAZW = "dane/nazwy.txt"
+    SCIEZKA_DANE = "dane/dane.json"
 
     @classmethod
-    def podaj_nazwy_statkow(cls, nazwa_rangi):
-        """Podaje sparsowaną listę nazw statków dla danej rangi."""
-        nazwy = []
+    def podaj_rangi(cls):
+        """Podaje sparsowaną listę obiektów klasy 'statki.ranga.Ranga.'"""
+
+        lista_rang = []
         try:
-            with codecs.open(cls.SCIEZKA_NAZW, encoding='utf-8') as plik:
-                for linia in [linia.rstrip("\n") for linia in plik if nazwa_rangi in linia]:
-                    nazwy.append(linia.split(':::')[0])
+            with codecs.open(cls.SCIEZKA_DANE, encoding='utf-8') as plik:
+                dane = json.load(plik)
+                dane_dla_rang = dane["rangi"]  # słownik
+                liczebniki = dane["liczebniki"]
         except FileNotFoundError:
-            print("Nieudane parsowanie nazw statków. Brak pliku '{}'".format(cls.SCIEZKA_NAZW))
+            print("Nieudane parsowanie danych dla rang. Brak pliku '{}'".format(cls.SCIEZKA_DANE))
+            raise
+        except ValueError:
+            print("Nieudane parsowanie danych dla rang. Plik '{}' w nieprawidłowym formacie".format(cls.SCIEZKA_DANE))
             raise
 
-        assert len(nazwy) > 0, "Nieudane parsowanie nazw statków. Plik '{}' nie zawiera danych w prawidłowym formacie".format(cls.SCIEZKA_NAZW)
+        for ranga_dane in dane_dla_rang:
+            lista_rang.append(Ranga(
+                ranga_dane["nazwa"],
+                ranga_dane["symbol"],
+                range(ranga_dane["zakres"][0], ranga_dane["zakres"][1]),
+                ranga_dane["sila_ognia"],
+                ranga_dane["nazwy_statkow"],
+                liczebniki,
+                ranga_dane["liczba_mnoga"],
+                ranga_dane["biernik"]
+            ))
+            print("\nRanga: {}. Sparsowano nazw: [{}]".format(ranga_dane["nazwa"], len(ranga_dane["nazwy_statkow"])))  # test
 
-        print("\nRanga: {}. Dodano nazw: [{}]".format(nazwa_rangi, len(nazwy)))  # test
-
-        return nazwy
+        return Rangi._make(lista_rang)
