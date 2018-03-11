@@ -17,8 +17,6 @@ from statki.plansza import Statek, Salwa
 from .sekcja import Sekcja
 from . import stale
 
-Kolory = namedtuple("Kolory", "")
-
 
 class KontrolaAtaku(Sekcja):
     """

@@ -28,11 +28,11 @@ class Plansza:
     ZAPELNIENIE, ODCH_ST, PRZ_MEDIANY = Parser.podaj_parametry_wypelniania()
 
     Kierunki = namedtuple("Kierunki", "E S W N NE SE SW NW")
-    KIERUNKI = Kierunki("E", "S", "W", "N", "NE", "SE", "SW", "NW")
+    KIERUNKI = Kierunki._make(Kierunki._fields)
 
     def __init__(self, kolumny, rzedy):
         self.kolumny, self.rzedy, self.rozmiar = kolumny, rzedy, rzedy * kolumny
-        self.pola = self.stworz_pola()  # matryca (lista rzędów (list)) pól
+        self.pola = self.stworz_pola()  # matryca pól (krotka krotek (rzędów))
         self.statki = []
         self.wypelnij_statkami(self.ZAPELNIENIE, self.ODCH_ST, self.PRZ_MEDIANY)
         self.o_statkach()  # test
@@ -49,7 +49,7 @@ class Plansza:
             for x in range(1, self.kolumny + 1):
                 rzad.append(Pole(id(self), x, y))
             pola.append(rzad)
-        return pola
+        return tuple(tuple(rzad) for rzad in pola)
 
     def drukuj(self):  # do testów
         """Drukuje planszę w standard output."""
@@ -174,7 +174,7 @@ class Plansza:
                             statek.obwiednia.append(sasiad)
 
     def podaj_statek(self, pole, tryb="pole"):
-        """Zwraca statek zajmujący podane pole - również dla pól podanych w jako str(pole)."""
+        """Zwraca statek zajmujący podane pole - również dla pól podanych jako string."""
         if tryb == "str":
             odwr_alfabet = {v: k for k, v in self.ALFABET.items()}
             litera, cyfra = "", ""
@@ -192,28 +192,27 @@ class Plansza:
 
         return None
 
-    def wypelnij_statkami(self, zapelnienie=20, odch_st=9.5, prz_mediany=-12):  # 20, 9.5, -12
+    def wypelnij_statkami(self, zapelnienie=20, odch_st=9.5, prz_mediany=-12):
         """
         Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry.
+
+        zapelnienie
+        ~~~~~~~~~~~
+        to wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych statków do rozmiaru planszy. W klasycznych `Statkach` zapełnienie wynosi: 20.
+
+        odch_st
+        ~~~~~~~
+        to odchylenie standardowe w rozkładzie Gaussa, z którego losowany jest rozmiar statku. Czym wyższa wartość, tym większy rozrzut rozmiarów standardowa wartość: 9.5 (mediana - minimum przedziału losowania).
+
+        prz_mediany
+        ~~~~~~~~~~~
+        to przesunięcie mediany w rozkładzie Gaussa, z którego losowany jest rozmiar statku. Wartość ujemna spowoduje losowanie większej ilości małych statków. Wartość dodatnia spowoduje losowanie większej ilości dużych statków. Zero (brak przesunięcia) powoduje losowanie wg standardowego rozkładu normalnego, gdzie mediana jest średnią arytmetyczną przedziału losowania.
         """
-        # zapelnienie to wyrażony w procentach stosunek sumarycznego rozmiaru umieszczonych
-        # statków do rozmiaru planszy - w klasycznych `Statkach` zapełnienie wynosi: 20
-        #
-        # odch_st to odchylenie standardowe w rozkładzie Gaussa, z którego losowany
-        # jest rozmiar statku, czym wyższa wartość, tym większy rozrzut rozmiarów
-        # standardowa wartość: 9.5 (mediana - minimum przedziału losowania)
-        #
-        # prz_mediany to przesunięcie mediany w rozkładzie Gaussa, z którego losowany
-        # jest rozmiar statku
-        # wartość ujemna spowoduje losowanie większej ilości małych statków
-        # wartość dodatnia spowodują losowanie większej ilości dużych statków
-        # zero (brak przesunięcia) powoduje losowanie wg standardowego rozkładu normalnego,
-        # gdzie mediana jest średnią arytmetyczną przedziału losowania
-        #
+
         # wartości domyślne parametrów zostały ustalone po testach (przy (50/9.5/-12) nie da się umieścić
         # wszystkich statków - z grubsza max warunek brzegowy)
         #
-        # UWAGA: wpływ użytkownika na rodzaj floty jaki dostanie na planszy (od dużo małych statków do dużo
+        # UWAGA: wpływ gracza na rodzaj floty jaki dostanie na planszy (od dużo małych statków do dużo
         # dużych statków) powinień sprowadzać się do manipulacji tylko jednym parametrem: PRZESUNIĘCIEM
         # MEDIANY
 
@@ -261,7 +260,7 @@ class Plansza:
     def odkryj_pola(self, pola):
         """Odkrywa wskazane pola."""
         for pole in pola:
-            if pole.znacznik in [Pole.ZNACZNIKI.pusty, Pole.ZNACZNIKI.obwiednia]:
+            if pole.znacznik in (Pole.ZNACZNIKI.pusty, Pole.ZNACZNIKI.obwiednia):
                 pole.znacznik = Pole.ZNACZNIKI.pudlo
             elif pole.znacznik == Pole.ZNACZNIKI.statek:
                 pole.znacznik = Pole.ZNACZNIKI.trafiony

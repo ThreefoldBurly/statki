@@ -23,7 +23,7 @@ class Komunikator:
 
     @staticmethod
     def do_indeksu(liczba):
-        """Zamienia liczbę na indeks wartości w słowniku liczby mnogiej."""
+        """Odmiana liczebników - zamienia liczbę na indeks wartości w słowniku liczby mnogiej."""
         if liczba == 1:
             return 0
         elif liczba in range(2, 5):
@@ -87,7 +87,7 @@ class Komunikator:
         self.o_statku(statek)
         komunikat = "oddała" if statek.RANGA_BAZOWA in Statek.RANGI[2:4] else "oddał"
         self.tekst.ro_insert("end", " " + komunikat + " salwę w ")
-        komunikat = "polę: " if len(salwa.pola) == 1 else "pola: "
+        komunikat = "pole: " if len(salwa.pola) == 1 else "pola: "
         self.tekst.ro_insert("end", komunikat)
         for i in range(len(salwa.pola)):
             if salwa.trafienia[i]:

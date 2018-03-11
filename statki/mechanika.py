@@ -12,6 +12,8 @@ from random import choice
 
 from statki.plansza import Plansza, Pole, Salwa
 
+# TODO: oczyścić docstringi z bieżących komentarzy i rozważań
+
 
 class Gra:
     """
@@ -120,7 +122,7 @@ class AI(Gra):
         Salwa.ORIENTACJE.SW: [Plansza.KIERUNKI.S, Plansza.KIERUNKI.W],
         Salwa.ORIENTACJE.NW: [Plansza.KIERUNKI.W, Plansza.KIERUNKI.N]
     }
-    ODWIEDZONE = [Pole.ZNACZNIKI.pudlo, Pole.ZNACZNIKI.trafiony, Pole.ZNACZNIKI.zatopiony]
+    ODWIEDZONE = (Pole.ZNACZNIKI.pudlo, Pole.ZNACZNIKI.trafiony, Pole.ZNACZNIKI.zatopiony)
 
     def __init__(self, plansza_wlasna, plansza_gracza):
         super().__init__(plansza_wlasna)
@@ -128,22 +130,22 @@ class AI(Gra):
 
     def mysl(self):
         """
-        Wybiera strategię ataku.
+        Wybiera strategię ataku: polowanie (atak bez wcześniejszego trafienia) lub celowanie (atak po wcześniejszym trafieniu).
         """
         znaczniki = [pole.znacznik for rzad in self.druga_plansza.pola for pole in rzad]
-        if Pole.ZNACZNIKI["trafione"] in znaczniki:
+        if Pole.ZNACZNIKI.trafiony in znaczniki:
             self.celuj()
         else:
             self.poluj()
 
     def poluj(self):
         """
-        Atakuje, nie wiedząc, gdzie jest ofiara.
+        Atakuje, nie wiedząc, gdzie jest ofiara. W tej implementacji AI losuje 'na ślepo' potencjalny cel z wszystkich nieodwiedzonych jeszcze pól i potem tylko wybiera do niego najlepszą konfigurację. Mocniejsze AI mogłoby najpierw sprawdzić, które spośród wszystkich nieodwiedzonych jeszcze pól dają najlepszą konfigurację i wylosować cel tylko spośród nich.
         """
         wielkosc_salwy = self.tura.runda.napastnik.sila_ognia[0]
         pola = [pole for rzad in self.druga_plansza.pola for pole in rzad]
-        wolne_pola = [pole for pole in pola if pole.znacznik not in self.ODWIEDZONE]
-        cel = choice(wolne_pola)
+        nieodwiedzone = [pole for pole in pola if pole.znacznik not in self.ODWIEDZONE]
+        cel = choice(nieodwiedzone)
         konfiguracja_pol = self.wybierz_konfiguracje_pol(cel)
         self.druga_plansza.odkryj_pola(konfiguracja_pol)
         self.druga_plansza.oznacz_zatopione()
@@ -156,12 +158,24 @@ class AI(Gra):
     def celuj(self):
         """
         Atakuje, wiedząc, gdzie jest ofiara.
+
+        Szkielet algorytmu
+        ~~~~~~~~~~~~~~~~~~
+        1. Wybiera największą ofiarę (sprawdza do ilu statków należą wszystkie odkryte, trafione pola i wybiera ten, którego najwięcej pól zostało trafionych).
+        2. Sprawdza wszystkie nieodwiedzone pola, które są jednocześnie bezpośrednimi sąsiadami (stykającymi się ortogonalnie - nie na ukos) wszystkich trafionych pól ofiary jako potencjalny cel.
+        3. Dla każdego potencjalnego celu wybiera najlepszą konfigurację pól na podstawie dwóch czynników (w podanej kolejności:
+            a) ilości rażonych (nieodwiedzonych) pól
+            b) ilości trafionych pól ofiary, które stykają się bezpośrednio (2 punkty) lub na ukos (1 punkt) z wszystkimi polami danej konfiguracji
+        4. Spośród tak wybranych konfiguracji wybiera najlepszą znowu stosując tę samą ocenę (a) i b)).
+
+        Mocniejsze AI weźmie pod uwagę trzecią kategorię wyboru - wagę danego pola (ustalaną na podstawie symulacji możliwych ustawień statków na planszy)
+
         """
         pass
 
     def wybierz_konfiguracje_pol(self, cel):
         """
-        Wybiera najlepszą konfiguracje pól salwy dla wskazanego celu. Przy ocenie bierze pod uwagę tylko ilość rażonych pól.
+        Wybiera najlepszą konfiguracje pól salwy dla wskazanego celu. Przy ocenie bierze pod uwagę tylko ilość rażonych (nieodwiedzonych) pól.
         """
         konfiguracje_pol = []
         wielkosc_salwy = self.tura.runda.napastnik.sila_ognia[0]
@@ -174,10 +188,12 @@ class AI(Gra):
             for orientacja in Salwa.ORIENTACJE[5:]:
                 konfiguracje_pol.append(self.podaj_konfiguracje_pol(cel, self.KIERUNKI_SALWY[orientacja]))
 
-        return sorted(konfiguracje_pol, key=lambda o: len([pole for pole in o if pole.znacznik not in self.ODWIEDZONE]), reverse=True)[0]
+        return sorted(konfiguracje_pol, key=lambda kp: len([True for pole in kp if pole.znacznik not in self.ODWIEDZONE]), reverse=True)[0]
 
     def podaj_konfiguracje_pol(self, cel, kierunki):
-        """Podaje konfigurację pól salwy wg podanego celu."""
+        """
+        Podaje konfigurację pól salwy wg podanego celu. Termin 'orientacja salwy' zarezerwowany jest dla stałej klasy 'statki.plansza.Salwa'. 'Konfiguracja pól' natomiast to pola planszy odpowiadające danej orientacji, z których jeszcze nie został utworzony obiekt klasy 'statki.plansza.Salwa'. Pierwsze pole konfiguracji to pole celu, pozostałe dobierane są na podstawie kierunków.
+        """
         konfiguracja_pol = [cel]
         for kierunek in kierunki:
             sasiad = self.druga_plansza.podaj_sasiednie_pole(cel, kierunek)
