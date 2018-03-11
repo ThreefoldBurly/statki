@@ -63,9 +63,39 @@ class Parser:
     @classmethod
     def podaj_minmax_rozmiar_statku(cls):
         """Podaje sparsowane minimalny i maksymalny rozmiar statku."""
-        return (cls.DANE["minmax"][0], cls.DANE["minmax"][1])
+        min_rozmiar, max_rozmiar = cls.DANE["minmax"][0], cls.DANE["minmax"][1]
+        if min_rozmiar != 1:
+            raise ValueError(
+                "Błąd parsowania parametrów rozmiaru statków.",
+                "Dopuszczalny minimalny rozmiar statku: 1. Otrzymany: {}".format(min_rozmiar)
+            )
+        if max_rozmiar != 20:
+            raise ValueError(
+                "Błąd parsowania parametrów rozmiaru statków.",
+                "Dopuszczalny maksymalny rozmiar statku: 20. Otrzymany: {}".format(max_rozmiar)
+            )
+        return (min_rozmiar, max_rozmiar)
 
     @classmethod
     def podaj_parametry_wypelniania(cls):
         """Podaje sparsowane parametry wypełniania planszy statkami."""
-        return (cls.DANE["wypelnianie"][0], cls.DANE["wypelnianie"][1], cls.DANE["wypelnianie"][2])
+        zapelnienie = cls.DANE["wypelnianie"][0]
+        odch_st = cls.DANE["wypelnianie"][1]
+        prz_mediany = cls.DANE["wypelnianie"][2]
+
+        if zapelnienie not in range(5, 46):
+            raise ValueError(
+                "Błąd parsowania parametrów wypełniania planszy statkami.",
+                "Dopuszczalne zapełnienie: (5-45). Otrzymane: {}".format(zapelnienie)
+            )
+        if not (8.0 <= odch_st <= 12.0):
+            raise ValueError(
+                "Błąd parsowania parametrów wypełniania planszy statkami.",
+                "Dopuszczalne odchylenie standardowe: (8.0-12.0). Otrzymane: {}".format(odch_st)
+            )
+        if prz_mediany not in range(-20, 6):
+            raise ValueError(
+                "Błąd parsowania parametrów wypełniania planszy statkami.",
+                "Dopuszczalne przesunięcie mediany: (-20-5). Otrzymane: {}".format(prz_mediany)
+            )
+        return (zapelnienie, odch_st, prz_mediany)

@@ -31,6 +31,12 @@ class Plansza:
     KIERUNKI = Kierunki._make(Kierunki._fields)
 
     def __init__(self, kolumny, rzedy):
+        if kolumny not in range(8, 27) and rzedy not in range(8, 31):
+            raise ValueError(
+                "Błąd rozmiaru planszy.",
+                "Prawidłowe rozmiary planszy to 8-26 kolumn x 8-30 rzędów.",
+                "Otrzymane wymiary: {} x {}".format(kolumny, rzedy)
+            )
         self.kolumny, self.rzedy, self.rozmiar = kolumny, rzedy, rzedy * kolumny
         self.pola = self.stworz_pola()  # matryca pól (krotka krotek (rzędów))
         self.statki = []

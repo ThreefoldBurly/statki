@@ -233,7 +233,6 @@ class MocneAI(AI):
         """
         Wybiera najlepszą orientację salwy dla wskazanego celu. Przy ocenie bierze pod uwagę tylko ilość rażonych pól.
         """
-
         pass  # TODO: przeładowanie metody rodzica
 
 

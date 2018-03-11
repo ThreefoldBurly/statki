@@ -54,3 +54,5 @@ zamiast
 `import tablib.core`
 
 #### [więcej](http://docs.python-guide.org/en/latest/writing/structure/)
+
+**WAŻNE:** *aby zachować taką organizację importów jw., aplikacja musi być uruchamiana z poziomu katalogu głównego projektu*
