@@ -10,7 +10,6 @@
 import codecs
 import json
 
-
 from statki.ranga import Ranga, Rangi
 
 
@@ -36,16 +35,18 @@ class Loader:
 
 class Parser:
     """Parsuje dane zapisane w plikach."""
+    # TODO: testy prawidłowości parsowanych danych
     DANE = Loader.zaladuj_dane()
+    DANE_PLANSZY = DANE["plansza"]
 
     @classmethod
     def podaj_rangi(cls):
         """Podaje sparsowane obiekty klasy 'statki.ranga.Ranga'."""
-        dane_dla_rang = cls.DANE["rangi"]  # słownik
+        dane_rang = cls.DANE["rangi"]  # słownik
         liczebniki = cls.DANE["liczebniki"]
 
         lista_rang = []
-        for ranga_dane in dane_dla_rang:
+        for ranga_dane in dane_rang:
             lista_rang.append(Ranga(
                 ranga_dane["nazwa"],
                 ranga_dane["symbol"],
@@ -61,41 +62,30 @@ class Parser:
         return Rangi._make(lista_rang)
 
     @classmethod
+    def podaj_minmax_kolumny(cls):
+        """Podaje sparsowane minimalną i maksymalną liczbę kolumn planszy."""
+        min_kolumny = cls.DANE_PLANSZY["kolumny"][0]  # 8
+        max_kolumny = cls.DANE_PLANSZY["kolumny"][1]  # 26
+        return (min_kolumny, max_kolumny)
+
+    @classmethod
+    def podaj_minmax_rzedy(cls):
+        """Podaje sparsowane minimalną i maksymalną liczbę rzędów planszy."""
+        min_rzedy = cls.DANE_PLANSZY["rzedy"][0]  # 8
+        max_rzedy = cls.DANE_PLANSZY["rzedy"][1]  # 30
+        return (min_rzedy, max_rzedy)
+
+    @classmethod
     def podaj_minmax_rozmiar_statku(cls):
         """Podaje sparsowane minimalny i maksymalny rozmiar statku."""
-        min_rozmiar, max_rozmiar = cls.DANE["minmax"][0], cls.DANE["minmax"][1]
-        if min_rozmiar != 1:
-            raise ValueError(
-                "Błąd parsowania parametrów rozmiaru statków.",
-                "Dopuszczalny minimalny rozmiar statku: 1. Otrzymany: {}".format(min_rozmiar)
-            )
-        if max_rozmiar != 20:
-            raise ValueError(
-                "Błąd parsowania parametrów rozmiaru statków.",
-                "Dopuszczalny maksymalny rozmiar statku: 20. Otrzymany: {}".format(max_rozmiar)
-            )
+        min_rozmiar = cls.DANE_PLANSZY["rozmiar_statku"][0]  # 1
+        max_rozmiar = cls.DANE_PLANSZY["rozmiar_statku"][1]  # 20
         return (min_rozmiar, max_rozmiar)
 
     @classmethod
     def podaj_parametry_wypelniania(cls):
         """Podaje sparsowane parametry wypełniania planszy statkami."""
-        zapelnienie = cls.DANE["wypelnianie"][0]
-        odch_st = cls.DANE["wypelnianie"][1]
-        prz_mediany = cls.DANE["wypelnianie"][2]
-
-        if zapelnienie not in range(5, 46):
-            raise ValueError(
-                "Błąd parsowania parametrów wypełniania planszy statkami.",
-                "Dopuszczalne zapełnienie: (5-45). Otrzymane: {}".format(zapelnienie)
-            )
-        if not (8.0 <= odch_st <= 12.0):
-            raise ValueError(
-                "Błąd parsowania parametrów wypełniania planszy statkami.",
-                "Dopuszczalne odchylenie standardowe: (8.0-12.0). Otrzymane: {}".format(odch_st)
-            )
-        if prz_mediany not in range(-20, 6):
-            raise ValueError(
-                "Błąd parsowania parametrów wypełniania planszy statkami.",
-                "Dopuszczalne przesunięcie mediany: (-20-5). Otrzymane: {}".format(prz_mediany)
-            )
+        zapelnienie = cls.DANE_PLANSZY["wypelnianie"][0]  # od 5 do 45
+        odch_st = cls.DANE_PLANSZY["wypelnianie"][1]  # od 8.0 do 12.0
+        prz_mediany = cls.DANE_PLANSZY["wypelnianie"][2]  # od -20 do 5
         return (zapelnienie, odch_st, prz_mediany)

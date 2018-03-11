@@ -24,6 +24,8 @@ class Plansza:
         21: "U", 22: "V", 23: "W", 24: "X", 25: "Y", 26: "Z", 27: "AA", 28: "AB", 29: "AC", 30: "AD",
         31: "AE", 32: "AF", 33: "AG", 34: "AH", 35: "AI", 36: "AJ", 37: "AK", 38: "AL", 39: "AM", 40: "AN"
     }
+    MIN_KOLUMNY, MAX_KOLUMNY = Parser.podaj_minmax_kolumny()
+    MIN_RZEDY, MAX_RZEDY = Parser.podaj_minmax_rzedy()
     MIN_ROZMIAR_STATKU, MAX_ROZMIAR_STATKU = Parser.podaj_minmax_rozmiar_statku()
     ZAPELNIENIE, ODCH_ST, PRZ_MEDIANY = Parser.podaj_parametry_wypelniania()
 
@@ -31,12 +33,7 @@ class Plansza:
     KIERUNKI = Kierunki._make(Kierunki._fields)
 
     def __init__(self, kolumny, rzedy):
-        if kolumny not in range(8, 27) and rzedy not in range(8, 31):
-            raise ValueError(
-                "Błąd rozmiaru planszy.",
-                "Prawidłowe rozmiary planszy to 8-26 kolumn x 8-30 rzędów.",
-                "Otrzymane wymiary: {} x {}".format(kolumny, rzedy)
-            )
+        self.sprawdz_wymiary(kolumny, rzedy)
         self.kolumny, self.rzedy, self.rozmiar = kolumny, rzedy, rzedy * kolumny
         self.pola = self.stworz_pola()  # matryca pól (krotka krotek (rzędów))
         self.statki = []
@@ -46,6 +43,18 @@ class Plansza:
         self.ilosc_pol_statkow = sum([statek.rozmiar for statek in self.statki])
         self.zatopione = []  # statki zatopione tej planszy
         self.niezatopione = self.statki[:]  # statki niezatopione tej planszy
+
+    def sprawdz_wymiary(self, kolumny, rzedy):
+        """Sprawdza podane wymiary planszy przy inicjalizacji."""
+        if kolumny not in range(self.MIN_KOLUMNY, self.MAX_KOLUMNY + 1) or rzedy not in range(
+                self.MIN_RZEDY, self.MAX_RZEDY + 1):
+            raise ValueError(
+                "Błąd rozmiaru planszy.",
+                "Prawidłowe rozmiary planszy to: {}-{} kolumn x {}-{} rzędów.".format(
+                    self.MIN_KOLUMNY, self.MAX_KOLUMNY, self.MIN_RZEDY, self.MAX_RZEDY
+                ),
+                "Otrzymane wymiary: {} x {}".format(str(kolumny), str(rzedy))
+            )
 
     def stworz_pola(self):
         """Tworzy pola planszy"""
