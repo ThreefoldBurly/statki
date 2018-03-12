@@ -29,8 +29,9 @@ class PasekKomunikatow(ttk.Frame):
 
     def podaj_wysokosc(self):
         """
-        Podaje wysokość. Niezbędna wysokość uzależniona jest od wysokości plansz (oraz drzewa w sekcji kontroli floty) i została ustalona po testach.
+        Podaj wysokość paska.
         """
+        # niezbędna wysokość uzależniona jest od wysokości plansz (oraz drzewa w sekcji kontroli floty) i została ustalona po testach.
         wysokosci = {
             8: 17,
             9: 15,
@@ -59,13 +60,13 @@ class PasekKomunikatow(ttk.Frame):
         return wysokosci[self.wys_plansz]
 
     def podaj_szerokosc(self):
-        """Podaje szerokość."""
+        """Podaj szerokość paska."""
         # z testów wynikło, że dla bazowej szerokości planszy równej 8 kolumn prawidłowa szerokość pola tekstowego to 77 znaków i że z każdą dodatkową kolumną planszy pole powinno rosnąć o 7.5 znaku w szerz
         korekta = round(7.5 * (self.szer_plansz - 8))
         return 77 + korekta
 
     def buduj_pole_tekstowe(self):
-        """Buduje pole tekstowe."""
+        """Buduj pole tekstowe."""
         self.tekst = PoleTekstowe(
             self,
             width=self.podaj_szerokosc(),
@@ -78,7 +79,7 @@ class PasekKomunikatow(ttk.Frame):
         self.tekst.grid(column=0, row=0, sticky="ns")
 
     def ustal_tlo_sytemowe(self):
-        """Sprawdza kolor tla systemowego i zapisuje w stałej"""
+        """Sprawdź kolor tla systemowego i zapisz w stałej"""
         self.TLO_SYSTEMOWE = self.winfo_toplevel().cget("bg")
 
     def wstaw_suwak(self):
@@ -111,7 +112,7 @@ class PoleTekstowe(tk.Text):
         self.configure(state=tk.DISABLED)
 
     def ustaw_tagi(self):
-        """Ustawia tagi zapewniające odpowiednie formatowanie komunikatów."""
+        """Ustaw tagi zapewniające odpowiednie formatowanie komunikatów."""
         self.tag_configure("wyszarzone", foreground=stale.KOLORY.szary)
         self.tag_configure("wyśrodkowane", justify=tk.CENTER)
         self.tag_configure("pogrubione", font=stale.CZCIONKI.mala_pogrubiona)

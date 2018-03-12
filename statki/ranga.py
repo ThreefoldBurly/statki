@@ -15,7 +15,7 @@ Rangi = namedtuple("Rangi", "kuter patrolowiec korweta fregata niszczyciel krazo
 
 class Ranga:
     """
-    Reprezentacja rangi statku. Dane dla obiektów tej klasy są parsowane przez 'statek.pamiec.Parser'
+    Ranga statku. Dane dla obiektów tej klasy są parsowane przez 'statek.pamiec.Parser'.
     """
 
     def __init__(self, nazwa, symbol, zakres, sila_ognia, nazwy_statkow, liczebniki, liczba_mnoga, biernik):
@@ -47,8 +47,9 @@ class Ranga:
 
     def resetuj_pule_nazw(self):
         """
-        Resetuje wyczerpaną pulę nazw statków, dodając do każdej nazwy kolejny liczebnik rzymski. Przy rozmiarach planszy dyktowanych przez GUI prawdopodobieństwo konieczności użycia chociaż raz tej metody jest nikłe.
+        Resetuj wyczerpaną pulę nazw statków, dodając do każdej nazwy kolejny liczebnik rzymski.
         """
+        # przy rozmiarach planszy dyktowanych przez GUI prawdopodobieństwo konieczności użycia chociaż raz tej metody jest nikłe.
         assert len(self.liczebniki) > 0, "Wyczerpano liczbę możliwych nazw dla statków ({})".format(len(self.nazwy_statkow * len(liczebniki)))
 
         liczebnik = self.liczebniki.pop(0)
@@ -56,7 +57,7 @@ class Ranga:
 
     def losuj_nazwe_statku(self):
         """
-        Losuje nazwę dla statku z dostępnej puli nazw. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z puli.
+        Losuj nazwę dla statku z dostępnej puli nazw. By zapewnić unikalność statku, po użyciu usuń nazwę z puli.
         """
         if len(self.pula_nazw_statkow) < 1:
             self.resetuj_pule_nazw()

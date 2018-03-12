@@ -140,7 +140,7 @@ Jeśli za każdym razem zostanie zapewnione, że nie ma blokady zmiany statku w 
 
 Zremby algorytmu oparte na artykule dotyczącym zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
 
-*Uwaga: orientacja potencjalnej salwy jest nazywana w docstringach kodu 'konfiguracją pól' - dla odróżnienia jej od elementów stałej 'ORIENTACJE' klasy 'statki.plansza.Salwa' oraz od już oddanych salw (które stają się obiektami klasy 'statki.plansza.Salwa')*
+*Uwaga: **orientacja potencjalnej salwy** jest nazywana w module 'statki.mechanika' **'konfiguracją pól'** - dla odróżnienia jej od elementów stałej 'ORIENTACJE' klasy 'statki.plansza.Salwa' oraz od już oddanych salw (które stają się obiektami klasy 'statki.plansza.Salwa'). W kontekście GUI (np. w module 'statki.gui.plansza') jest nazywana **'celownikiem'**.*
 
 Szkielet działania:
 1. Wybór napastnika.

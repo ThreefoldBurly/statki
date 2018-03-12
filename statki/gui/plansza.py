@@ -59,9 +59,9 @@ class PoleGUI(ttk.Button):
         self.pole = pole
 
 
-class PlanszaGUI(Sekcja):
+class PlanszaGUI(Sekcja):  # nie powinna być powiększana.
     """
-    Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych. Nie powinna być powiększana.
+    Graficzna reprezentacja planszy - szczegółowa implementacja w klasach potomnych.
     """
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
@@ -211,7 +211,7 @@ class PlanszaGracza(PlanszaGUI):
         # self.zatop_statek(statek)
 
     def ustaw_style_gracza(self):
-        """Definiuje style dla pól."""
+        """Definiuj style dla pól."""
         # wybrane
         self.styl.configure(
             PoleGUI.STYLE.wybrany,
@@ -232,7 +232,7 @@ class PlanszaGracza(PlanszaGUI):
         )
 
     def powiaz_callbacki(self):
-        """Wiąże callbacki."""
+        """Powiąż callbacki."""
         # wszystkie pola
         for i in range(self.gra.plansza.kolumny):
             for j in range(self.gra.plansza.rzedy):
@@ -249,7 +249,7 @@ class PlanszaGracza(PlanszaGUI):
     # CALLBACK wszystkich pól
     def na_klikniecie(self, kolumna, rzad):
         """
-        Wybiera kliknięty statek, kasując wybór poprzedniego. Zatopione statki nie są wybierane. Ten sam mechanizm jest uruchamiany po wyborze statku w sekcjach kontroli ataku i floty.
+        Wybierz kliknięty statek, kasując wybór poprzedniego. Zatopione statki nie są wybierane. Ten sam mechanizm jest uruchamiany po wyborze statku w sekcjach kontroli ataku i floty.
         """
         statek = self.gra.plansza.podaj_statek(self.podaj_pole_gui(kolumna, rzad).pole)
         self.zmien_statek(statek)
@@ -259,21 +259,21 @@ class PlanszaGracza(PlanszaGUI):
     # CALLBACK wszystkich pól
     def na_wejscie(self, event=None):
         """
-        Wyświetla pozycję pola w sekcji kontroli floty.
+        Wyświetl pozycję pola w sekcji kontroli floty.
         """
         self.kf.pozycja_pola.set(event.widget.pole)
 
     # CALLBACK wszystkich pól
     def na_wyjscie(self, event=None):
         """
-        Kasuje wyświetlaną pozycję pola w sekcji kontroli floty.
+        Kasuj wyświetlaną pozycję pola w sekcji kontroli floty.
         """
         self.kf.pozycja_pola.set("")
 
     # CALLBACK okna głównego
     def na_nawias_kw_lewy(self, event=None):
         """
-        Przewija wybrany statek do tyłu.
+        Przewiń wybrany statek do tyłu.
         """
         if len(self.gra.tura.napastnicy) > 1:  # jeśli jest co przewijać
             indeks = self.gra.tura.napastnicy.index(self.gra.tura.runda.napastnik)
@@ -286,7 +286,7 @@ class PlanszaGracza(PlanszaGUI):
     # CALLBACK okna głównego
     def na_nawias_kw_prawy(self, event=None):
         """
-        Przewija wybrany statek do przodu.
+        Przewiń wybrany statek do przodu.
         """
         if len(self.gra.tura.napastnicy) > 1:  # jeśli jest co przewijać
             indeks = self.gra.tura.napastnicy.index(self.gra.tura.runda.napastnik)
@@ -297,13 +297,13 @@ class PlanszaGracza(PlanszaGUI):
             self.zmien_statek(statek)
 
     def zmien_statek(self, statek):
-        """Zmienia wybrany statek"""
+        """Zmień wybrany statek"""
         if statek in self.gra.tura.napastnicy and self.gra.tura.runda.mozna_zmienic_napastnika:
             self.kasuj_wybor_statku(self.gra.tura.runda.napastnik)
             self.wybierz_statek(statek)
 
     def wybierz_statek(self, statek):
-        """Wybiera statek na planszy"""
+        """Wybierz statek na planszy"""
         for pole in statek.pola:
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             if pole_gui.pole.znacznik == Pole.ZNACZNIKI.trafiony:
@@ -322,7 +322,7 @@ class PlanszaGracza(PlanszaGUI):
             self.kf.drzewo_g.see(iid)
 
     def kasuj_wybor_statku(self, statek):
-        """Kasuje wybór statku na planszy"""
+        """Kasuj wybór statku na planszy"""
         for pole in statek.pola:
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             if pole_gui.pole.znacznik == Pole.ZNACZNIKI.trafiony:
@@ -331,7 +331,7 @@ class PlanszaGracza(PlanszaGUI):
                 pole_gui.configure(style=PoleGUI.STYLE.bazowy)
 
     def odkryj_wszystkie_pola(self):
-        """Odkrywa wszystkie pola planszy."""
+        """Odkryj wszystkie pola planszy."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
                 if pole_gui.pole.znacznik in (Pole.ZNACZNIKI.pusty, Pole.ZNACZNIKI.obwiednia):
@@ -342,7 +342,7 @@ class PlanszaGracza(PlanszaGUI):
 
     def wylacz_zablokowane_statki(self):
         """
-        Wyłącza pola zablokowanych statków. Uruchamiana w sekcji kontroli ataku razem z blokadą zmiany napastnika w momencie wykonania pierwszej salwy.
+        Wyłącz pola zablokowanych statków. Uruchamiana w sekcji kontroli ataku razem z blokadą zmiany napastnika w momencie wykonania pierwszej salwy.
         """
         napastnik = self.gra.tura.runda.napastnik
         for statek in [statek for statek in self.gra.tura.napastnicy if statek != napastnik]:
@@ -350,19 +350,19 @@ class PlanszaGracza(PlanszaGUI):
 
     def wlacz_zablokowane_statki(self):
         """
-        Włącza pola zablokowanych statków. Uruchamiana w sekcji kontroli gry na koniec rundy - już po dodaniu nowej rundy w turze, ale jeszcze PRZED wyborem nowego napastnika na początek tury.
+        Włącz pola zablokowanych statków. Uruchamiana w sekcji kontroli gry na koniec rundy - już po dodaniu nowej rundy w turze, ale jeszcze PRZED wyborem nowego napastnika na początek tury.
         """
         for statek in self.gra.tura.napastnicy:
             self.zmien_stan_statku(statek, "!disabled")
 
     def zmien_stan_statku(self, statek, stan):
-        """Zmienia stan podanego statek."""
+        """Zmień stan podanego statku."""
         for pole in statek.pola:
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             pole_gui.state([stan])
 
     def oznacz_salwy(self, salwy):
-        """Oznacza otrzymane salwy. Obsługuje ewentualne zatopienia."""
+        """Oznacz otrzymane salwy. Obsłuż ewentualne zatopienia."""
         pass  # TODO
 
 
@@ -381,7 +381,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         self.wlacz_atak()
 
     def ustaw_style_przeciwnika(self):
-        """Definiuje style dla pól."""
+        """Definiuj style dla pól."""
         # atak
         self.styl.map(
             PoleGUI.STYLE.atak,
@@ -389,7 +389,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         )
 
     def wlacz_atak(self):
-        """Włącza nieodkryte pola oraz celownik."""
+        """Włącz nieodkryte pola oraz celownik."""
         for rzad in self.pola_gui:
             for pole_gui in rzad:
                 if pole_gui.configure("style")[-1] in [PoleGUI.STYLE.bazowy, ""]:
@@ -405,7 +405,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                     pole_gui.configure(style=PoleGUI.STYLE.bazowy)
 
     def powiaz_callbacki(self):
-        """Wiąże callbacki we wszystkich polach."""
+        """Powiąż callbacki we wszystkich polach."""
         for i in range(self.gra.plansza.kolumny):
             for j in range(self.gra.plansza.rzedy):
                 kolumna, rzad = i + 1, j + 1
@@ -420,7 +420,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     # CALLBACK wszystkich pól
     def na_klikniecie(self, kolumna, rzad):
         """
-        W zależności od wybranej orientacji w sekcji kontroli ataku oddaje salwę w wybrane pola oraz wyświetla komunikaty o salwie i zatopieniu.
+        W zależności od wybranej orientacji w sekcji kontroli ataku oddaj salwę w wybrane pola oraz wyświetl komunikaty o salwie i zatopieniu.
         """
         if self.pg.gra.tura.runda.mozna_atakowac:
             ilosc_zatopionych = len(self.gra.plansza.zatopione)
@@ -469,7 +469,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         print("Kliknięcie w polu: ({}{})".format(Plansza.ALFABET[kolumna], rzad))  # test
 
     def oddaj_salwe(self, *wspolrzedne):
-        """Oddaje salwę w pola o podanych współrzędnych."""
+        """Oddaj salwę w pola o podanych współrzędnych."""
         if len(self.gra.tura.runda.salwy_oddane) == 0:
             self.blokuj_zmiane_statku()
         pola_salwy = []
@@ -486,7 +486,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         self.ka.ustaw_combo_salwy()
 
     def blokuj_zmiane_statku(self):
-        """Blokuje w widżetach możliwość zmiany statku po oddaniu pierwszej salwy."""
+        """Blokuj w widżetach możliwość zmiany statku po oddaniu pierwszej salwy."""
         self.pg.gra.tura.runda.mozna_zmienic_statek = False
         self.pg.wylacz_zablokowane_statki()
         self.ka.combo_statku.state(["disabled"])
@@ -495,7 +495,9 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         self.kf.przycisk_do_przodu.state(["disabled"])
 
     def odkryj_pole(self, kolumna, rzad):
-        """Odkrywa na planszy pole wg podanych współrzędnych. Zaznacza pudło lub trafienie. Jeśli trzeba, zatapia trafiony statek (i odkrywa pola jego obwiedni)."""
+        """
+        Odkryj na planszy pole wg podanych współrzędnych. Zaznacz pudło lub trafienie. Jeśli trzeba, zatop trafiony statek (i odkryj pola jego obwiedni).
+        """
         pole_gui = self.podaj_pole_gui(kolumna, rzad)
         if pole_gui.pole.znacznik in (Pole.ZNACZNIKI.pusty, Pole.ZNACZNIKI.obwiednia):
             self.oznacz_pudlo(pole_gui)
@@ -508,7 +510,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 self.odkryj_obwiednie(statek)
 
     def odkryj_obwiednie(self, statek):
-        """Odkrywa na planszy obwiednie zatopionego statku."""
+        """Odkryj na planszy obwiednie zatopionego statku."""
         for pole in statek.obwiednia:
             pole_gui = self.podaj_pole_gui(*pole.podaj_wspolrzedne())
             # configure("style") zwraca krotkę, której ostatnim elementem jest nazwa stylu
@@ -520,7 +522,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     # CALLBACK wszystkich pól
     def na_wejscie(self, event):
         """
-        W zależności od wybranej orientacji w sekcji kontroli ataku zmienia celownik (podświetla pola) i aktualizuje pozycje odpowiadających pól w sekcji kontroli ataku.
+        W zależności od wybranej orientacji w sekcji kontroli ataku zmień celownik (podświetl pola) i aktualizuj pozycje odpowiadających pól w sekcji kontroli ataku.
         """
         if self.pg.gra.tura.runda.mozna_atakowac:
             kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
@@ -571,7 +573,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
     # CALLBACK wszystkich pól
     def na_wyjscie(self, event):
         """
-        W zależności od wybranej orientacji w sekcji kontroli ataku zmienia celownik (gasi pola) i aktualizuje pozycje odpowiadających pól w sekcji kontroli ataku.
+        W zależności od wybranej orientacji w sekcji kontroli ataku zmień celownik i aktualizuj pozycje odpowiadających pól w sekcji kontroli ataku.
         """
         if self.pg.gra.tura.runda.mozna_atakowac:
             kolumna, rzad = event.widget.pole.podaj_wspolrzedne()
@@ -621,7 +623,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
 
     def zmien_celownik(self, stan, *wspolrzedne):
         """
-        Zmienia stan (włącza na wejściu/wyłącza na wyjściu) celownika (pól, w które oddawana jest salwa po naciśnięciu lewego klawisza myszy) wg podanych współrzędnych.
+        Zmień stan (włącz na wejściu/wyłącz na wyjściu) celownika (pól, w które oddawana jest salwa po naciśnięciu lewego klawisza myszy) wg podanych współrzędnych.
         """
         for kolumna, rzad in wspolrzedne:
             if self.gra.plansza.czy_w_planszy(kolumna, rzad):
@@ -629,7 +631,7 @@ class PlanszaPrzeciwnika(PlanszaGUI):
                 pole_gui.state([stan])
 
     def aktualizuj_pozycje_pol(self, stan, *wspolrzedne):
-        """Aktualizuje treść odpowiadających celownikowi pozycji pól w sekcji kontroli ataku."""
+        """Aktualizuj treść odpowiadających celownikowi pozycji pól w sekcji kontroli ataku."""
         def ustaw_pozycje(stan, pozycja):
             if stan == "wejście":
                 pozycja.set(self.gra.plansza.podaj_pole(kolumna, rzad))

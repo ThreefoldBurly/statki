@@ -16,7 +16,7 @@ from statki.pamiec import Parser
 
 class Plansza:
     """
-    Reprezentacja planszy do gry. Zapisuje całą informację o stanie gry po stronie jednego gracza w danym momencie. Na początku gry tworzone są 2 obiekty tej klasy - jeden dla gracza, drugi dla przeciwnika. Moduł `statki.gui.plansza` powiela tę dychotomię.
+    Plansza gry złożona z pól. Zapisuje całą informację o stanie gry po stronie jednego gracza w danym momencie. Na początku gry tworzone są 2 obiekty tej klasy - jeden dla gracza, drugi dla przeciwnika. Moduł `statki.gui.plansza` powiela tę dychotomię.
     """
     ALFABET = {
         1: "A", 2: "B", 3: "C", 4: "D", 5: "E", 6: "F", 7: "G", 8: "H", 9: "I", 10: "J",
@@ -45,7 +45,7 @@ class Plansza:
         self.niezatopione = self.statki[:]  # statki niezatopione tej planszy
 
     def sprawdz_wymiary(self, kolumny, rzedy):
-        """Sprawdza podane wymiary planszy przy inicjalizacji."""
+        """Sprawdź podane wymiary planszy przy inicjalizacji."""
         if kolumny not in range(self.MIN_KOLUMNY, self.MAX_KOLUMNY + 1) or rzedy not in range(
                 self.MIN_RZEDY, self.MAX_RZEDY + 1):
             raise ValueError(
@@ -57,7 +57,7 @@ class Plansza:
             )
 
     def stworz_pola(self):
-        """Tworzy pola planszy"""
+        """Stwórz pola planszy."""
         pola = []
         for y in range(1, self.rzedy + 1):
             rzad = []
@@ -67,7 +67,7 @@ class Plansza:
         return tuple(tuple(rzad) for rzad in pola)
 
     def drukuj(self):  # do testów
-        """Drukuje planszę w standard output."""
+        """Drukuj planszę w standard output."""
         # numeracja kolumn
         print()
         print("##### PLANSZA #####".center(self.kolumny * 3 + 2))
@@ -86,7 +86,7 @@ class Plansza:
 
     def podaj_pole(self, kolumna, rzad):
         """
-        Podaje pole wg wskazanych współrzędnych. Jeśli podane współrzędne wykraczają poza zakres planszy zwraca None.
+        Podaj pole wg wskazanych współrzędnych. Jeśli podane współrzędne wykraczają poza zakres planszy zwróć None.
         """
         if self.czy_w_planszy(kolumna, rzad):
             return self.pola[rzad - 1][kolumna - 1]
@@ -94,14 +94,14 @@ class Plansza:
             return None
 
     def czy_w_planszy(self, kolumna, rzad):
-        """Sprawdza czy wskazane wspolrzedne są w obrębie planszy."""
+        """Sprawdź czy wskazane wspolrzedne są w obrębie planszy."""
         if rzad < 1 or rzad > self.rzedy or kolumna < 1 or kolumna > self.kolumny:
             return False
         else:
             return True
 
     def podaj_sasiednie_pole(self, pole, kierunek):
-        """Podaje pole sąsiednie dla wskazanego pola wg podanego kierunku."""
+        """Podaj pole sąsiednie dla wskazanego pola wg podanego kierunku."""
         kolumna, rzad = pole.podaj_wspolrzedne()
         if kierunek == self.KIERUNKI.E:
             kolumna += 1
@@ -128,7 +128,7 @@ class Plansza:
 
     def umiesc_statek(self, kolumna, rzad, rozmiar):
         """
-        Stara się umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu metoda zwraca umieszczony statek, w razie porażki zwraca None (czyszcząc oznaczone wcześniej pola).
+        Spróbuj umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu zwróć umieszczony statek, w razie porażki zwróć None (czyszcząc oznaczone wcześniej pola).
         """
         licznik_iteracji = 0
         pola_statku = []
@@ -176,7 +176,7 @@ class Plansza:
         return Statek.fabryka(pola_statku)
 
     def umiesc_obwiednie_statku(self, statek):
-        """Umieszcza na planszy i w statku obwiednię wskazanego statku."""
+        """Umieść na planszy i w statku obwiednię wskazanego statku."""
         for pole in statek.pola:
             for kierunek in self.KIERUNKI:
                 sasiad = self.podaj_sasiednie_pole(pole, kierunek)
@@ -189,7 +189,7 @@ class Plansza:
                             statek.obwiednia.append(sasiad)
 
     def podaj_statek(self, pole, tryb="pole"):
-        """Zwraca statek zajmujący podane pole - również dla pól podanych jako string."""
+        """Podaj statek zajmujący wskazane pole (które może mieć postać stringa)."""
         if tryb == "str":
             odwr_alfabet = {v: k for k, v in self.ALFABET.items()}
             litera, cyfra = "", ""
@@ -209,7 +209,7 @@ class Plansza:
 
     def wypelnij_statkami(self, zapelnienie=20, odch_st=9.5, prz_mediany=-12):
         """
-        Wypełnia planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry.
+        Wypełnij planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry.
 
         zapelnienie
         ~~~~~~~~~~~
@@ -233,7 +233,7 @@ class Plansza:
 
         def podaj_rozmiar_z_rozkladu_Gaussa(mediana, odch_st, minimum, maximum, prz_mediany=0):
             """
-            Podaje rozmiar statku jako losową liczbę całkowitą wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany. Liczby losowane spoza żądanego przedziału są ignorowane.
+            Podaj rozmiar statku jako losową liczbę całkowitą wg rozkładu Gaussa we wskazanym przedziale oraz ze wskazanym przesunięciem mediany. Liczby losowane spoza żądanego przedziału są ignorowane.
             """
             while True:
                 i = int(round(gauss(mediana + prz_mediany, odch_st)))
@@ -273,7 +273,7 @@ class Plansza:
         self.statki.sort(key=lambda s: s.rozmiar, reverse=True)  # od największego do najmniejszego
 
     def odkryj_pola(self, pola):
-        """Odkrywa wskazane pola."""
+        """Odkryj wskazane pola."""
         for pole in pola:
             if pole.znacznik in (Pole.ZNACZNIKI.pusty, Pole.ZNACZNIKI.obwiednia):
                 pole.znacznik = Pole.ZNACZNIKI.pudlo
@@ -281,7 +281,7 @@ class Plansza:
                 pole.znacznik = Pole.ZNACZNIKI.trafiony
 
     def oznacz_zatopione(self):
-        """Oznacza statki posiadające wszystkie pola trafione jako zatopione."""
+        """Oznacz statki posiadające wszystkie pola trafione jako zatopione."""
         for statek in self.niezatopione[:]:
             if not statek.czy_zatopiony():
                 if all([True for pole in statek.pola if pole.znacznik == Pole.ZNACZNIKI.trafiony]):
@@ -290,7 +290,7 @@ class Plansza:
                     self.zatopione.append(statek)
 
     def o_statkach(self):  # do testów
-        """Drukuje informację o umieszczonych statkach"""
+        """Drukuj informację o umieszczonych statkach"""
         print()
         print("##### STATKI #####".center(self.kolumny * 3 + 2))
         sum_rozmiar = 0
@@ -302,20 +302,20 @@ class Plansza:
 
     def podaj_ilosc_niezatopionych_wg_rang(self):
         """
-        Podaje zestawienie ilości niezatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
+        Podaj zestawienie ilości niezatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
         """
         lista_rang = [statek.RANGA_BAZOWA.nazwa for statek in self.niezatopione]
         return dict([(ranga.nazwa, lista_rang.count(ranga.nazwa)) for ranga in Statek.RANGI])
 
     def podaj_ilosc_zatopionych_wg_rang(self):
         """
-        Podaje zestawienie ilości zatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
+        Podaj zestawienie ilości zatopionych statków wg rang w postaci słownika w formacie {'ranga': ilość}
         """
         lista_rang = [statek.RANGA_BAZOWA.nazwa for statek in self.zatopione]
         return dict([(ranga.nazwa, lista_rang.count(ranga.nazwa)) for ranga in Statek.RANGI])
 
     def podaj_ilosc_nietrafionych_pol(self):
-        """Podaje ilość nietrafionych pól statków. Pola zatopione zalicza do trafionych."""
+        """Podaj ilość nietrafionych pól statków. Pola zatopione traktowane są jak trafione."""
         licznik = 0
         for statek in self.statki:
             for pole in statek.pola:
@@ -325,7 +325,7 @@ class Plansza:
 
     def podaj_info_o_nietrafionych(self):
         """
-        Podaje informację o nietrafionych polach w postaci 2 stringów: ilości nietrafionych pól planszy oraz stosunku nietrafionych pól statków do wszystkich pól zajętych przez statki w procentach.
+        Podaj informację o nietrafionych polach w postaci 2 stringów: ilości nietrafionych pól planszy oraz stosunku nietrafionych pól statków do wszystkich pól zajętych przez statki w procentach.
         """
         nietrafione = D(self.podaj_ilosc_nietrafionych_pol())
         wszystkie = D(self.ilosc_pol_statkow)
@@ -335,7 +335,7 @@ class Plansza:
 
 class Pole:
     """
-    Reprezentacja pola planszy. Posiada 6 podstawowych stanów pola oznaczonych znacznikami. Z czego tylko pierwsze 3 są używane przy inicjalizacji planszy (pola zakryte), a pozostałe 3 pojawiają się tylko jako efekt działań graczy (pola odkryte).
+    Pole planszy. Posiada 6 podstawowych stanów oznaczonych znacznikami. Trzy pierwsze są używane przy inicjalizacji planszy (pola zakryte), podczas gry trzy pozostałe pojawiają się tylko jako efekt działań graczy (pola odkryte).
     """
     Znaczniki = namedtuple("Znaczniki", "pusty obwiednia statek pudlo trafiony zatopiony")
     ZNACZNIKI = Znaczniki(
@@ -355,7 +355,7 @@ class Pole:
         self.znacznik = znacznik if znacznik is not None else self.ZNACZNIKI.pusty
 
     def __str__(self):
-        """Zwraca informację o polu w formacie: litera kolumny+cyfra rzędu np. B9"""
+        """Zwróć informację o polu w formacie: litera kolumny+cyfra rzędu np. B9"""
         return "{}{}".format(Plansza.ALFABET[self.kolumna], self.rzad)
 
     def __eq__(self, other):
@@ -368,23 +368,25 @@ class Pole:
 
     def __hash__(self):
         """
-        Przeładowanie operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach)
+        Przeładowanie operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach).
         """
         return hash(tuple(sorted(self.__dict__.items())))
 
     def podaj_wspolrzedne(self):
-        """Podaje współrzędne pola."""
+        """Podaj współrzędne pola."""
         return (self.kolumna, self.rzad)
 
     def str_w_nawiasach(self):
-        """Zwraca informację o polu w formacie __str__ tylko dodaje nawiasy, np. (B9)"""
+        """Zwróć informację o polu w formacie __str__ , dodając nawiasy, np. (B9)"""
         return "(" + str(self) + ")"
 
 
 class Salwa:
     """
-    Kolekcja pól planszy, w które strzela napastnik (UWAGA - nie są to pola planszy napastnika) wraz ze źródłem (jego położeniem).
+    Kolekcja pól planszy, w które strzela napastnik wraz ze źródłem (jego położeniem).
     """
+    # UWAGA - nie są to pola planszy napastnika
+
     Orientacje = namedtuple("Orientacje", "C E S W N WE NS NE SE SW NW")
     ORIENTACJE = Orientacje(
         C="•",
@@ -421,7 +423,7 @@ class Salwa:
         return NotImplemented
 
     def __str__(self):
-        """Zwraca reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6)."""
+        """Zwróć reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6)."""
         pola_tekst = ["(" + str(pole) + ")" for pole in self.pola]
         if len(self.pola) == 1:
             return pola_tekst[0]
@@ -436,7 +438,7 @@ class Salwa:
 
 class Statek:
     """
-    Reprezentacja statku. Tworzone są tylko instancje klas potomnych.
+    Statek. Klasa abstrakcyjna - inicjalizacja dotyczy tylko instancji klas potomnych.
     """
 
     RANGI = Parser.podaj_rangi()  # namedtuple
@@ -487,7 +489,7 @@ class Statek:
 
     def __str__(self):
         """
-        Zwraca informację o statku w formacie:
+        Zwróć informację o statku w formacie:
 
         ranga "nazwa" (A6) [10/17] **
 
@@ -510,7 +512,7 @@ class Statek:
         return info
 
     def ile_otrzymanych_trafien(self):
-        """Podaje ilość otrzymanych trafień."""
+        """Podaj ilość otrzymanych trafień."""
         licznik_trafien = 0
         for pole in self.pola:
             if pole.znacznik in (Pole.ZNACZNIKI.trafiony, Pole.ZNACZNIKI.zatopiony):
@@ -518,33 +520,33 @@ class Statek:
         return licznik_trafien
 
     def czy_zatopiony(self):
-        """Sprawdza czy statek jest zatopiony."""
+        """Sprawdź czy statek jest zatopiony."""
         if self.ile_otrzymanych_trafien() == self.rozmiar:
             return True
         else:
             return False
 
     def zatop(self):
-        """Zatapia ten statek."""
+        """Zatop ten statek."""
         for pole in self.pola:
             pole.znacznik = Pole.ZNACZNIKI.zatopiony
 
     def o_zatopieniu(self):
-        """Zwraca komunikat o swoim zatopieniu."""
+        """Zwróć komunikat o swoim zatopieniu."""
         if self.RANGA_BAZOWA in self.RANGI[2:4]:  # korweta lub fregata
             return "{} zatopiona!".format(str(self))
         else:
             return "{} zatopiony!".format(str(self))
 
     def obniz_range(self):
-        """Obniża rangę statku jako efekt otrzymanych trafień."""
+        """Obniż rangę statku (na skutek otrzymanych trafień)."""
         indeks = self.RANGI.index(self.ranga) - 1
         if indeks >= 0:  # obniżać można tylko powyżej kutra
             self.ranga = self.RANGI[indeks]
             self.sila_ognia = self.ranga.sila_ognia[:]
 
     def podaj_nietrafione_na_rozmiar(self):
-        """Podaje informację o stosunku nietrafionych do wszystkich pól jako string w formacie: 16/20."""
+        """Podaj informację o stosunku pól nietrafionych do wszystkich pól jako string w formacie: 16/20."""
         nietrafione = self.rozmiar - self.ile_otrzymanych_trafien()
         return str(nietrafione) + "/" + str(self.rozmiar)
 

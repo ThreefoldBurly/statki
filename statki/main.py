@@ -13,7 +13,7 @@ from statki.gui.interfejs import Interfejs
 
 
 def main():
-    """Uruchamia grę."""
+    """Uruchom grę."""
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
     Interfejs(okno_glowne, 15, 15)  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów

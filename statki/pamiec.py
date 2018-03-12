@@ -14,12 +14,12 @@ from statki.ranga import Ranga, Rangi
 
 
 class Loader:
-    """Ładuje dane zapisane w plikach."""
+    """Ładuj dane zapisane w plikach."""
     SCIEZKA = "dane/dane.json"
 
     @classmethod
     def zaladuj_dane(cls):
-        """Ładuje dane z pliku JSON."""
+        """Ładuj dane z pliku JSON."""
         try:
             with codecs.open(cls.SCIEZKA, encoding='utf-8') as plik:
                 dane = json.load(plik)
@@ -34,14 +34,14 @@ class Loader:
 
 
 class Parser:
-    """Parsuje dane zapisane w plikach."""
+    """Parsuj dane zapisane w plikach."""
     # TODO: testy prawidłowości parsowanych danych
     DANE = Loader.zaladuj_dane()
     DANE_PLANSZY = DANE["plansza"]
 
     @classmethod
     def podaj_rangi(cls):
-        """Podaje sparsowane obiekty klasy 'statki.ranga.Ranga'."""
+        """Podaj sparsowane obiekty klasy 'statki.ranga.Ranga'."""
         dane_rang = cls.DANE["rangi"]  # słownik
         liczebniki = cls.DANE["liczebniki"]
 
@@ -63,28 +63,28 @@ class Parser:
 
     @classmethod
     def podaj_minmax_kolumny(cls):
-        """Podaje sparsowane minimalną i maksymalną liczbę kolumn planszy."""
+        """Podaj sparsowane minimalną i maksymalną liczbę kolumn planszy."""
         min_kolumny = cls.DANE_PLANSZY["kolumny"][0]  # 8
         max_kolumny = cls.DANE_PLANSZY["kolumny"][1]  # 26
         return (min_kolumny, max_kolumny)
 
     @classmethod
     def podaj_minmax_rzedy(cls):
-        """Podaje sparsowane minimalną i maksymalną liczbę rzędów planszy."""
+        """Podaj sparsowane minimalną i maksymalną liczbę rzędów planszy."""
         min_rzedy = cls.DANE_PLANSZY["rzedy"][0]  # 8
         max_rzedy = cls.DANE_PLANSZY["rzedy"][1]  # 30
         return (min_rzedy, max_rzedy)
 
     @classmethod
     def podaj_minmax_rozmiar_statku(cls):
-        """Podaje sparsowane minimalny i maksymalny rozmiar statku."""
+        """Podaj sparsowane minimalny i maksymalny rozmiar statku."""
         min_rozmiar = cls.DANE_PLANSZY["rozmiar_statku"][0]  # 1
         max_rozmiar = cls.DANE_PLANSZY["rozmiar_statku"][1]  # 20
         return (min_rozmiar, max_rozmiar)
 
     @classmethod
     def podaj_parametry_wypelniania(cls):
-        """Podaje sparsowane parametry wypełniania planszy statkami."""
+        """Podaj sparsowane parametry wypełniania planszy statkami."""
         zapelnienie = cls.DANE_PLANSZY["wypelnianie"][0]  # od 5 do 45
         odch_st = cls.DANE_PLANSZY["wypelnianie"][1]  # od 8.0 do 12.0
         prz_mediany = cls.DANE_PLANSZY["wypelnianie"][2]  # od -20 do 5

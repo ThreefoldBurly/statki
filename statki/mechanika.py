@@ -3,7 +3,7 @@
     statki.mechanika
     ~~~~~~~~~~~~~~~~
 
-    Mechanika i przebieg gry w rozbiciu na tury i rundy - wg opisu zawartego w meta/zasady.md. Gra składa się z tur, które składają się z rund. Runda odpowiada atakowi pojedynczego statku na pola planszy przeciwnika podzielonemu na salwy. Ilość salw oddawanych przez statek w rundzie zależy od jego aktualnej siły ognia. Tura składa się z tylu rund ile statków na planszy może atakować (nie są zatopione). Gra składa się z tak wielu tur, jak wiele razy po wykonaniu wszystkich ataków na planszy atakującego gracza pozostał jeszcze jakiś niezatopiony statek.
+    Mechanika i przebieg gry w rozbiciu na tury i rundy. Gra składa się z tur, które składają się z rund. Runda odpowiada atakowi pojedynczego statku na pola planszy przeciwnika podzielonemu na salwy. Ilość salw oddawanych przez statek w rundzie zależy od jego aktualnej siły ognia. Tura składa się z tylu rund ile statków na planszy może atakować (nie są zatopione). Gra składa się z tak wielu tur, jak wiele razy po wykonaniu wszystkich ataków na planszy atakującego gracza pozostał jeszcze jakiś niezatopiony statek.
 
 """
 
@@ -27,12 +27,12 @@ class Gra:
         self.ofiary = []  # zatopione statki przeciwnika
 
     def dodaj_ture(self):
-        """Tworzy nową turę i dodaje do listy tur"""
+        """Stwórz nową turę i dodaj do listy tur"""
         self.tura = Tura(self.plansza)
         self.tury.append(self.tura)
 
     def podaj_info_o_rundzie(self):
-        """Zwraca informację o rundzie w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków])."""
+        """Zwróć informację o rundzie w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków])."""
         info = "tura #" + str(len(self.tury))
         info += " / runda #" + str(len(self.tura.rundy))
         info += " (" + str(len(self.tura.napastnicy)) + ")"
@@ -58,14 +58,14 @@ class Tura:
         self.rundy = [self.runda]
 
     def dodaj_runde(self):
-        """Tworzy nową rundę i dodaje do listy rund"""
+        """Stwórz nową rundę i dodaj do listy rund"""
         self.napastnicy.remove(self.runda.napastnik)
         self.migawki_planszy.append(deepcopy(self.plansza))
         self.runda = Runda(self.napastnicy[0])
         self.rundy.append(self.runda)
 
     def filtruj_zatopione(self):
-        """Filtruje z listy napastników statki zatopione w ostatniej rundzie przez przeciwnika."""
+        """Filtruj z listy napastników statki zatopione w ostatniej rundzie przez przeciwnika."""
         aktualni_napastnicy = [napastnik for napastnik in self.napastnicy if napastnik not in self.plansza.zatopione]
         self.napastnicy = aktualni_napastnicy
 
@@ -85,12 +85,12 @@ class Runda:
         self.mozna_atakowac = True
 
     def ustaw_napastnika(self, statek):
-        """Ustawia podany statek jako aktualnego napastnika i jego siłę ognia jako aktualną dla rundy."""
+        """Ustaw podany statek jako aktualnego napastnika i jego siłę ognia jako aktualną dla rundy."""
         self.napastnik = statek
         self.sila_ognia = self.napastnik.sila_ognia[:]
 
     def dodaj_salwe_oddana(self, salwa):
-        """Dodaje salwę, aktualizuje siłę ognia."""
+        """Dodaj salwę, aktualizuj siłę ognia."""
         self.salwy_oddane.append(salwa)
         self.sila_ognia.remove(len(salwa))
 
@@ -130,7 +130,7 @@ class AI(Gra):
 
     def mysl(self):
         """
-        Wybiera strategię ataku: polowanie (atak bez wcześniejszego trafienia) lub celowanie (atak po wcześniejszym trafieniu).
+        Wybierz strategię ataku: polowanie (atak bez wcześniejszego trafienia) albo celowanie (atak po wcześniejszym trafieniu).
         """
         znaczniki = [pole.znacznik for rzad in self.druga_plansza.pola for pole in rzad]
         if Pole.ZNACZNIKI.trafiony in znaczniki:
@@ -140,8 +140,9 @@ class AI(Gra):
 
     def poluj(self):
         """
-        Atakuje, nie wiedząc, gdzie jest ofiara. W tej implementacji AI losuje 'na ślepo' potencjalny cel z wszystkich nieodwiedzonych jeszcze pól i potem tylko wybiera do niego najlepszą konfigurację. Mocniejsze AI mogłoby najpierw sprawdzić, które spośród wszystkich nieodwiedzonych jeszcze pól dają najlepszą konfigurację i wylosować cel tylko spośród nich.
+        Atakuj, gdy nie wiesz, gdzie jest ofiara. Losuj 'na ślepo' potencjalny cel z wszystkich nieodwiedzonych jeszcze pól i wybierz do niego najlepszą konfigurację.
         """
+        # TODO: mocniejsze AI mogłoby najpierw sprawdzić, które spośród wszystkich nieodwiedzonych jeszcze pól dają najlepszą konfigurację i wylosować cel tylko spośród nich
         wielkosc_salwy = self.tura.runda.napastnik.sila_ognia[0]
         pola = [pole for rzad in self.druga_plansza.pola for pole in rzad]
         nieodwiedzone = [pole for pole in pola if pole.znacznik not in self.ODWIEDZONE]
@@ -157,25 +158,24 @@ class AI(Gra):
 
     def celuj(self):
         """
-        Atakuje, wiedząc, gdzie jest ofiara.
+        Atakuj, gdy wiesz, gdzie jest ofiara.
 
         Szkielet algorytmu
         ~~~~~~~~~~~~~~~~~~
-        1. Wybiera największą ofiarę (sprawdza do ilu statków należą wszystkie odkryte, trafione pola i wybiera ten, którego najwięcej pól zostało trafionych).
-        2. Sprawdza wszystkie nieodwiedzone pola, które są jednocześnie bezpośrednimi sąsiadami (stykającymi się ortogonalnie - nie na ukos) wszystkich trafionych pól ofiary jako potencjalny cel.
-        3. Dla każdego potencjalnego celu wybiera najlepszą konfigurację pól na podstawie dwóch czynników (w podanej kolejności:
+        1. Wybierz największą ofiarę (sprawdź do ilu statków należą wszystkie odkryte, trafione pola i wybierz ten, którego najwięcej pól zostało trafionych).
+        2. Sprawdź wszystkie nieodwiedzone pola, które są jednocześnie bezpośrednimi sąsiadami (stykającymi się ortogonalnie - nie na ukos) wszystkich trafionych pól ofiary jako potencjalny cel.
+        3. Dla każdego potencjalnego celu wybierz najlepszą konfigurację pól na podstawie dwóch czynników (w podanej kolejności:
             a) ilości rażonych (nieodwiedzonych) pól
             b) ilości trafionych pól ofiary, które stykają się bezpośrednio (2 punkty) lub na ukos (1 punkt) z wszystkimi polami danej konfiguracji
-        4. Spośród tak wybranych konfiguracji wybiera najlepszą znowu stosując tę samą ocenę (a) i b)).
-
-        Mocniejsze AI weźmie pod uwagę trzecią kategorię wyboru - wagę danego pola (ustalaną na podstawie symulacji możliwych ustawień statków na planszy)
+        4. Spośród tak wybranych konfiguracji wybierz najlepszą (kolejny raz stosując tę samą ocenę (a) i b)).
 
         """
+        # Mocniejsze AI weźmie pod uwagę trzecią kategorię wyboru - wagę danego pola (ustalaną na podstawie symulacji możliwych ustawień statków na planszy)
         pass
 
     def wybierz_konfiguracje_pol(self, cel):
         """
-        Wybiera najlepszą konfiguracje pól salwy dla wskazanego celu. Przy ocenie bierze pod uwagę tylko ilość rażonych (nieodwiedzonych) pól.
+        Wybierz najlepszą konfiguracje pól salwy dla wskazanego celu. Przy ocenie weź pod uwagę tylko ilość rażonych (nieodwiedzonych) pól.
         """
         konfiguracje_pol = []
         wielkosc_salwy = self.tura.runda.napastnik.sila_ognia[0]
@@ -192,8 +192,10 @@ class AI(Gra):
 
     def podaj_konfiguracje_pol(self, cel, kierunki):
         """
-        Podaje konfigurację pól salwy wg podanego celu. Termin 'orientacja salwy' zarezerwowany jest dla stałej klasy 'statki.plansza.Salwa'. 'Konfiguracja pól' natomiast to pola planszy odpowiadające danej orientacji, z których jeszcze nie został utworzony obiekt klasy 'statki.plansza.Salwa'. Pierwsze pole konfiguracji to pole celu, pozostałe dobierane są na podstawie kierunków.
+        Podaj konfigurację pól salwy wg podanego celu. Pierwsze pole konfiguracji to pole celu, pozostałe dobierane są na podstawie wskazanych kierunków.
         """
+
+        # termin 'orientacja salwy' zarezerwowany jest dla stałej klasy 'statki.plansza.Salwa'. 'Konfiguracja pól' natomiast to pola planszy odpowiadające danej orientacji, z których jeszcze nie został utworzony obiekt klasy 'statki.plansza.Salwa'
         konfiguracja_pol = [cel]
         for kierunek in kierunki:
             sasiad = self.druga_plansza.podaj_sasiednie_pole(cel, kierunek)
@@ -203,14 +205,14 @@ class AI(Gra):
 
     def wybierz_napastnika(self):
         """
-        Wybiera napastnika. Wybierany jest statek posiadający największą siłę ognia w danej rundzie.
+        Wybierz napastnika. Wybierany jest statek posiadający największą siłę ognia w danej rundzie.
         """
         napastnik = sorted(self.tura.napastnicy, key=lambda s: sum(s.sila_ognia), reverse=True)[0]
         self.tura.runda.ustaw_napastnika(napastnik)
 
     def zrob_ruch(self):
         """
-        Wykonuje ruch dla przeciwnika. Wybiera napastnika, wymyśla i oddaje salwy, dodaje kolejną rundę/turę.
+        Wykonaj ruch (wybierz napastnika, wymyśl i oddaj salwę/-y, dodaj kolejną rundę/turę).
         """
         self.wybierz_napastnika()
         while len(self.tura.runda.sila_ognia) > 0:
@@ -221,10 +223,9 @@ class AI(Gra):
 class MocneAI(AI):
     """
     AI wykorzystujące do polowania i celowania symulację statystycznego występowania statków na planszy.
-
-    Inspiracja algorytmu pochodzi z tego artykułu dotyczącego zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
     """
 
+    # inspiracja algorytmu pochodzi z tego artykułu dotyczącego zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
     def __init__(self, plansza_wlasna, plansza_gracza):
         super().__init__(plansza_wlasna)
         self.druga_plansza = deepcopy(plansza_gracza)
@@ -238,7 +239,7 @@ class MocneAI(AI):
 
 class GraSieciowa(Gra):  # TODO
     """
-    Reprezentacja przebiegu gry na danej planszy w wykonaniu drugiego gracza połączonego przez sieć.
+    Przebieg gry na danej planszy w wykonaniu drugiego gracza połączonego przez sieć.
     """
 
     def __init__(self, plansza_wlasna, plansza_gracza):
@@ -247,12 +248,12 @@ class GraSieciowa(Gra):  # TODO
 
     def zrob_ruch(self):
         """
-        Wykonuje ruch dla przeciwnika. Pobiera salwy przez sieć od drugiego gracza i dodaje rundę/turę.
+        Wykonaj ruch (wybierz napastnika, wymyśl i oddaj salwę/-y, dodaj kolejną rundę/turę).
         """
         pass
 
     def pobierz_salwy_oddane(self):
         """
-        Pobiera przez sieć salwy oddane przez drugiego gracza.
+        Pobierz przez sieć salwy oddane przez drugiego gracza.
         """
         pass
