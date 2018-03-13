@@ -16,7 +16,11 @@ def main():
     """Uruchom grę."""
     okno_glowne = tk.Tk()
     okno_glowne.title("Statki")
-    Interfejs(okno_glowne, 15, 15)  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów
+    Interfejs(
+        rodzic=okno_glowne,
+        kolumny=15,
+        rzedy=15
+    )  # dopuszczalny rozmiar planszy: 8-26 kolumn x 8-30 rzędów
     okno_glowne.resizable(False, False)
     okno_glowne.mainloop()
 

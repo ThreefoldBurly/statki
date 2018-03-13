@@ -280,7 +280,7 @@ class PlanszaGracza(PlanszaGUI):
             if indeks > 0:  # jeśli nie jesteśmy na początku kolejki
                 statek = self.gra.tura.napastnicy[indeks - 1]
             else:
-                statek = self.gra.tura.napastnicy[len(self.gra.tura.napastnicy) - 1]
+                statek = self.gra.tura.napastnicy[-1]
             self.zmien_statek(statek)
 
     # CALLBACK okna głównego

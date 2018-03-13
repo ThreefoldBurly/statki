@@ -174,4 +174,6 @@ Ad 2. Wybór celu i salwy (konfiguracji pól) - polowanie lub celowanie:
         Mocniejsze AI weźmie pod uwagę trzecią kategorię wyboru - wagę danego pola (ustalaną na podstawie symulacji możliwych ustawień statków na planszy)
 
 
+### INNE
 
+Przebudować kod na zgodny z **Prawem Demeter**. Obiekty powinny rozmawiać tylko z *przyjaciółmi* - nie powinny wywoływać metod ani pól na obiektach innych niż swoje własne pola lub parametry własnych metod. Oznacza to zamianę wszystkich wywołań typu `self.plansza.tura.runda.metoda()` na wywoływanie własnej metody, która zwraca potrzebny obiekt, np. `self.runda().metoda()`. W ten sposób unika się zakładania implicite, że obiekt który wywołuje metodę na obiekcie, do którego nie ma bezpośredniego dostępu, posiada wiedzę, jak do takiego obiektu trafić. Co w sposób oczywisty powoduje problemy w sytuacji, w której ta impelementacja ulega zmianie (zamiast zmieniać kod w 1 miejscu, trzeba we wszystkich, które korzystały z takiej domyślnej wiedzy).

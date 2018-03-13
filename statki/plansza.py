@@ -45,12 +45,12 @@ class Plansza:
         self.niezatopione = self.statki[:]  # statki niezatopione tej planszy
 
     def sprawdz_wymiary(self, kolumny, rzedy):
-        """Sprawdź podane wymiary planszy przy inicjalizacji."""
+        """Sprawdź wymiary planszy podane przy inicjalizacji."""
         if kolumny not in range(self.MIN_KOLUMNY, self.MAX_KOLUMNY + 1) or rzedy not in range(
                 self.MIN_RZEDY, self.MAX_RZEDY + 1):
             raise ValueError(
-                "Błąd rozmiaru planszy.",
-                "Prawidłowe rozmiary planszy to: {}-{} kolumn x {}-{} rzędów.".format(
+                "Błąd wymiarów planszy.",
+                "Prawidłowe wymiary planszy to: {}-{} kolumn x {}-{} rzędów.".format(
                     self.MIN_KOLUMNY, self.MAX_KOLUMNY, self.MIN_RZEDY, self.MAX_RZEDY
                 ),
                 "Otrzymane wymiary: {} x {}".format(str(kolumny), str(rzedy))
@@ -209,7 +209,7 @@ class Plansza:
 
     def wypelnij_statkami(self, zapelnienie=20, odch_st=9.5, prz_mediany=-12):
         """
-        Wypełnij planszę statkami. Każdy kolejny statek ma losowy rozmiar w zakresie 1-20 i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry.
+        Wypełnij planszę statkami. Każdy kolejny statek ma losowy rozmiar w określonym przez planszę zakresie i jest umieszczany w losowym miejscu. O ilości i rozmiarach statków decydują parametry.
 
         zapelnienie
         ~~~~~~~~~~~
@@ -284,7 +284,7 @@ class Plansza:
         """Oznacz statki posiadające wszystkie pola trafione jako zatopione."""
         for statek in self.niezatopione[:]:
             if not statek.czy_zatopiony():
-                if all([True for pole in statek.pola if pole.znacznik == Pole.ZNACZNIKI.trafiony]):
+                if all(True for pole in statek.pola if pole.znacznik == Pole.ZNACZNIKI.trafiony):
                     statek.zatop()
                     self.niezatopione.remove(statek)
                     self.zatopione.append(statek)
