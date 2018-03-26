@@ -7,4 +7,5 @@
 *.pyc
 
 # temporary code
-testy/temp*.py
+# testy/temp*.py
+temp/

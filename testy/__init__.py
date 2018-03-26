@@ -1,0 +1,8 @@
+"""
+
+    testy
+    ~~~~~~
+
+    Pakiet testowy.
+
+"""
