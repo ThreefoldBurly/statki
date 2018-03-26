@@ -23,11 +23,11 @@ class Loader:
             with open(cls.SCIEZKA, encoding='utf-8') as plik:
                 dane = json.load(plik)
         except FileNotFoundError:
-            print("Nieudane parsowanie danych dla rang. Brak pliku '{}'".format(cls.SCIEZKA))
+            print("Nieudane załadowanie danych z pliku. Brak pliku '{}'.".format(cls.SCIEZKA))
             raise
         except ValueError:
-            print("Nieudane parsowanie danych dla rang.",
-                  "Plik '{}' w nieprawidłowym formacie".format(cls.SCIEZKA))
+            print("Nieudane załadowanie danych z pliku.",
+                  "Plik '{}' w nieprawidłowym formacie.".format(cls.SCIEZKA))
             raise
 
         return dane
@@ -92,3 +92,10 @@ class Parser:
         odch_st = cls.DANE_PLANSZY["wypelnianie"][1]  # od 8.0 do 12.0
         prz_mediany = cls.DANE_PLANSZY["wypelnianie"][2]  # od -20 do 5
         return zapelnienie, odch_st, prz_mediany
+
+    @classmethod
+    def podaj_minmax_rozmiar_salwy(cls):
+        """Podaj sparsowane minimalny i maksymalny rozmiar salwy statku."""
+        min_rozmiar = cls.DANE_PLANSZY["rozmiar_salwy"][0]  # 1
+        max_rozmiar = cls.DANE_PLANSZY["rozmiar_salwy"][1]  # 3
+        return min_rozmiar, max_rozmiar

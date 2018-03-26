@@ -250,13 +250,23 @@ class Plansza:
         akt_rozmiar_statkow = sum_rozmiar_statkow
 
         while akt_rozmiar_statkow > 0:
-            rozmiar_statku = podaj_rozmiar_z_rozkladu_Gaussa(mediana, odch_st, self.MIN_ROZMIAR_STATKU, self.MAX_ROZMIAR_STATKU, prz_mediany)
+            rozmiar_statku = podaj_rozmiar_z_rozkladu_Gaussa(
+                mediana,
+                odch_st,
+                self.MIN_ROZMIAR_STATKU,
+                self.MAX_ROZMIAR_STATKU,
+                prz_mediany
+            )
             if rozmiar_statku > akt_rozmiar_statkow:
                 continue
             pole_startowe_x = randint(1, self.kolumny)
             pole_startowe_y = randint(1, self.rzedy)
 
-            umieszczony_statek = self.umiesc_statek(pole_startowe_x, pole_startowe_y, rozmiar_statku)
+            umieszczony_statek = self.umiesc_statek(
+                pole_startowe_x,
+                pole_startowe_y,
+                rozmiar_statku
+            )
 
             if umieszczony_statek is not None:
                 self.umiesc_obwiednie_statku(umieszczony_statek)
@@ -411,6 +421,7 @@ class Salwa:
         SW="Ꞁ",
         NW="⅃"
     )
+    MIN_ROZMIAR, MAX_ROZMIAR = Parser.podaj_minmax_rozmiar_salwy()
 
     def __init__(self, zrodlo, pola, niewypaly=None):
         self.zrodlo = zrodlo  # polozenie statku który oddał salwę
@@ -450,10 +461,9 @@ class Salwa:
     def __len__(self):
         return len(self.pola) + len(self.niewypaly)
 
-    # TODO: wartości graniczne do JSONa i parsowanie jak w klasie Plansza
     def sprawdz_rozmiar(self):
         """Weryfikuje rozmiar salwy."""
-        if len(self) not in range(1, 4):
+        if len(self) not in range(self.MIN_ROZMIAR, self.MAX_ROZMIAR + 1):
             raise ValueError(
                 "Błąd rozmiaru salwy.",
                 "Salwa może składać się z 1-3 pól.",
