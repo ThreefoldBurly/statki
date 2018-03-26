@@ -9,9 +9,11 @@
 
 from statki.plansza import Statek
 
+# TODO: tooltipy
+
 
 class Komunikator:
-    """Obsługuje pole tekstowe paska stanu (TODO: oraz tooltipy)."""
+    """Obsługa pola tekstowego paska komunikatów."""
 
     LICZBA_MNOGA = {
         "kolumna": ["kolumna", "kolumny", "kolumn"],
@@ -23,7 +25,7 @@ class Komunikator:
 
     @staticmethod
     def do_indeksu(liczba):
-        """Zamienia liczbę na indeks wartości w słowniku liczby mnogiej."""
+        """Odmiana liczebników - zamień liczbę na indeks wartości w słowniku liczby mnogiej."""
         if liczba == 1:
             return 0
         elif liczba in range(2, 5):
@@ -39,7 +41,7 @@ class Komunikator:
         self.tekst = pole_tekstowe
 
     def o_rozpoczeciu_gry(self, plansza_gracza):
-        """Wyświetla komunikat o rozpoczęciu gry."""
+        """Wyświetl komunikat o rozpoczęciu gry."""
         kolumny, rzedy = plansza_gracza.kolumny, plansza_gracza.rzedy
         rozmiar = plansza_gracza.rozmiar
         ilosc_statkow = len(plansza_gracza.statki)
@@ -48,10 +50,14 @@ class Komunikator:
 
         self.tekst.ro_insert("1.0", "Gra na planszy o rozmiarze: ")
         self.tekst.ro_insert("end", str(kolumny), "pogrubione")
-        self.tekst.ro_insert("end", " " + self.LICZBA_MNOGA["kolumna"][self.do_indeksu(kolumny)] + " x ")
+        self.tekst.ro_insert(
+            "end",
+            " " + self.LICZBA_MNOGA["kolumna"][self.do_indeksu(kolumny)] + " x "
+        )
         self.tekst.ro_insert("end", str(rzedy), "pogrubione")
         komunikat = " " + self.LICZBA_MNOGA["rząd"][self.do_indeksu(rzedy)]
-        komunikat += " (" + str(rozmiar) + " " + self.LICZBA_MNOGA["pole"][self.do_indeksu(rozmiar)] + "). "
+        komunikat += " (" + str(rozmiar) + " " + self.LICZBA_MNOGA["pole"][self.do_indeksu(
+            rozmiar)] + "). "
         komunikat += "Umieszczono "
         self.tekst.ro_insert("end", komunikat)
         self.tekst.ro_insert("end", str(ilosc_statkow), "pogrubione")
@@ -68,7 +74,7 @@ class Komunikator:
         self.tekst.ro_insert("end", ". Zaczynamy!")
 
     def o_rundzie(self, gra):
-        """Wyświetla komunikat o nowej rundzie."""
+        """Wyświetl komunikat o nowej rundzie."""
         bazowa_dl_separatora = 120
         korekta = round((gra.plansza.kolumny - 8) * 13)
         dl_separatora = bazowa_dl_separatora + korekta
@@ -82,16 +88,20 @@ class Komunikator:
         self.tekst.see("end")
 
     def o_salwie(self, salwa, statek):
-        """Wyświetla komunikat o oddanej salwie."""
+        """Wyświetl komunikat o oddanej salwie."""
         self.tekst.ro_insert("end", "\n")
         self.o_statku(statek)
         komunikat = "oddała" if statek.RANGA_BAZOWA in Statek.RANGI[2:4] else "oddał"
         self.tekst.ro_insert("end", " " + komunikat + " salwę w ")
-        komunikat = "polę: " if len(salwa.pola) == 1 else "pola: "
+        komunikat = "pole: " if len(salwa.pola) == 1 else "pola: "
         self.tekst.ro_insert("end", komunikat)
         for i in range(len(salwa.pola)):
             if salwa.trafienia[i]:
-                self.tekst.ro_insert("end", salwa.pola[i].str_w_nawiasach(), ("pogrubione", "trafione"))
+                self.tekst.ro_insert(
+                    "end",
+                    salwa.pola[i].str_w_nawiasach(),
+                    ("pogrubione", "trafione")
+                )
             else:
                 self.tekst.ro_insert("end", salwa.pola[i].str_w_nawiasach(), "pogrubione")
             if i == 0:
@@ -104,7 +114,7 @@ class Komunikator:
         self.tekst.see("end")
 
     def o_statku(self, statek, przypadek="mianownik"):
-        """Wyświetla komunikat o statku. W razie potrzeby dokonuje odmiany przez przypadki."""
+        """Wyświetl komunikat o statku. W razie potrzeby dokonuje odmiany przez przypadki."""
         statek_info = str(statek).split('"')
         indeks_znaku = self.tekst.index("end-1c").split(".")[1]
         if indeks_znaku == "0":
@@ -118,7 +128,7 @@ class Komunikator:
         self.tekst.ro_insert("end", '"' + statek_info[2])
 
     def o_zatopieniu(self, ofiara, napastnik):
-        """Wyświetla komunikat o zatopieniu ofiary przez napastnika."""
+        """Wyświetl komunikat o zatopieniu ofiary przez napastnika."""
         self.tekst.ro_insert("end", "\n")
         self.tekst.ro_insert("end", "Statek przeciwnika, ")
         self.o_statku(ofiara)

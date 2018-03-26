@@ -15,19 +15,22 @@ Rangi = namedtuple("Rangi", "kuter patrolowiec korweta fregata niszczyciel krazo
 
 class Ranga:
     """
-    Reprezentacja rangi statku. Dane dla obiektów tej klasy są parsowane przez 'statek.pamiec.Parser'
+    Ranga statku. Dane dla obiektów tej klasy są parsowane przez 'statek.pamiec.Parser'.
     """
 
-    def __init__(self, nazwa, symbol, zakres, sila_ognia, nazwy_statkow, liczebniki, liczba_mnoga, biernik):
+    def __init__(self, nazwa, symbol, zakres, sila_ognia, nazwy_statkow, liczebniki,
+                 liczba_mnoga, biernik):
         self.nazwa = nazwa
         self.symbol = symbol
         self.zakres = zakres  # zakres rozmiarów statku
         self.sila_ognia = sila_ognia
         self.nazwy_statkow = nazwy_statkow
-        self.pula_nazw_statkow = self.nazwy_statkow[:]  # pula aktualnie dostępnych nazw statków dla tej rangi
-        self.liczebniki = ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]  # liczebniki rzymskie dodawane do nazw statków po wyczerpaniu puli (potrzebne bardziej do testów - przy założonych ograniczeniach rozmiarów planszy (i w efekcie możliwej ilości statków) konieczność użycia tej zmiennej jest zbliżona do zera)
+        self.pula_nazw = self.nazwy_statkow[:]  # pula aktualnie dostępnych nazw statków dla tej rangi
+        self.liczebniki = liczebniki  # liczebniki rzymskie dodawane do nazw statków po wyczerpaniu puli (potrzebne bardziej do testów - przy założonych ograniczeniach rozmiarów planszy (i w efekcie możliwej ilości statków) konieczność użycia tej zmiennej jest zbliżona do zera)
         self.liczba_mnoga = liczba_mnoga
         self.biernik = biernik
+
+        self.max_ilosc_nazw = len(self.nazwy_statkow) * len(self.liczebniki)
 
     def __eq__(self, other):
         """
@@ -47,19 +50,22 @@ class Ranga:
 
     def resetuj_pule_nazw(self):
         """
-        Resetuje wyczerpaną pulę nazw statków, dodając do każdej nazwy kolejny liczebnik rzymski. Przy rozmiarach planszy dyktowanych przez GUI prawdopodobieństwo konieczności użycia chociaż raz tej metody jest nikłe.
+        Resetuj wyczerpaną pulę nazw statków, dodając do każdej nazwy kolejny liczebnik rzymski.
         """
-        assert len(self.liczebniki) > 0, "Wyczerpano liczbę możliwych nazw dla statków ({})".format(len(self.nazwy_statkow * len(liczebniki)))
+        # przy rozmiarach planszy dyktowanych przez GUI prawdopodobieństwo konieczności użycia chociaż raz tej metody jest nikłe, nie mówiąc o wyczerpaniu całej puli
+        if not self.liczebniki:
+            raise ValueError("Wyczerpano liczbę możliwych nazw dla statków ({})".format(
+                self.max_ilosc_nazw))
 
         liczebnik = self.liczebniki.pop(0)
         self.pula_nazw = [" ".join([nazwa, liczebnik]) for nazwa in self.nazwy_statkow]
 
     def losuj_nazwe_statku(self):
         """
-        Losuje nazwę dla statku z dostępnej puli nazw. By zapewnić unikalność statku, nazwa po użyciu jest usuwana z puli.
+        Losuj nazwę dla statku z dostępnej puli nazw. By zapewnić unikalność statku, po użyciu usuń nazwę z puli.
         """
-        if len(self.pula_nazw_statkow) < 1:
+        if len(self.pula_nazw) < 1:
             self.resetuj_pule_nazw()
-        nazwa = choice(self.pula_nazw_statkow)
-        self.pula_nazw_statkow.remove(nazwa)
+        nazwa = choice(self.pula_nazw)
+        self.pula_nazw.remove(nazwa)
         return nazwa

@@ -24,7 +24,7 @@ Podstawowe różnice względem klasycznej wersji:
 
 3. Różna siła rażenia sprowadza się do tego, że w przeciwieństwie do wersji klasycznej:
 
-* pojedyńcza salwa statku może zostać oddana nie w jedno a **w 1-3 sąsiadujące (w poziomie i piona) pola przeciwnika**
+* pojedyńcza salwa statku może zostać oddana nie w jedno a **w 1-3 sąsiadujące (w poziomie i pionie) pola przeciwnika**
 * statek może strzelać **od 1 do 3 salwami w ciągu swojej rundy**
 
 4. Każdy statek ma nazwę. Na pierwszy rzut oka może się to wydawać przesadą. Komu to potrzebne w tak prostej grze, prawda? Jak się jednak okazuje (i jak mam nadzieję przekonają się potencjalni gracze) nazwa to taki detal, który dodaje zabawie dodatkowego wymiaru. Przesadą może było wymyślenie aż **690 nazw**. No cóż, poniosło mnie, ale może ktoś jeszcze z tego skorzysta, bo zestaw jest ciekawy i myślę, że każdy, kto pracuje nad polską grą ze statkami/okrętami (w jakiejkolwiek postaci - dajmy na to SF) mógłby z niego skorzystać.

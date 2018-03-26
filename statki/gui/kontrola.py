@@ -10,6 +10,7 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from collections import namedtuple
 import math
 
 from statki.plansza import Statek, Salwa
@@ -35,7 +36,7 @@ class KontrolaAtaku(Sekcja):
         self.powiaz_callbacki()
 
     def ustaw_style(self):
-        """Ustawia style dla widżetów"""
+        """Ustaw style dla widżetów"""
         self.styl = ttk.Style()
         self.styl.configure("KA.TCombobox")
         self.styl.map(
@@ -45,17 +46,17 @@ class KontrolaAtaku(Sekcja):
         self.styl.configure(
             "PozycjaPolaKA.TLabel",
             anchor=tk.CENTER,
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             width=4
         )
 
     def ustaw_etyramke(self):
-        """Ustawia etyramkę pod widżety."""
+        """Ustaw etyramkę pod widżety."""
         self.etyramka.grid(sticky="we")
         self.etyramka.columnconfigure(0, weight=1)  # zgłasza wyżej powiększanie w poziomie
 
     def buduj_etykiety(self):
-        """Buduje etykiety."""
+        """Buduj etykiety."""
         ttk.Label(
             self.etyramka,
             text="Wybierz statek:",
@@ -88,12 +89,12 @@ class KontrolaAtaku(Sekcja):
         )
 
     def buduj_comboboksy(self):
-        """Buduje comboboksy."""
+        """Buduj comboboksy."""
         # wybór statku
         self.combo_statku = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             values=self.pg.gra.tura.napastnicy,
             width=35
         )
@@ -103,13 +104,13 @@ class KontrolaAtaku(Sekcja):
             columnspan=2,
             sticky=tk.W
         )
-        self.combo_statku.configure(font=stale.CZCIONKI["mała"])  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
+        self.combo_statku.configure(font=stale.CZCIONKI.mala)  # to zmienia tylko czcionkę pola tekstowego (Entry), które jest częścią comboboksa
 
         # wybór salwy
         self.combo_salwy = ComboZeZmianaCzcionki(
             self.etyramka,
             styl="KA.TCombobox",
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             width=6
         )
         self.combo_salwy.grid(
@@ -118,13 +119,13 @@ class KontrolaAtaku(Sekcja):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_salwy.configure(font=stale.CZCIONKI["mała"])
+        self.combo_salwy.configure(font=stale.CZCIONKI.mala)
 
         # wybór orientacji
         self.combo_orientacji = ComboOrientacji(
             self.etyramka,
             styl="KA.TCombobox",
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             width=7
         )
         self.combo_orientacji.grid(
@@ -133,16 +134,16 @@ class KontrolaAtaku(Sekcja):
             sticky=tk.W,
             pady=(0, 10)
         )
-        self.combo_orientacji.configure(font=stale.CZCIONKI["mała"])
+        self.combo_orientacji.configure(font=stale.CZCIONKI.mala)
 
     def przestaw_na_readonly(self):
-        """Ustawia stan comboboksów jako `readonly`"""
+        """Ustaw stan comboboksów jako `readonly`"""
         self.combo_statku.state(["readonly"])
         self.combo_salwy.state(["readonly"])
         self.combo_orientacji.state(["readonly"])
 
     def powiaz_callbacki(self):
-        """Wiąże callbacki"""
+        """Powiąż callbacki"""
         self.combo_statku.bind("<<ComboboxSelected>>", self.na_wybor_statku)
         self.combo_salwy.bind("<<ComboboxSelected>>", self.na_wybor_salwy)
         self.combo_orientacji.bind("<<ComboboxSelected>>", self.na_wybor_orientacji)
@@ -150,7 +151,7 @@ class KontrolaAtaku(Sekcja):
 
     # CALLBACK combo_statku
     def na_wybor_statku(self, event=None):
-        """Zmienia statek na planszy i aktualizuje combo_salwy."""
+        """Zmień statek na planszy i aktualizuj combobox salwy."""
         event.widget.selection_clear()  # czyści tło pola tekstowego comboboksa
         indeks = event.widget.current()
         wybrany_statek = self.pg.gra.tura.napastnicy[indeks]
@@ -158,23 +159,25 @@ class KontrolaAtaku(Sekcja):
 
     # CALLBACK combo_salwy
     def na_wybor_salwy(self, event=None):
-        """Aktualizuje combo_orientacji."""
+        """Aktualizuj combobox orientacji."""
         event.widget.selection_clear()
         self.ustaw_combo_orientacji(event.widget.get())
 
     # CALLBACK combo_orientacji
     def na_wybor_orientacji(self, event=None):
-        """Czyści pole tekstowe combo_orientacji"""
+        """Czyść pole tekstowe comboboksu orientacji."""
         event.widget.selection_clear()
         self.combo_orientacji.ostatnia_orientacja = self.combo_orientacji.get()
 
     def wylacz_salwe_i_orientacje(self):
-        """Wyłącza combo salwy i orientacji. Uruchamiane po oddaniu ostatniej salwy."""
+        """Wyłącz comboboksy salwy i orientacji. Metoda wywoływana po oddaniu ostatniej salwy."""
         self.combo_salwy.state(["disabled"])
         self.combo_orientacji.state(["disabled"])
 
     def wlacz_comboboksy(self):
-        """Włącza i wypełnia danymi startowymi wszystkie comboboksy. Uruchamiane na początku nowej rundy."""
+        """
+        Włącz i wypełnij danymi startowymi wszystkie comboboksy. Metoda wywoływana na początku nowej rundy.
+        """
         self.combo_statku.state(["!disabled"])
         self.combo_statku.state(["readonly"])
         self.combo_statku["values"] = self.pg.gra.tura.napastnicy
@@ -186,17 +189,19 @@ class KontrolaAtaku(Sekcja):
         self.ustaw_combo_orientacji(self.combo_salwy["values"][0])
 
     def blokuj_atak(self):
-        """Blokuje możliwość oddania salwy w pola planszy przeciwnika."""
+        """Blokuj możliwość oddania salwy w pola planszy przeciwnika."""
         self.wylacz_salwe_i_orientacje()
         self.pg.gra.tura.runda.mozna_atakowac = False
         self.pp.wylacz_atak()
         self.pozycje_salwy.wyczysc()
 
     def ustaw_combo_salwy(self):
-        """Ustawia aktualną siłę ognia w comboboksie salwy."""
+        """Ustaw aktualną siłę ognia w comboboksie salwy."""
         sila_ognia = self.pg.gra.tura.runda.sila_ognia
         if len(sila_ognia) > 0:
-            self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in self.pg.gra.tura.runda.sila_ognia]
+            self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1
+                                          else "{} pola".format(salwa)
+                                          for salwa in self.pg.gra.tura.runda.sila_ognia]
             self.combo_salwy.set(self.combo_salwy["values"][0])
             self.ustaw_combo_orientacji(self.combo_salwy["values"][0])
         else:
@@ -204,7 +209,7 @@ class KontrolaAtaku(Sekcja):
 
     def ustaw_combo_orientacji(self, salwa_tekst):
         """
-        Ustawia w comboboksie orientację wybranej salwy. Zachowuje wcześniejszą orientację, jeśli wybrana salwa odpowiada poprzedniej.
+        Ustaw w comboboksie orientację wybranej salwy. Zachowaj wcześniejszą orientację, jeśli wybrana salwa odpowiada poprzedniej.
         """
         salwa = int(salwa_tekst[0])
         if salwa == 1:
@@ -228,7 +233,7 @@ class KontrolaAtaku(Sekcja):
         self.combo_orientacji.ostatnia_orientacja = self.combo_orientacji.get()
 
     def wylacz_pozycje_salwy(self, pozycja):
-        """Wyłącza podaną pozycję salwy"""
+        """Wyłącz podaną pozycję salwy"""
         if pozycja == "druga":
             self.pozycje_salwy.numer_drugiej.grid_remove()
             self.pozycje_salwy.etykieta_drugiej.grid_remove()
@@ -237,7 +242,7 @@ class KontrolaAtaku(Sekcja):
             self.pozycje_salwy.etykieta_trzeciej.grid_remove()
 
     def wlacz_pozycje_salwy(self, pozycja):
-        """Włącza podaną pozycję salwy"""
+        """Włącz podaną pozycję salwy"""
         if pozycja == "druga":
             self.pozycje_salwy.numer_drugiej.grid()
             self.pozycje_salwy.etykieta_drugiej.grid()
@@ -247,7 +252,7 @@ class KontrolaAtaku(Sekcja):
 
     # CALLBACK okna głównego
     def na_prawy_przycisk_myszy(self, event=None):
-        """Rotuje wybraną orientacją salw (i w efekcie celownikiem na planszy przeciwnika)."""
+        """Rotuj wybraną orientacją salw (i w efekcie celownikiem na planszy przeciwnika)."""
         indeks = self.combo_orientacji.current()
         if indeks == len(self.combo_orientacji["values"]) - 1:
             indeks = 0
@@ -259,7 +264,7 @@ class KontrolaAtaku(Sekcja):
 
 class ComboZeZmianaCzcionki(ttk.Combobox):
     """
-    Combobox z możliwością zmiany czcionki w liście rozwijanej. Wzięte stąd: https://stackoverflow.com/questions/43086378/how-to-modify-ttk-combobox-fonts/ .Standardowy combobox nie daje takiej możliwości.
+    Combobox z możliwością zmiany czcionki w liście rozwijanej. Wzięte stąd: https://stackoverflow.com/questions/43086378/how-to-modify-ttk-combobox-fonts/ . Standardowy combobox nie daje takiej możliwości.
     """
 
     def __init__(self, *args, **kwargs):
@@ -297,11 +302,11 @@ class PozycjeSalwy(ttk.Frame):
         self.buduj_etykiety()
 
     def ustaw(self):
-        """Ustawia interfejs pod widżety."""
+        """Ustaw interfejs pod widżety."""
         self.grid(row=4, column=0, columnspan=2, sticky="we", pady=(0, 10))
 
     def buduj_etykiety(self):
-        """Buduje etykiety."""
+        """Buduj etykiety."""
         self.numer_pierwszej = ttk.Label(self, style="Mała.TLabel", text="#1:")
         self.numer_pierwszej.grid(
             row=0,
@@ -343,23 +348,33 @@ class PozycjeSalwy(ttk.Frame):
             textvariable=self.trzecia
         )
         self.etykieta_trzeciej.grid(row=0, column=5, sticky=tk.W)
-        self.pierwsza.trace("w", lambda n, i, m, poz=self.pierwsza, et=self.etykieta_pierwszej: self.na_zmiane(poz, et))
-        self.druga.trace("w", lambda n, i, m, poz=self.druga, et=self.etykieta_drugiej: self.na_zmiane(poz, et))
-        self.trzecia.trace("w", lambda n, i, m, poz=self.trzecia, et=self.etykieta_trzeciej: self.na_zmiane(poz, et))
+        self.pierwsza.trace(
+            "w",
+            lambda n, i, m, poz=self.pierwsza, et=self.etykieta_pierwszej: self.na_zmiane(poz, et)
+        )
+        self.druga.trace(
+            "w",
+            lambda n, i, m, poz=self.druga, et=self.etykieta_drugiej: self.na_zmiane(poz, et)
+        )
+        self.trzecia.trace(
+            "w",
+            lambda n, i, m, poz=self.trzecia, et=self.etykieta_trzeciej: self.na_zmiane(poz, et)
+        )
 
     def ustal_tlo_sytemowe(self):
-        """Sprawdza kolor tla systemowego i zapisuje w stałej"""
+        """Sprawdź kolor tła systemowego i zapisz w stałej"""
         self.TLO_SYSTEMOWE = self.winfo_toplevel().cget("bg")
 
     # CALLBACK każdej pozycji pola
     def na_zmiane(self, pozycja, etykieta):
-        """Zmienia tło etykiety pozycji pola."""
+        """Zmień tło etykiety pozycji pola."""
         if pozycja.get() == "":
             etykieta.configure(background=self.TLO_SYSTEMOWE)
         else:
-            etykieta.configure(background=stale.KOLORY["pozycja-pola"])
+            etykieta.configure(background=stale.KOLORY.pozycja_pola)
 
     def wyczysc(self):
+        """Wyczyść wszystkie pozycje."""
         self.pierwsza.set("")
         self.druga.set("")
         self.trzecia.set("")
@@ -382,7 +397,7 @@ class KontrolaFloty(Sekcja):
         self.buduj_pozycje_pola()
 
     def ustaw_style(self):
-        """Ustawia style dla widżetów"""
+        """Ustaw style dla widżetów."""
         self.styl = ttk.Style()
         self.styl.configure(
             "PozycjaPolaKF.TLabel",
@@ -391,14 +406,14 @@ class KontrolaFloty(Sekcja):
         )
 
     def ustaw_etyramke(self):
-        """Ustawia etyramkę pod widżety."""
+        """Ustaw etyramkę pod widżety."""
         self.etyramka.grid(sticky="nsew")
         # zgłasza wyżej powiększanie w poziomie i w pionie
         self.etyramka.rowconfigure(0, weight=1)
         self.etyramka.columnconfigure(0, weight=1)
 
     def buduj_drzewa(self):
-        """Buduje drzewa floty (gracza i przeciwnika) umieszczone w notesie."""
+        """Buduj drzewa floty (gracza i przeciwnika) umieszczone w notesie."""
         notes = ttk.Notebook(self.etyramka)
         # drzewa nie mogą być bezpośrednio umieszczane w notesie - potrzebne ramki pośrednie
         ramka_drzewa_g = ttk.Frame(notes)
@@ -421,10 +436,10 @@ class KontrolaFloty(Sekcja):
         notes.columnconfigure(0, weight=1)
 
     def buduj_przyciski(self):
-        """Buduje przyciski przewijania statków."""
+        """Buduj przyciski przewijania statków."""
 
         def zaladuj_ikone(sciezka):
-            """Otwiera i ładuję ikonę z pliku graficznego"""
+            """Otwórz i ładuj ikonę z pliku graficznego."""
             try:
                 with Image.open(sciezka) as plik:
                     ikona = ImageTk.PhotoImage(plik)
@@ -457,7 +472,9 @@ class KontrolaFloty(Sekcja):
         self.przycisk_do_przodu.grid(row=1, column=2, sticky=tk.E, pady=(13, 0), padx=35)
 
     def buduj_pozycje_pola(self):
-        """Buduje etykietę wyświetlającą pozycję pola planszy gracza wskazywanego aktualnie przez kursor."""
+        """
+        Buduj etykietę wyświetlającą pozycję pola planszy gracza wskazywanego aktualnie przez kursor.
+        """
         self.pozycja_pola = tk.StringVar()
         self.etykieta_pozycji_pola = ttk.Label(
             self.etyramka,
@@ -469,7 +486,7 @@ class KontrolaFloty(Sekcja):
         self.pozycja_pola.trace("w", self.na_zmiane_pozycji_pola)
 
     def ustal_tlo_sytemowe(self):
-        """Sprawdza kolor tla systemowego i zapisuje w stałej"""
+        """Sprawdź kolor tła systemowego i zapisz w stałej"""
         self.TLO_SYSTEMOWE = self.winfo_toplevel().cget("bg")
 
     # CALLBACK pozycji pola
@@ -478,11 +495,11 @@ class KontrolaFloty(Sekcja):
         if self.pozycja_pola.get() == "":
             self.etykieta_pozycji_pola.configure(background=self.TLO_SYSTEMOWE)
         else:
-            self.etykieta_pozycji_pola.configure(background=stale.KOLORY["pozycja-pola"])
+            self.etykieta_pozycji_pola.configure(background=stale.KOLORY.pozycja_pola)
 
     def wlacz_widzety(self):
         """
-        Włącza przyciski zmiany statku i kasuje wyszarzenie drzewa floty. Uruchamiane na początku nowej rundy.
+        Włącz przyciski zmiany statku i kasuj wyszarzenie drzewa floty. Metoda wywoływana na początku nowej rundy.
         """
         self.przycisk_do_tylu.state(["!disabled"])
         self.przycisk_do_przodu.state(["!disabled"])
@@ -494,12 +511,13 @@ class DrzewoFloty(ttk.Treeview):
     Drzewo wyświetlające statki floty (gracza/przeciwnika). Szczegółowa implementacja w klasach potomnych.
     """
 
-    KOLORY = {
-        "zablokowane": "gray64",
-        "rangi": "LemonChiffon2",
-        "rangi-zatopione": "plum3",  # TODO
-        "rangi-przeciwnik": "DarkOliveGreen2"  # TODO
-    }
+    Kolory = namedtuple("Kolory", "zablokowany rangi rangi_zatopiony rangi_przeciwnik")
+    KOLORY = Kolory(
+        zablokowany="gray64",
+        rangi="LemonChiffon2",
+        rangi_zatopiony="plum3",  # TODO
+        rangi_przeciwnik="DarkOliveGreen2"  # TODO
+    )
 
     def __init__(self, rodzic, plansza_gui):
         super().__init__(rodzic)
@@ -512,20 +530,20 @@ class DrzewoFloty(ttk.Treeview):
         self.powiaz_escape()
 
     def ustaw_style(self):
-        """Ustawia style dla drzewa."""
+        """Ustaw style dla drzewa."""
         self.styl = ttk.Style()
         self.styl.configure(
             "KF.Treeview",
-            font=stale.CZCIONKI["mała"],
+            font=stale.CZCIONKI.mala,
             rowheight=self.wys_wiersza
         )
         self.styl.configure(
             "KF.Treeview.Heading",
-            font=stale.CZCIONKI["mała"]
+            font=stale.CZCIONKI.mala
         )
 
     def ustaw(self):
-        """Konfiguruje to drzewo."""
+        """Konfiguruj to drzewo."""
         self.configure(
             style="KF.Treeview",
             height=self.podaj_wysokosc(),
@@ -536,11 +554,9 @@ class DrzewoFloty(ttk.Treeview):
         self.grid(sticky="nsew")
 
     def podaj_wysokosc(self):
-        """
-        Podaje wysokość (w wierszach) obliczaną na podstawie rozmiaru planszy.
+        """Podaj wysokość (w wierszach) obliczaną na podstawie rozmiaru planszy."""
 
-        Punktem wyjścia do obliczeń były testy, z których wynika, że dla planszy w rozmiarze 26x26 idealna wysokość to 19 wierszy (przy wysokości wiersza równej 15 px - taka wysokość wiersza jest optymalna dla czytelności i wyglądu drzewa, ale dla prostego przeliczania względem planszy lepsza byłaby wysokość równa 13 px (ponieważ pole planszy ma 26 px)).
-        """
+        # punktem wyjścia do obliczeń były testy, z których wynika, że dla planszy w rozmiarze 26x26 idealna wysokość to 19 wierszy (przy wysokości wiersza równej 15 px - taka wysokość wiersza jest optymalna dla czytelności i wyglądu drzewa, ale dla prostego przeliczania względem planszy lepsza byłaby wysokość równa 13 px (ponieważ pole planszy ma 26 px)).
         # TODO: testy pod Windowsem
 
         def skoryguj_wysokosc_pod_pasek_komunikatow(wysokosc, rzedy_planszy):
@@ -568,7 +584,7 @@ class DrzewoFloty(ttk.Treeview):
             return skoryguj_wysokosc_pod_pasek_komunikatow(wysokosc, rzedy_planszy)
 
     def wstaw_suwaki(self, rodzic):
-        """Wstawia suwaki."""
+        """Wstaw suwaki."""
         suwak_pionowy = ttk.Scrollbar(rodzic, orient=tk.VERTICAL, command=self.yview)
         suwak_pionowy.grid(column=1, row=0, sticky="ns")
         suwak_poziomy = ttk.Scrollbar(rodzic, orient=tk.HORIZONTAL, command=self.xview)
@@ -576,7 +592,7 @@ class DrzewoFloty(ttk.Treeview):
         self.configure(yscrollcommand=suwak_pionowy.set, xscrollcommand=suwak_poziomy.set)
 
     def ustaw_kolumny(self, naglowek_rozmiar):
-        """Konfiguruje kolumny."""
+        """Konfiguruj kolumny."""
         self.heading("#0", text="Ranga")
         self.heading("statek", text="Statek")
         self.heading("gdzie", text="Poz")
@@ -591,12 +607,12 @@ class DrzewoFloty(ttk.Treeview):
         self.column("ofiary", stretch=True, minwidth=12, width=39)
 
     def powiaz_escape(self):
-        """Wiąże callback obsługujący naćiśnięcie ESCAPE."""
+        """Powiąż callback obsługujący naćiśnięcie ESCAPE."""
         self.bind("<Escape>", self.na_escape)
 
     # CALLBACK całego drzewa
     def na_escape(self, event=None):
-        """Kasuje selekcję."""
+        """Kasuj selekcję."""
         element_id = self.focus()
         if element_id != "":  # jeśli jakiś element był w ogóle wybrany
             self.selection_remove(element_id)
@@ -617,7 +633,7 @@ class DrzewoFlotyGracza(DrzewoFloty):
 
     def dodaj_statki(self, statki, kategoria):
         """
-        Dodaje podane (niezatopione/zatopione) statki do drzewa. Wartość parametru `kategoria` to albo 'niezatopione' albo 'zatopione'.
+        Dodaj podane (niezatopione/zatopione) statki do drzewa. Wartość parametru `kategoria` to albo 'niezatopione' albo 'zatopione'.
         """
         # kategoria
         self.insert("", "0", kategoria,
@@ -652,38 +668,39 @@ class DrzewoFlotyGracza(DrzewoFloty):
             )
 
     def ustaw_wyglad(self):
-        """Konfiguruje wygląd zawartości drzewa."""
-        self.tag_configure("kategoria", font=stale.CZCIONKI["mała-pogrubiona"])
-        self.tag_configure("ranga", background=self.KOLORY["rangi"])
-        self.tag_configure("zablokowane", foreground=self.KOLORY["zablokowane"])
+        """Konfiguruj wygląd zawartości drzewa."""
+        self.tag_configure("kategoria", font=stale.CZCIONKI.mala_pogrubiona)
+        self.tag_configure("ranga", background=self.KOLORY.rangi)
+        self.tag_configure("zablokowane", foreground=self.KOLORY.zablokowany)
 
     def powiaz_podwojne_klikniecie(self):
-        """Wiąże callback obsługujący podóœjne kliknięcie."""
+        """Powiąż callback obsługujący podwójne kliknięcie."""
         self.tag_bind("statek", "<Double-Button-1>", self.na_podwojne_klikniecie)
 
     # CALLBACK elementów z tagiem `statek`
     def na_podwojne_klikniecie(self, event=None):
-        """Wybiera kliknięty podwójnie statek na planszy gracza."""
+        """Wybierz kliknięty podwójnie statek na planszy gracza."""
         statek = self.plansza_gui.gra.plansza.podaj_statek(self.focus(), tryb="str")
         self.plansza_gui.zmien_statek(statek)
 
     def wyszarz_zablokowane_statki(self):
-        """Wyszarza zablokowane statki."""
+        """Wyszarz zablokowane statki."""
         napastnik = self.plansza_gui.gra.tura.runda.napastnik
-        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.napastnicy if statek != napastnik]
+        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.napastnicy
+                     if statek != napastnik]
         for iid in lista_iid:
             tag_ranga, tag_statek = self.item(iid)["tags"][:2]
             self.item(iid, tags=(tag_ranga, tag_statek, "zablokowane"))
 
     def kasuj_wyszarzenie_statkow(self):
-        """Kasuje wyszarzenie zablokowanych statków."""
+        """Kasuj wyszarzenie zablokowanych statków."""
         lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.napastnicy]
         for iid in lista_iid:
             tag_ranga, tag_statek = self.item(iid)["tags"][:2]
             self.item(iid, tags=(tag_ranga, tag_statek))
 
     def wyszarz_statek(self, statek):
-        """Wyszarza podany statek"""
+        """Wyszarz podany statek"""
         iid = str(statek.polozenie)
         tag_ranga, tag_statek = self.item(iid)["tags"][:2]
         self.item(iid, tags=(tag_ranga, tag_statek, "zablokowane"))
@@ -696,13 +713,12 @@ class DrzewoFlotyPrzeciwnika(DrzewoFloty):
 
     def __init__(self, rodzic, plansza_gui):
         super().__init__(rodzic, plansza_gui)
-
         self.ustaw_kolumny("Rozm")
         self.configure(displaycolumns=(0, 1, 2, 4))
 
     def dodaj_statek(self):
         """
-        Dodaje zatopiony statek przeciwnika. Przy pierwszym dodaniu statku danej rangi tworzy odpowiedni folder rangi.
+        Dodaj zatopiony statek przeciwnika. Przy pierwszym dodaniu statku danej rangi utwórz odpowiedni folder rangi.
         """
         pass  # TODO
 
@@ -711,11 +727,11 @@ class KontrolaGry(Sekcja):
     """
     Sekcja kontroli gry znajdująca się w prawym dolnym rogu głównego interfejsu gry. Dopuszcza powiększanie w poziomie.
     """
-
-    KOLORY = {
-        "stan-gry-g": "LemonChiffon4",
-        "stan-gry-p": "LemonChiffon4"
-    }
+    Kolory = namedtuple("Kolory", "stan_gry_g stan_gry_p")
+    KOLORY = Kolory(
+        stan_gry_g="LemonChiffon4",
+        stan_gry_p="LemonChiffon4"
+    )
     SZER_STANU = 15  # szerokość stanu gry (etykiety) w znakach
 
     def __init__(self, rodzic, odstep_zewn, odstep_wewn, tytul, **kwargs):
@@ -734,36 +750,36 @@ class KontrolaGry(Sekcja):
         self.komunikator = None  # przekazywane przez GręGUI
 
     def ustaw_etyramke(self):
-        """Ustawia etyramkę pod widżety."""
+        """Ustaw etyramkę pod widżety."""
         self.etyramka.grid(sticky="we")
         self.etyramka.columnconfigure(0, weight=1)  # zgłasza wyżej powiększanie w poziomie
 
     def ustaw_tytul(self):
-        """Ustawia tytuł sekcji. Format tytułu: Tura #[liczba]/Runda #[liczba]"""
+        """Ustaw tytuł sekcji. Format tytułu: Tura #[liczba]/Runda #[liczba]"""
         self.tytul.set(self.pg.gra.podaj_info_o_rundzie().title())
 
     def ustaw_style(self):
-        """Ustawia style dla sekcji."""
+        """Ustaw style dla sekcji."""
         self.styl = ttk.Style()
         self.styl.configure(
             "GraczKG.TLabel",
-            font=stale.CZCIONKI["duża-pogrubiona"],
-            # background=stale.KOLORY["pozycja-pola"],
-            foreground=self.KOLORY["stan-gry-g"]
+            font=stale.CZCIONKI.duza_pogrubiona,
+            # background=stale.KOLORY.pozycja_pola,
+            foreground=self.KOLORY.stan_gry_g
         )
         self.styl.configure(
             "PrzeciwnikKG.TLabel",
-            font=stale.CZCIONKI["duża-pogrubiona"],
-            # background=stale.KOLORY["pozycja-pola"],
-            foreground=self.KOLORY["stan-gry-p"]
+            font=stale.CZCIONKI.duza_pogrubiona,
+            # background=stale.KOLORY.pozycja_pola,
+            foreground=self.KOLORY.stan_gry_p
         )
         self.styl.configure(
             "KG.TButton",
-            font=stale.CZCIONKI["pogrubiona"]
+            font=stale.CZCIONKI.pogrubiona
         )
 
     def buduj_etykiety(self):
-        """Buduje etykiety stanu gry dla gracza i przeciwnika."""
+        """Buduj etykiety stanu gry dla gracza i przeciwnika."""
         # gracz
         etykieta_g = ttk.Label(
             self.etyramka,
@@ -820,7 +836,7 @@ class KontrolaGry(Sekcja):
         )
 
     def podaj_tekst_stanu(self, gra):
-        """Podaje tekst stanu gry dla danej planszy."""
+        """Podaj tekst stanu gry dla danej planszy."""
         nietrafione, procent = gra.plansza.podaj_info_o_nietrafionych()
         tekst = nietrafione + "/"
         tekst += str(gra.plansza.ilosc_pol_statkow) + " ("
@@ -828,7 +844,7 @@ class KontrolaGry(Sekcja):
         return tekst
 
     def buduj_przycisk(self):
-        """Buduje przycisk KONIEC RUNDY."""
+        """Buduj przycisk KONIEC RUNDY."""
         self.koniec_rundy = ttk.Button(
             self.etyramka,
             text="KONIEC RUNDY",
@@ -844,7 +860,7 @@ class KontrolaGry(Sekcja):
         )
 
     def ustaw_przycisk(self):
-        """Ustawia tekst przycisku KONIEC RUNDY oraz flagę nowej tury."""
+        """Ustaw tekst przycisku KONIEC RUNDY oraz flagę nowej tury."""
         if len(self.pg.gra.tura.napastnicy) == 1:
             self.koniec_rundy.configure(text="KONIEC TURY")
             self.nowa_tura = True
@@ -853,7 +869,7 @@ class KontrolaGry(Sekcja):
             self.nowa_tura = False
 
     def aktualizuj_stan_gry(self, czyj="gracza"):
-        """Aktualizuje etykietę stanu gry."""
+        """Aktualizuj etykietę stanu gry."""
         if czyj == "gracza":
             self.stan_g.configure(text=self.podaj_tekst_stanu(self.pg.gra))
         elif czyj == "przeciwnika":
@@ -861,7 +877,7 @@ class KontrolaGry(Sekcja):
 
     # CALLBACK przycisku KONIEC RUNDY
     def na_koniec_rundy(self, event=None):
-        """Kończy rundę."""
+        """Zakończ rundę."""
         zgrany_statek = self.pg.gra.tura.runda.napastnik
         self.pg.kasuj_wybor_statku(zgrany_statek)
         self.pg.zmien_stan_statku(zgrany_statek, "disabled")
@@ -877,13 +893,13 @@ class KontrolaGry(Sekcja):
         # self.wykonaj_ruch_przeciwnika()
 
     def powiaz_enter(self):
-        """Wiąże callback obsługujący naciśnięcie ENTER."""
+        """Powiąż callback obsługujący naciśnięcie ENTER."""
         self.winfo_toplevel().bind("<Return>", self.na_koniec_rundy)
         self.winfo_toplevel().bind("<KP_Enter>", self.na_koniec_rundy)
 
     def odblokuj_widzety(self):
         """
-        Odblokowuje widżety umożliwiające zmianę statku zablokowane po pierwszej salwie w rundzie oraz comboboksy zablokowane po oddaniu ostatniej salwy.
+        Odblokuj widżety umożliwiające zmianę statku zablokowane po pierwszej salwie w rundzie oraz comboboksy zablokowane po oddaniu ostatniej salwy.
         """
         self.pg.wlacz_zablokowane_statki()
         self.pp.wlacz_atak()
@@ -892,7 +908,7 @@ class KontrolaGry(Sekcja):
 
     def wykonaj_ruch_przeciwnika(self):
         """
-        Wykonuje ruch przeciwnika.
+        Wykonuj ruch przeciwnika.
         """
         # self.pp.gra.zrob_ruch()
         # salwy = self.pp.gra.tura.runda.salwy_oddane

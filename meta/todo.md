@@ -140,16 +140,40 @@ Jeśli za każdym razem zostanie zapewnione, że nie ma blokady zmiany statku w 
 
 Zremby algorytmu oparte na artykule dotyczącym zwyczajnych Statków (w wersji amerykańskiej - statki tylko 2-5 pól, ortogonalnie, możliwość stykania się): http://www.datagenetics.com/blog/december32011/index.html
 
+*Uwaga: **orientacja potencjalnej salwy** jest nazywana w module 'statki.mechanika' **'konfiguracją pól'** - dla odróżnienia jej od elementów stałej 'ORIENTACJE' klasy 'statki.plansza.Salwa' oraz od już oddanych salw (które stają się obiektami klasy 'statki.plansza.Salwa'). W kontekście GUI (np. w module 'statki.gui.plansza') jest nazywana **'celownikiem'**.*
+
 Szkielet działania:
 1. Wybór napastnika.
-2. Wybór celu i orientacji salwy (polowanie lub celowanie).
+2. Wybór celu i konfiguracji pól ataku (polowanie lub celowanie).
 3. Oddanie salwy.
-Punkty 2-4 powtarzane są tak długo jak długo są salwy do oddania.
+Punkty 2-3 powtarzane są tak długo jak długo są salwy do oddania.
 
 Ad 1. Wybór napastnika - statek z o największej sile ognia w danej rundzie.
-Ad 2. Wybór salwy - polowanie lub celowanie:
+Ad 2. Wybór celu i salwy (konfiguracji pól) - polowanie lub celowanie:
         <del>Algorytm powinien brać pod uwagę:
         1. wybrane na początku gry ustawienia dotyczące umieszczania statków na planszy (parametry rozkładu Gaussa losowania rozmiaru statku)
         2. algorytm umieszczania statków (brak stykania się)
         Na podstawie 1) powinna odbyć się symulacja najbardziej prawdopodobnych wybranych rozmiarów i ilości statków przeciwnika.</del>
-        Wystarczy przeprowadzić symulację umieszczania statków na planszy wg wybranych wcześniej w grze parametrów i zapisać ilość wystąpień pola statku w danej lokalizacji planszy. Mając taką mapę aproksymującą statystyczne występowanie statków na planszy będzie można zarówno wybrać za każdym razem najlepszy cel polowania jak i przy celowaniu ocenić wszystkie możliwe do oddania salwy.
+        Wystarczy przeprowadzić symulację umieszczania statków na planszy wg wybranych wcześniej w grze parametrów i zapisać ilość wystąpień pola statku w danej lokalizacji planszy (tzw. 'waga' pola). Mając taką mapę aproksymującą statystyczne występowanie statków na planszy będzie można zarówno wybrać za każdym razem najlepszy cel polowania jak i przy celowaniu ocenić wszystkie możliwe do oddania salwy (nazywane w docstringach 'konfiguracjami pól' dla rozróżnienia z już oddaną salwą).
+
+        POLOWANIE (atak bez wcześniejszego trafienia):
+
+        Najsłabsze AI losuje na ślepo cel z w szystkich nieodwiedzonych jeszcze pól i wybiera dla niego najlepszą konfigurację. Lepsze AI najpierw sprawdzi wszystkie nieodwiedzone jeszcze pola i wybierze tylko te, które dają najlepszą konfiguracje i tylko z nich wylosuje cel. Najlepsze AI zrobi to samo co poprzednie, tylko zamiast losować wybierze konfigurację o największej wadze.
+
+        CELOWANIE (atak po wcześniejszym trafieniu):
+
+        Szkielet algorytmu
+        ~~~~~~~~~~~~~~~~~~
+        1. Wybiera największą ofiarę (sprawdza do ilu statków należą wszystkie odkryte, trafione pola i wybiera ten, którego najwięcej pól zostało trafionych).
+        2. Sprawdza wszystkie nieodwiedzone pola, które są jednocześnie bezpośrednimi sąsiadami (stykającymi się ortogonalnie - nie na ukos) wszystkich trafionych pól ofiary jako potencjalny cel.
+        3. Dla każdego potencjalnego celu wybiera najlepszą konfigurację pól na podstawie dwóch czynników (w podanej kolejności:
+            a) ilości rażonych (nieodwiedzonych) pól
+            b) ilości trafionych pól ofiary, które stykają się bezpośrednio (2 punkty) lub na ukos (1 punkt) z wszystkimi polami danej konfiguracji
+        4. Spośród tak wybranych konfiguracji wybiera najlepszą znowu stosując tę samą ocenę (a) i b)).
+
+        Mocniejsze AI weźmie pod uwagę trzecią kategorię wyboru - wagę danego pola (ustalaną na podstawie symulacji możliwych ustawień statków na planszy)
+
+
+### INNE
+
+Przebudować kod na zgodny z **Prawem Demeter**. Obiekty powinny rozmawiać tylko z *przyjaciółmi* - nie powinny wywoływać metod ani pól na obiektach innych niż swoje własne pola lub parametry własnych metod. Oznacza to zamianę wszystkich wywołań typu `self.gra.tura.runda.metoda()` na wywoływanie własnej metody, która zwraca potrzebny obiekt, np. `self.runda().metoda()`. W ten sposób unika się zakładania implicite, że obiekt który wywołuje metodę na obiekcie, do którego nie ma bezpośredniego dostępu, posiada wiedzę, jak do takiego obiektu trafić. Co w sposób oczywisty powoduje problemy w sytuacji, w której ta impelementacja ulega zmianie (zamiast zmieniać kod w 1 miejscu, trzeba we wszystkich, które korzystały z takiej domyślnej wiedzy).
