@@ -3,7 +3,7 @@
     statki.mechanika
     ~~~~~~~~~~~~~~~~
 
-    Mechanika i przebieg gry w rozbiciu na tury i rundy. Gra składa się z tur, które składają się z rund. Runda odpowiada atakowi pojedynczego statku na pola planszy przeciwnika podzielonemu na salwy. Ilość salw oddawanych przez statek w rundzie zależy od jego aktualnej siły ognia. Tura składa się z tylu rund ile statków na planszy może atakować (nie są zatopione). Gra składa się z tak wielu tur, jak wiele razy po wykonaniu wszystkich ataków na planszy atakującego gracza pozostał jeszcze jakiś niezatopiony statek.
+    Mechanika i przebieg gry w rozbiciu na tury i rundy - dla żywego gracza w grze pojędynczej, dla żywego gracza w grze dwuosobowej (gra sieciowa) i dla gracza komputerowego (AI).
 
 """
 
@@ -13,6 +13,12 @@ from random import choice
 from statki.plansza import Plansza, Pole, Salwa
 
 # TODO: oczyścić docstringi z bieżących komentarzy i rozważań
+
+# Gra składa się z tur, które składają się z rund. Runda odpowiada atakowi pojedynczego statku na
+# pola planszy przeciwnika podzielonemu na salwy. Ilość salw oddawanych przez statek w rundzie
+# zależy od jego aktualnej siły ognia. Tura składa się z tylu rund ile statków na planszy może
+# atakować (nie są zatopione). Gra składa się z tak wielu tur, jak wiele razy po wykonaniu
+# wszystkich ataków na planszy atakującego gracza pozostał jeszcze jakiś niezatopiony statek.
 
 
 class Gra:
@@ -27,12 +33,14 @@ class Gra:
         self.ofiary = []  # zatopione statki przeciwnika
 
     def dodaj_ture(self):
-        """Stwórz nową turę i dodaj do listy tur"""
+        """Stwórz nową turę i dodaj do listy tur."""
         self.tura = Tura(self.plansza)
         self.tury.append(self.tura)
 
     def podaj_info_o_rundzie(self):
-        """Zwróć informację o rundzie w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków])."""
+        """
+        Zwróć informację o rundzie w formacie: `tura #[liczba] / runda #[liczba] ([ilość statków]).
+        """
         info = "tura #" + str(len(self.tury))
         info += " / runda #" + str(len(self.tura.rundy))
         info += " (" + str(len(self.tura.napastnicy)) + ")"
@@ -52,7 +60,7 @@ class Tura:
 
     def __init__(self, plansza):
         self.plansza = plansza
-        self.migawki_planszy = [deepcopy(self.plansza)]  # +1 koniec każdej rundy
+        self.migawki_planszy = [deepcopy(self.plansza)]  # +1 na koniec każdej rundy
         self.napastnicy = self.plansza.niezatopione[:]  # śledzona jest tylko ilość elementów nie ich zawartość, więc wystarczy płytka kopia
         self.runda = Runda(self.napastnicy[0])
         self.rundy = [self.runda]
@@ -66,7 +74,8 @@ class Tura:
 
     def filtruj_zatopione(self):
         """Filtruj z listy napastników statki zatopione w ostatniej rundzie przez przeciwnika."""
-        aktualni_napastnicy = [napastnik for napastnik in self.napastnicy if napastnik not in self.plansza.zatopione]
+        aktualni_napastnicy = [napastnik for napastnik in self.napastnicy
+                               if napastnik not in self.plansza.zatopione]
         self.napastnicy = aktualni_napastnicy
 
 
@@ -183,10 +192,16 @@ class AI(Gra):
             konfiguracje_pol.append([cel])
         elif wielkosc_salwy == 2:
             for orientacja in Salwa.ORIENTACJE[1:5]:
-                konfiguracje_pol.append(self.podaj_konfiguracje_pol(cel, self.KIERUNKI_SALWY[orientacja]))
+                konfiguracje_pol.append(self.podaj_konfiguracje_pol(
+                    cel,
+                    self.KIERUNKI_SALWY[orientacja]
+                ))
         elif wielkosc_salwy == 3:
             for orientacja in Salwa.ORIENTACJE[5:]:
-                konfiguracje_pol.append(self.podaj_konfiguracje_pol(cel, self.KIERUNKI_SALWY[orientacja]))
+                konfiguracje_pol.append(self.podaj_konfiguracje_pol(
+                    cel,
+                    self.KIERUNKI_SALWY[orientacja]
+                ))
 
         return sorted(konfiguracje_pol, key=lambda kp: len([True for pole in kp if pole.znacznik not in self.ODWIEDZONE]), reverse=True)[0]
 

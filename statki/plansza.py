@@ -7,6 +7,8 @@
 
 """
 
+# TODO: skrócić wszystkie gettery o "podaj", lepiej usystematyzować nazwy metod
+
 from random import randint, choice, gauss
 from decimal import Decimal as D
 from collections import namedtuple
@@ -21,8 +23,9 @@ class Plansza:
     ALFABET = {
         1: "A", 2: "B", 3: "C", 4: "D", 5: "E", 6: "F", 7: "G", 8: "H", 9: "I", 10: "J",
         11: "K", 12: "L", 13: "M", 14: "N", 15: "O", 16: "P", 17: "Q", 18: "R", 19: "S", 20: "T",
-        21: "U", 22: "V", 23: "W", 24: "X", 25: "Y", 26: "Z", 27: "AA", 28: "AB", 29: "AC", 30: "AD",
-        31: "AE", 32: "AF", 33: "AG", 34: "AH", 35: "AI", 36: "AJ", 37: "AK", 38: "AL", 39: "AM", 40: "AN"
+        21: "U", 22: "V", 23: "W", 24: "X", 25: "Y", 26: "Z", 27: "AA", 28: "AB", 29: "AC",
+        30: "AD", 31: "AE", 32: "AF", 33: "AG", 34: "AH", 35: "AI", 36: "AJ", 37: "AK", 38: "AL",
+        39: "AM", 40: "AN"
     }
     MIN_KOLUMNY, MAX_KOLUMNY = Parser.podaj_minmax_kolumny()
     MIN_RZEDY, MAX_RZEDY = Parser.podaj_minmax_rzedy()
@@ -41,6 +44,7 @@ class Plansza:
         self.o_statkach()  # test
         self.drukuj()  # test
         self.ilosc_pol_statkow = sum([statek.rozmiar for statek in self.statki])
+        # TODO: zamienić na generatory
         self.zatopione = []  # statki zatopione tej planszy
         self.niezatopione = self.statki[:]  # statki niezatopione tej planszy
 
@@ -72,17 +76,16 @@ class Plansza:
         print()
         print("##### PLANSZA #####".center(self.kolumny * 3 + 2))
         print()
-        # print("    " + "  ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba < 10]) + " " + " ".join([str(liczba) for liczba in range(1, self.kolumny + 1) if liczba >= 10]))
         print("    " + "  ".join([self.ALFABET[liczba] for liczba in range(1, self.kolumny + 1)]))
         print()
-        for i in range(len(self.pola)):
+        for i, rzad in enumerate(self.pola):
             # numeracja rzędów
             if i + 1 < 10:
                 print(str(i + 1) + "  ", end=" ")
             else:
                 print(str(i + 1) + " ", end=" ")
             # właściwe pola planszy
-            print("  ".join([pole.znacznik for pole in self.pola[i]]))
+            print("  ".join([pole.znacznik for pole in rzad]))
 
     def podaj_pole(self, kolumna, rzad):
         """
@@ -263,8 +266,10 @@ class Plansza:
             # obsługa wyjścia
             if licznik_iteracji > sum_rozmiar_statkow * 50:  # wielkość do przetestowania
                 print(  # test
-                    "Ilość iteracji pętli zapełniającej planszę statkami większa od oczekiwanej ({})".format(sum_rozmiar_statkow * 50),
-                    "Nastąpiło przedwczesne przerwanie petli. Umieszczono mniej statków ({})".format(len(self.statki))
+                    "Ilość iteracji pętli zapełniającej planszę statkami"
+                    "większa od oczekiwanej ({})".format(sum_rozmiar_statkow * 50),
+                    "Nastąpiło przedwczesne przerwanie petli."
+                    " Umieszczono mniej statków ({})".format(len(self.statki))
                 )
                 break
 
@@ -296,9 +301,16 @@ class Plansza:
         sum_rozmiar = 0
         for statek in self.statki:
             sum_rozmiar += statek.rozmiar
-            print('\nUmieszczony statek: {} "{}" [{}]'.format(statek.RANGA_BAZOWA.nazwa, statek.nazwa, statek.rozmiar))
+            print('\nUmieszczony statek: {} "{}" [{}]'.format(
+                statek.RANGA_BAZOWA.nazwa,
+                statek.nazwa,
+                statek.rozmiar
+            ))
 
-        print("\nWszystkich umieszczonych statków: {}. Ich sumaryczny rozmiar: [{}]".format(len(self.statki), sum_rozmiar))
+        print("\nWszystkich umieszczonych statków: {}. Ich sumaryczny rozmiar: [{}]".format(
+            len(self.statki),
+            sum_rozmiar
+        ))
 
     def podaj_ilosc_niezatopionych_wg_rang(self):
         """
@@ -330,7 +342,7 @@ class Plansza:
         nietrafione = D(self.podaj_ilosc_nietrafionych_pol())
         wszystkie = D(self.ilosc_pol_statkow)
         procent = round(nietrafione * 100 / wszystkie, 1)
-        return (str(nietrafione), str(procent) + "%")
+        return str(nietrafione), str(procent) + "%"
 
 
 class Pole:
@@ -374,7 +386,7 @@ class Pole:
 
     def podaj_wspolrzedne(self):
         """Podaj współrzędne pola."""
-        return (self.kolumna, self.rzad)
+        return self.kolumna, self.rzad
 
     def str_w_nawiasach(self):
         """Zwróć informację o polu w formacie __str__ , dodając nawiasy, np. (B9)"""
@@ -382,9 +394,7 @@ class Pole:
 
 
 class Salwa:
-    """
-    Kolekcja pól planszy, w które strzela napastnik wraz ze źródłem (jego położeniem).
-    """
+    """Kolekcja pól planszy, w które strzela napastnik wraz ze źródłem (jego położeniem)."""
     # UWAGA - nie są to pola planszy napastnika
 
     Orientacje = namedtuple("Orientacje", "C E S W N WE NS NE SE SW NW")
@@ -405,9 +415,14 @@ class Salwa:
     def __init__(self, zrodlo, pola, niewypaly=None):
         self.zrodlo = zrodlo  # polozenie statku który oddał salwę
         self.pola = pola
-        self.trafienia = [True if pole.znacznik in (Pole.ZNACZNIKI.trafiony, Pole.ZNACZNIKI.zatopiony) else False for pole in self.pola]
-        self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI.pudlo else False for pole in self.pola]
+        self.trafienia = [True if pole.znacznik in (
+            Pole.ZNACZNIKI.trafiony,
+            Pole.ZNACZNIKI.zatopiony
+        ) else False for pole in self.pola]
+        self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI.pudlo
+                      else False for pole in self.pola]
         self.niewypaly = niewypaly if niewypaly is not None else []  # strzały poza planszę
+        self.sprawdz_rozmiar()
 
     def __eq__(self, other):
         """
@@ -435,14 +450,22 @@ class Salwa:
     def __len__(self):
         return len(self.pola) + len(self.niewypaly)
 
+    # TODO: wartości graniczne do JSONa i parsowanie jak w klasie Plansza
+    def sprawdz_rozmiar(self):
+        """Weryfikuje rozmiar salwy."""
+        if len(self) not in range(1, 4):
+            raise ValueError(
+                "Błąd rozmiaru salwy.",
+                "Salwa może składać się z 1-3 pól.",
+                "Otrzymany rozmiar: {}".format(len(self))
+            )
+
 
 class Statek:
-    """
-    Statek. Klasa abstrakcyjna - inicjalizacja dotyczy tylko instancji klas potomnych.
-    """
+    """Statek. Klasa abstrakcyjna - inicjalizowane tylko obiekty klas potomnych."""
 
     RANGI = Parser.podaj_rangi()  # namedtuple
-    ORDER = "★"
+    ORDER = "★"  # TODO
 
     @classmethod
     def fabryka(cls, pola_statku):
@@ -546,7 +569,9 @@ class Statek:
             self.sila_ognia = self.ranga.sila_ognia[:]
 
     def podaj_nietrafione_na_rozmiar(self):
-        """Podaj informację o stosunku pól nietrafionych do wszystkich pól jako string w formacie: 16/20."""
+        """
+        Podaj informację o stosunku pól nietrafionych do wszystkich pól jako string w formacie: 16/20.
+        """
         nietrafione = self.rozmiar - self.ile_otrzymanych_trafien()
         return str(nietrafione) + "/" + str(self.rozmiar)
 

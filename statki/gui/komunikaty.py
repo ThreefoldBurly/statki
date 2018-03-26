@@ -28,9 +28,8 @@ class PasekKomunikatow(ttk.Frame):
         self.wstaw_suwak()
 
     def podaj_wysokosc(self):
-        """
-        Podaj wysokość paska.
-        """
+        """Podaj wysokość paska."""
+
         # niezbędna wysokość uzależniona jest od wysokości plansz (oraz drzewa w sekcji kontroli floty) i została ustalona po testach.
         wysokosci = {
             8: 17,
@@ -61,6 +60,7 @@ class PasekKomunikatow(ttk.Frame):
 
     def podaj_szerokosc(self):
         """Podaj szerokość paska."""
+
         # z testów wynikło, że dla bazowej szerokości planszy równej 8 kolumn prawidłowa szerokość pola tekstowego to 77 znaków i że z każdą dodatkową kolumną planszy pole powinno rosnąć o 7.5 znaku w szerz
         korekta = round(7.5 * (self.szer_plansz - 8))
         return 77 + korekta

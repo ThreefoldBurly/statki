@@ -176,7 +176,8 @@ class KontrolaAtaku(Sekcja):
 
     def wlacz_comboboksy(self):
         """
-        Włącz i wypełnij danymi startowymi wszystkie comboboksy. Metoda wywoływana na początku nowej rundy."""
+        Włącz i wypełnij danymi startowymi wszystkie comboboksy. Metoda wywoływana na początku nowej rundy.
+        """
         self.combo_statku.state(["!disabled"])
         self.combo_statku.state(["readonly"])
         self.combo_statku["values"] = self.pg.gra.tura.napastnicy
@@ -198,7 +199,9 @@ class KontrolaAtaku(Sekcja):
         """Ustaw aktualną siłę ognia w comboboksie salwy."""
         sila_ognia = self.pg.gra.tura.runda.sila_ognia
         if len(sila_ognia) > 0:
-            self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1 else "{} pola".format(salwa) for salwa in self.pg.gra.tura.runda.sila_ognia]
+            self.combo_salwy["values"] = ["{} pole".format(salwa) if salwa == 1
+                                          else "{} pola".format(salwa)
+                                          for salwa in self.pg.gra.tura.runda.sila_ognia]
             self.combo_salwy.set(self.combo_salwy["values"][0])
             self.ustaw_combo_orientacji(self.combo_salwy["values"][0])
         else:
@@ -345,9 +348,18 @@ class PozycjeSalwy(ttk.Frame):
             textvariable=self.trzecia
         )
         self.etykieta_trzeciej.grid(row=0, column=5, sticky=tk.W)
-        self.pierwsza.trace("w", lambda n, i, m, poz=self.pierwsza, et=self.etykieta_pierwszej: self.na_zmiane(poz, et))
-        self.druga.trace("w", lambda n, i, m, poz=self.druga, et=self.etykieta_drugiej: self.na_zmiane(poz, et))
-        self.trzecia.trace("w", lambda n, i, m, poz=self.trzecia, et=self.etykieta_trzeciej: self.na_zmiane(poz, et))
+        self.pierwsza.trace(
+            "w",
+            lambda n, i, m, poz=self.pierwsza, et=self.etykieta_pierwszej: self.na_zmiane(poz, et)
+        )
+        self.druga.trace(
+            "w",
+            lambda n, i, m, poz=self.druga, et=self.etykieta_drugiej: self.na_zmiane(poz, et)
+        )
+        self.trzecia.trace(
+            "w",
+            lambda n, i, m, poz=self.trzecia, et=self.etykieta_trzeciej: self.na_zmiane(poz, et)
+        )
 
     def ustal_tlo_sytemowe(self):
         """Sprawdź kolor tła systemowego i zapisz w stałej"""
@@ -460,7 +472,9 @@ class KontrolaFloty(Sekcja):
         self.przycisk_do_przodu.grid(row=1, column=2, sticky=tk.E, pady=(13, 0), padx=35)
 
     def buduj_pozycje_pola(self):
-        """Buduj etykietę wyświetlającą pozycję pola planszy gracza wskazywanego aktualnie przez kursor."""
+        """
+        Buduj etykietę wyświetlającą pozycję pola planszy gracza wskazywanego aktualnie przez kursor.
+        """
         self.pozycja_pola = tk.StringVar()
         self.etykieta_pozycji_pola = ttk.Label(
             self.etyramka,
@@ -672,7 +686,8 @@ class DrzewoFlotyGracza(DrzewoFloty):
     def wyszarz_zablokowane_statki(self):
         """Wyszarz zablokowane statki."""
         napastnik = self.plansza_gui.gra.tura.runda.napastnik
-        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.napastnicy if statek != napastnik]
+        lista_iid = [str(statek.polozenie) for statek in self.plansza_gui.gra.tura.napastnicy
+                     if statek != napastnik]
         for iid in lista_iid:
             tag_ranga, tag_statek = self.item(iid)["tags"][:2]
             self.item(iid, tags=(tag_ranga, tag_statek, "zablokowane"))
@@ -698,7 +713,6 @@ class DrzewoFlotyPrzeciwnika(DrzewoFloty):
 
     def __init__(self, rodzic, plansza_gui):
         super().__init__(rodzic, plansza_gui)
-
         self.ustaw_kolumny("Rozm")
         self.configure(displaycolumns=(0, 1, 2, 4))
 

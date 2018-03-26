@@ -50,10 +50,14 @@ class Komunikator:
 
         self.tekst.ro_insert("1.0", "Gra na planszy o rozmiarze: ")
         self.tekst.ro_insert("end", str(kolumny), "pogrubione")
-        self.tekst.ro_insert("end", " " + self.LICZBA_MNOGA["kolumna"][self.do_indeksu(kolumny)] + " x ")
+        self.tekst.ro_insert(
+            "end",
+            " " + self.LICZBA_MNOGA["kolumna"][self.do_indeksu(kolumny)] + " x "
+        )
         self.tekst.ro_insert("end", str(rzedy), "pogrubione")
         komunikat = " " + self.LICZBA_MNOGA["rząd"][self.do_indeksu(rzedy)]
-        komunikat += " (" + str(rozmiar) + " " + self.LICZBA_MNOGA["pole"][self.do_indeksu(rozmiar)] + "). "
+        komunikat += " (" + str(rozmiar) + " " + self.LICZBA_MNOGA["pole"][self.do_indeksu(
+            rozmiar)] + "). "
         komunikat += "Umieszczono "
         self.tekst.ro_insert("end", komunikat)
         self.tekst.ro_insert("end", str(ilosc_statkow), "pogrubione")
@@ -93,7 +97,11 @@ class Komunikator:
         self.tekst.ro_insert("end", komunikat)
         for i in range(len(salwa.pola)):
             if salwa.trafienia[i]:
-                self.tekst.ro_insert("end", salwa.pola[i].str_w_nawiasach(), ("pogrubione", "trafione"))
+                self.tekst.ro_insert(
+                    "end",
+                    salwa.pola[i].str_w_nawiasach(),
+                    ("pogrubione", "trafione")
+                )
             else:
                 self.tekst.ro_insert("end", salwa.pola[i].str_w_nawiasach(), "pogrubione")
             if i == 0:
