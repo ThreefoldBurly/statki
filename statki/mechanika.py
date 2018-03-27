@@ -157,12 +157,11 @@ class AI(Gra):
         nieodwiedzone = [pole for pole in pola if pole.znacznik not in self.ODWIEDZONE]
         cel = choice(nieodwiedzone)
         konfiguracja_pol = self.wybierz_konfiguracje_pol(cel)
-        self.druga_plansza.odkryj_pola(konfiguracja_pol)
+        self.druga_plansza.odkryj_pola([pole for pole in konfiguracja_pol if pole is not None])
         self.druga_plansza.oznacz_zatopione()
         self.tura.runda.dodaj_salwe_oddana(Salwa(
             self.tura.runda.napastnik.polozenie,
-            konfiguracja_pol,
-            [None for i in range(wielkosc_salwy - len(konfiguracja_pol))]
+            konfiguracja_pol
         ))
 
     def celuj(self):
@@ -202,8 +201,8 @@ class AI(Gra):
                     cel,
                     self.KIERUNKI_SALWY[orientacja]
                 ))
-
-        return sorted(konfiguracje_pol, key=lambda kp: len([True for pole in kp if pole.znacznik not in self.ODWIEDZONE]), reverse=True)[0]
+        srt = [True for pole in kp if pole is not None and pole.znacznik not in self.ODWIEDZONE]
+        return sorted(konfiguracje_pol, key=lambda kp: len(srt), reverse=True)[0]
 
     def podaj_konfiguracje_pol(self, cel, kierunki):
         """
@@ -213,9 +212,8 @@ class AI(Gra):
         # termin 'orientacja salwy' zarezerwowany jest dla stałej klasy 'statki.plansza.Salwa'. 'Konfiguracja pól' natomiast to pola planszy odpowiadające danej orientacji, z których jeszcze nie został utworzony obiekt klasy 'statki.plansza.Salwa'
         konfiguracja_pol = [cel]
         for kierunek in kierunki:
-            sasiad = self.druga_plansza.podaj_sasiednie_pole(cel, kierunek)
-            if sasiad is not None:
-                konfiguracja_pol.append(sasiad)
+            sasiad = self.druga_plansza.podaj_sasiednie_pole(cel, kierunek)  # None jeśli poza planszą!
+            konfiguracja_pol.append(sasiad)
         return konfiguracja_pol
 
     def wybierz_napastnika(self):

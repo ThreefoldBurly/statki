@@ -360,12 +360,23 @@ class Plansza:
 
     def stworz_statek(self, *wspolrzedne):
         """Stwórz statek z pól o podanych współrzędnych (tylko dla testów jednostkowych)."""
+        if len(wspolrzedne) not in range(self.MIN_ROZMIAR_STATKU, self.MAX_ROZMIAR_STATKU + 1):
+            raise ValueError("Błąd tworzenia statku. Podano złą ilość współrzędnych pól.")
+
         pola_statku = [self.podaj_pole(kolumna, rzad) for kolumna, rzad in wspolrzedne]
         for pole in pola_statku:
             if pole is None:
-                raise ValueError("Błąd tworzenia statku. Podano pola spoza planszy.")
+                raise ValueError("Błąd tworzenia statku. Podano współrzędne pól spoza planszy.")
             pole.znacznik = Pole.ZNACZNIKI.statek
         return Statek.fabryka(pola_statku)
+
+    def stworz_salwe(self, zrodlo, *wspolrzedne):  # TODO
+        """Stwórz salwę z pól o podanych współrzędnych (tylko dla testów jednostkowych)."""
+        if len(wspolrzedne) not in range(Salwa.MIN_ROZMIAR, Salwa.MAX_ROZMIAR + 1):
+            raise ValueError("Błąd tworzenia salwy. Podano złą ilość współrzędnych pól.")
+        pola_salwy = [self.podaj_pole(kolumna, rzad) for kolumna, rzad in wspolrzedne]
+        self.odkryj_pola([pole for pole in pola_salwy if pole is not None])
+        return Salwa(zrodlo, pola_salwy)
 
     def odkryj_pola(self, pola):
         """Odkryj wskazane pola."""
@@ -504,10 +515,16 @@ class Salwa:
     )
     MIN_ROZMIAR, MAX_ROZMIAR = Parser.podaj_minmax_rozmiar_salwy()
 
-    def __init__(self, zrodlo, pola, niewypaly=None):
+    @staticmethod
+    def filtruj_pola(pola):
+        """Filtruj niewypały (strzały poza planszę) od prawidłowych pól salwy."""
+        pola = [pole for pole in pola if pole is not None]
+        return sorted(pola, key=lambda p: p.kolumna + p.rzad)  # sortowanie od pola najbardziej na NW (self.polozenie) do pola najbardziej na SE
+
+    def __init__(self, zrodlo, pola):
         self.zrodlo = zrodlo  # polozenie statku który oddał salwę
-        self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # sortowanie od pola najbardziej na NW (self.polozenie) do pola najbardziej na SE
-        self.niewypaly = niewypaly if niewypaly is not None else []  # strzały poza planszę
+        self.pola = self.filtruj_pola(pola)
+        self.niewypaly = [None for pole in pola if pole is None]  # strzały poza planszę
         self.trafienia = [True if pole.znacznik in (
             Pole.ZNACZNIKI.trafiony,
             Pole.ZNACZNIKI.zatopiony
@@ -519,14 +536,16 @@ class Salwa:
 
     def __eq__(self, other):
         """
-        Przeładowanie operatora '=='. Salwy są równe, jeśli wszystkie ich pola są równe.
+        Przeładowanie operatora '=='. Salwy są równe, jeśli: 1) mają to samo źródło, 2) mają tyle samo pól i 3) wszystkie ich pola są równe.
         """
         if isinstance(self, other.__class__):
-            if len(self) == len(other):
-                for pole_tu, pole_tam in zip(self.pola, other.pola):
-                    if pole_tu != pole_tam:
-                        return False
-                return True
+            if self.zrodlo == other.zrodlo:
+                if len(self) == len(other):
+                    for pole_tu, pole_tam in zip(self.pola, other.pola):
+                        if pole_tu != pole_tam:
+                            return False
+                    return True
+                return False
             return False
         return NotImplemented
 
@@ -546,9 +565,9 @@ class Salwa:
     def sprawdz_rozmiar(self):
         """Zweryfikuj rozmiar tworzonej salwy."""
         if len(self) not in range(self.MIN_ROZMIAR, self.MAX_ROZMIAR + 1):
-            tekst_bledu = "Błąd rozmiaru salwy. Salwa może składać się z 1-3 pól. "
+            tekst_bledu = "Błąd rozmiaru salwy. Salwa może składać się z {}-{} pól. "
             tekst_bledu += "Otrzymany rozmiar: {}"
-            raise ValueError(tekst_bledu.format(len(self)))
+            raise ValueError(tekst_bledu.format(self.MIN_ROZMIAR, self.MAX_ROZMIAR, len(self)))
 
     def sprawdz_pola(self):
         """Zweryfikuj poprawność pól tworzonej salwy."""

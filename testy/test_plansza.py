@@ -28,7 +28,7 @@ class TestyPlanszy(unittest.TestCase):
         """Usuń przygotowaną wcześniej planszę."""
         del self.plansza
 
-    def testuj_statek__pola_prawidlowego(self):
+    def testuj_plansze__pola_prawidlowego_statku(self):
         """
         Czy pola prawidłowego statku są prawidłowo sprawdzane (czy każde kolejne pole statku jest ortogonalnym sąsiadem któregoś z poprzednich)? Test 4 różnych statków.
         """
@@ -53,7 +53,7 @@ class TestyPlanszy(unittest.TestCase):
                     self.fail("Metoda 'sprawdz_pola_statku()' zwróciła błąd, "
                               "którego nie powinna zwracać.")
 
-    def testuj_statek__pola_nieprawidlowego(self):
+    def testuj_plansze__pola_nieprawidlowego_statku(self):
         """
         Czy pola nieprawidłowego statku są prawidłowo sprawdzane (czy każde kolejne pole statku jest ortogonalnym sąsiadem któregoś z poprzednich)? Test 7 różnych statków.
         """
@@ -118,15 +118,18 @@ class TestyPola(unittest.TestCase):
         """
         self.assertEqual(self.pole.str_w_nawiasach(), "(J10)")
 
+    # TODO: ekwiwalencja negatywna
     def testuj_pole__ekwiwalencja(self):
         """
         Czy dwa pola należące do tej samej planszy, mające te same współrzędne i te same znaczniki są równe?
         """
-        pierwsze_pole = Pole(id(self), 5, 7, Pole.ZNACZNIKI.statek)
-        drugie_pole = Pole(id(self), 5, 7, Pole.ZNACZNIKI.statek)
-        self.assertEqual(pierwsze_pole, drugie_pole)
+        drugie_pole = Pole(id(self), 10, 10, Pole.ZNACZNIKI.pusty)
+        self.assertEqual(self.pole, drugie_pole)
 
     def testuj_pole__obsluga_wyjatkowosci_w_zbiorach(self):
+        """
+        Czy zbiór pól odsiewa duplikaty?
+        """
         dziesiec_takich_samych_pol = [Pole(id(self), 10, 5, Pole.ZNACZNIKI.statek)
                                       for i in range(10)]
         self.assertEqual(1, len(set(dziesiec_takich_samych_pol)))
@@ -135,16 +138,30 @@ class TestyPola(unittest.TestCase):
 class TestySalwy(unittest.TestCase):
     """Testy klasy 'statki.plansza.Salwa'."""
 
-    # def setUp(self):
-    #     """Stwórz dwie równe sobie salwy."""
-    #     self.pierwsza =
+    def setUp(self):
+        """Stwórz salwę do testów."""
+        self.plansza_gracza, self.plansza_przeciwnika = Plansza(26, 30), Plansza(26, 30)
+        self.salwa = self.plansza_gracza.stworz_salwe(
+            self.plansza_przeciwnika.statki[0].polozenie,
+            (8, 10), (9, 10), (9, 9)
+        )
 
-    # def testuj_ekwiwalencje(self):
-    #     """Czy dwie salwy składające się z równych sobie pól są równe?"""
+    def tearDown(self):
+        """Usuń stworzoną wcześniej salwę do testów."""
+        del self.plansza_gracza
+        del self.plansza_przeciwnika
+        del self.salwa
 
-    #     pierwsze_pole = Pole(id(self), 5, 5, Pole.ZNACZNIKI.statek)
-    #     drugie_pole = Pole(id(self), 5, 5, Pole.ZNACZNIKI.statek)
-    #     self.assertEqual(pierwsze_pole, drugie_pole)
+    # TODO: ekwiwalencja negatywna
+    def testuj_salwe__ekwiwalencja(self):
+        """
+        Czy dwie salwy mające to samo źródło i składające się z równych sobie pól są równe?
+        """
+        druga = self.plansza_gracza.stworz_salwe(
+            self.plansza_przeciwnika.statki[0].polozenie,
+            (8, 10), (9, 10), (9, 9)
+        )
+        self.assertEqual(self.salwa, druga)
 
 
 class TestyStatku(unittest.TestCase):

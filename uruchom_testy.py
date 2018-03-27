@@ -15,4 +15,4 @@ loader, suite = unittest.TestLoader(), unittest.TestSuite()
 suite.addTests(loader.loadTestsFromModule(tp))
 
 # uruchom komplet testów
-rezultat = unittest.TextTestRunner(verbosity=3).run(suite)
+rezultat = unittest.TextTestRunner(verbosity=2).run(suite)
