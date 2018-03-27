@@ -41,8 +41,9 @@ class Plansza:
         self.pola = self.stworz_pola()  # matryca pól (krotka krotek (rzędów))
         self.statki = []
         self.wypelnij_statkami(self.ZAPELNIENIE, self.ODCH_ST, self.PRZ_MEDIANY)
-        self.o_statkach()  # test
-        self.drukuj()  # test
+        self.sprawdz_statki()
+        # self.o_statkach()  # test
+        # self.drukuj()  # test
         self.ilosc_pol_statkow = sum([statek.rozmiar for statek in self.statki])
         # TODO: zamienić na generatory
         self.zatopione = []  # statki zatopione tej planszy
@@ -52,13 +53,14 @@ class Plansza:
         """Sprawdź wymiary planszy podane przy inicjalizacji."""
         if kolumny not in range(self.MIN_KOLUMNY, self.MAX_KOLUMNY + 1) or rzedy not in range(
                 self.MIN_RZEDY, self.MAX_RZEDY + 1):
-            raise ValueError(
-                "Błąd wymiarów planszy.",
-                "Prawidłowe wymiary planszy to: {}-{} kolumn x {}-{} rzędów.".format(
-                    self.MIN_KOLUMNY, self.MAX_KOLUMNY, self.MIN_RZEDY, self.MAX_RZEDY
-                ),
-                "Otrzymane wymiary: {} x {}".format(str(kolumny), str(rzedy))
-            )
+            tekst_bledu = "Błąd wymiarów planszy. "
+            tekst_bledu += "Prawidłowe wymiary planszy to: {}-{} kolumn x {}-{} rzędów. "
+            tekst_bledu += "Otrzymane wymiary: {} x {}."
+            raise ValueError(tekst_bledu.format(
+                self.MIN_KOLUMNY, self.MAX_KOLUMNY,
+                self.MIN_RZEDY, self.MAX_RZEDY,
+                str(kolumny), str(rzedy)
+            ))
 
     def stworz_pola(self):
         """Stwórz pola planszy."""
@@ -86,6 +88,7 @@ class Plansza:
                 print(str(i + 1) + " ", end=" ")
             # właściwe pola planszy
             print("  ".join([pole.znacznik for pole in rzad]))
+        print()
 
     def podaj_pole(self, kolumna, rzad):
         """
@@ -142,7 +145,7 @@ class Plansza:
             pola_statku.append(pole)
 
         while len(pola_statku) < rozmiar:
-            if licznik_iteracji > rozmiar * 5:  # za dużo iteracji - NIEUDANE UMIESZCZENIE
+            if licznik_iteracji > rozmiar * 10:  # za dużo iteracji - NIEUDANE UMIESZCZENIE
                 return None
 
             if licznik_iteracji == 0:  # pole początkowe
@@ -154,9 +157,9 @@ class Plansza:
                 pula_kierunkow = list(self.KIERUNKI[:4])
 
                 while True:
-                    if len(pula_kierunkow) < 1:  # powrót po wyczerpaniu kierunków
+                    if not pula_kierunkow:  # powrót po wyczerpaniu kierunków
                         indeks = pola_statku.index(pole)
-                        if indeks > 0:
+                        if indeks:
                             pole = pola_statku[indeks - 1]
                             break
                         else:  # powrót do pola początkowego - NIEUDANE UMIESZCZENIE
@@ -287,6 +290,83 @@ class Plansza:
 
         self.statki.sort(key=lambda s: s.rozmiar, reverse=True)  # od największego do najmniejszego
 
+    def sprawdz_pola_statku(self, statek):
+        """Zweryfikuj poprawność pól wskazanego statku."""
+
+        # unikalność pól
+        if len(statek.pola) != len(set(statek.pola)):
+            tekst_bledu = "Błąd pól statku: {}. "
+            tekst_bledu += "Statek może składać się tylko z unikalnych pól"
+            tekst_bledu += "Otrzymane pola statku zawierają duplikaty: {}. "
+            raise ValueError(tekst_bledu.format(
+                str(statek),
+                [str(pole) for pole in statek.pola]
+            ))
+
+        # ortogonalne sąsiedztwo pól
+        def czy_nastepne_pole_sasiadem(pole, nastepne_pole):
+            """Sprawdza czy następne pole jest sąsiadem"""
+            pula_kierunkow = list(Plansza.KIERUNKI[:4])
+            while pula_kierunkow:
+                kierunek = pula_kierunkow[0]
+                sasiad = self.podaj_sasiednie_pole(pole, kierunek)
+                if sasiad == nastepne_pole:
+                    return True
+                else:
+                    pula_kierunkow.remove(kierunek)
+            return False
+
+        pola_do_sprawdzenia = statek.pola[:]
+        pola_sprawdzone = []
+
+        while pola_do_sprawdzenia:
+            pole = pola_do_sprawdzenia[0]
+
+            if len(pola_do_sprawdzenia) > 1:
+                nastepne_pole = pola_do_sprawdzenia[1]
+                if czy_nastepne_pole_sasiadem(pole, nastepne_pole):
+                    pola_sprawdzone.append(pole)
+                    pola_do_sprawdzenia.remove(pole)
+                else:
+                    sciezka_cofania = pola_sprawdzone[::-1]
+                    # ostatnie pole przed powrotem należy dodać do sprawdzonych i usunąć ze sprawdzanych
+                    pola_sprawdzone.append(pole)
+                    pola_do_sprawdzenia.remove(pole)
+
+                    while sciezka_cofania:
+                        pole = sciezka_cofania[0]
+                        if czy_nastepne_pole_sasiadem(pole, nastepne_pole):
+                            break
+                        else:
+                            sciezka_cofania.remove(pole)
+
+                    if not sciezka_cofania:
+                        tekst_bledu = "Błąd pól statku: {}. "
+                        tekst_bledu += "Statek może składać się tylko z pól sąsiadujących"
+                        tekst_bledu += " ze sobą ortogonalnie. Otrzymane pola statku: {}. "
+                        tekst_bledu += "Pole nie sąsiadujące ortogonalnie: {}."
+                        raise ValueError(tekst_bledu.format(
+                            str(statek),
+                            [str(pole) for pole in statek.pola],
+                            nastepne_pole
+                        ))
+            else:
+                break
+
+    def sprawdz_statki(self):
+        """Zweryfikuj poprawność umieszczonych statków."""
+        for statek in self.statki:
+            self.sprawdz_pola_statku(statek)
+
+    def stworz_statek(self, *wspolrzedne):
+        """Stwórz statek z pól o podanych współrzędnych (tylko dla testów jednostkowych)."""
+        pola_statku = [self.podaj_pole(kolumna, rzad) for kolumna, rzad in wspolrzedne]
+        for pole in pola_statku:
+            if pole is None:
+                raise ValueError("Błąd tworzenia statku. Podano pola spoza planszy.")
+            pole.znacznik = Pole.ZNACZNIKI.statek
+        return Statek.fabryka(pola_statku)
+
     def odkryj_pola(self, pola):
         """Odkryj wskazane pola."""
         for pole in pola:
@@ -306,6 +386,7 @@ class Plansza:
 
     def o_statkach(self):  # do testów
         """Drukuj informację o umieszczonych statkach"""
+        print()
         print()
         print("##### STATKI #####".center(self.kolumny * 3 + 2))
         sum_rozmiar = 0
@@ -425,15 +506,16 @@ class Salwa:
 
     def __init__(self, zrodlo, pola, niewypaly=None):
         self.zrodlo = zrodlo  # polozenie statku który oddał salwę
-        self.pola = pola
+        self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # sortowanie od pola najbardziej na NW (self.polozenie) do pola najbardziej na SE
+        self.niewypaly = niewypaly if niewypaly is not None else []  # strzały poza planszę
         self.trafienia = [True if pole.znacznik in (
             Pole.ZNACZNIKI.trafiony,
             Pole.ZNACZNIKI.zatopiony
         ) else False for pole in self.pola]
         self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI.pudlo
                       else False for pole in self.pola]
-        self.niewypaly = niewypaly if niewypaly is not None else []  # strzały poza planszę
         self.sprawdz_rozmiar()
+        self.sprawdz_pola()
 
     def __eq__(self, other):
         """
@@ -462,24 +544,32 @@ class Salwa:
         return len(self.pola) + len(self.niewypaly)
 
     def sprawdz_rozmiar(self):
-        """Weryfikuje rozmiar salwy."""
+        """Zweryfikuj rozmiar tworzonej salwy."""
         if len(self) not in range(self.MIN_ROZMIAR, self.MAX_ROZMIAR + 1):
-            raise ValueError(
-                "Błąd rozmiaru salwy.",
-                "Salwa może składać się z 1-3 pól.",
-                "Otrzymany rozmiar: {}".format(len(self))
-            )
+            tekst_bledu = "Błąd rozmiaru salwy. Salwa może składać się z 1-3 pól. "
+            tekst_bledu += "Otrzymany rozmiar: {}"
+            raise ValueError(tekst_bledu.format(len(self)))
+
+    def sprawdz_pola(self):
+        """Zweryfikuj poprawność pól tworzonej salwy."""
+        sumy_wsplrz = [pole.kolumna + pole.rzad for pole in self.pola]
+        if len(sumy_wsplrz) > 1:
+            roznice = [sumy_wsplrz[i + 1] - sumy_wsplrz[i] for i in range(len(sumy_wsplrz) - 1)]
+            if sum(roznice) == 0 or not all(True for roznica in roznice if roznica in range(2)):
+                tekst_bledu = "Błąd pól salwy. Salwa może składać się tylko z pól "
+                tekst_bledu += "sąsiadujących ze sobą ortogonalnie. Otrzymane pola: {}."
+                raise ValueError(tekst_bledu.format([str(pole) for pole in self.pola]))
 
 
 class Statek:
-    """Statek. Klasa abstrakcyjna - inicjalizowane tylko obiekty klas potomnych."""
+    """Statek. Klasa abstrakcyjna - inicjalizowane są tylko obiekty klas potomnych."""
 
     RANGI = Parser.podaj_rangi()  # namedtuple
     ORDER = "★"  # TODO
 
     @classmethod
     def fabryka(cls, pola_statku):
-        """Tworzy statki odpowiedniej rangi."""
+        """Twórz z podanych pól statek odpowiedniej rangi."""
         rozmiar = len(pola_statku)
         if rozmiar in cls.RANGI.kuter.zakres:
             return Kuter(pola_statku)
@@ -497,8 +587,8 @@ class Statek:
             return Pancernik(pola_statku)
 
     def __init__(self, pola):
-        self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # sortowanie od pola najbardziej na NW (self.polozenie) do pola najbardziej na SE
-        self.polozenie = self.pola[0]
+        self.pola = pola
+        self.polozenie = sorted(pola, key=lambda p: p.kolumna + p.rzad)[0]
         self.obwiednia = []  # lista pól obwiedni wokół statku
         self.rozmiar = len(pola)
         self.ofiary = []  # statki przeciwnika zatopione przez ten statek

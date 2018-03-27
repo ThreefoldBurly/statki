@@ -14,5 +14,5 @@ loader, suite = unittest.TestLoader(), unittest.TestSuite()
 # zbierz moduły testowe w jeden komplet
 suite.addTests(loader.loadTestsFromModule(tp))
 
-# uruchom testy
-rezultat = unittest.TextTestRunner().run(suite)
+# uruchom komplet testów
+rezultat = unittest.TextTestRunner(verbosity=3).run(suite)
