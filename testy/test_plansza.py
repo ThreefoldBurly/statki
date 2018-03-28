@@ -118,13 +118,25 @@ class TestyPola(unittest.TestCase):
         """
         self.assertEqual(self.pole.str_w_nawiasach(), "(J10)")
 
-    # TODO: ekwiwalencja negatywna
     def testuj_pole__ekwiwalencja(self):
         """
         Czy dwa pola należące do tej samej planszy, mające te same współrzędne i te same znaczniki są równe?
         """
-        drugie_pole = Pole(id(self), 10, 10, Pole.ZNACZNIKI.pusty)
-        self.assertEqual(self.pole, drugie_pole)
+        drugie = Pole(id(self), 10, 10, Pole.ZNACZNIKI.pusty)
+        self.assertEqual(self.pole, drugie)
+
+    def testuj_pole__roznica(self):
+        """
+        Czy dwa pola należące do różnych plansz, mające różne współrzędne i różne znaczniki są różne?
+        """
+        drugie_inna_plansza = Pole(id(object()), 10, 10, Pole.ZNACZNIKI.pusty)
+        drugie_inne_wspolrzedne = Pole(id(self), 13, 3, Pole.ZNACZNIKI.pusty)
+        drugie_inny_znacznik = Pole(id(self), 10, 10, Pole.ZNACZNIKI.zatopiony)
+
+        for drugie in [drugie_inna_plansza, drugie_inne_wspolrzedne,
+                       drugie_inny_znacznik]:
+            with self.subTest(pole=str(drugie)):
+                self.assertNotEqual(self.pole, drugie)
 
     def testuj_pole__obsluga_wyjatkowosci_w_zbiorach(self):
         """
@@ -152,7 +164,6 @@ class TestySalwy(unittest.TestCase):
         del self.plansza_przeciwnika
         del self.salwa
 
-    # TODO: ekwiwalencja negatywna
     def testuj_salwe__ekwiwalencja(self):
         """
         Czy dwie salwy mające to samo źródło i składające się z równych sobie pól są równe?
@@ -162,6 +173,26 @@ class TestySalwy(unittest.TestCase):
             (8, 10), (9, 10), (9, 9)
         )
         self.assertEqual(self.salwa, druga)
+
+    def testuj_salwe__roznica(self):
+        """
+        Czy dwie salwy mające różne źródła i składające się z różnych pól są różne?
+        """
+        druga_inne_zrodlo = self.plansza_gracza.stworz_salwe(
+            self.plansza_przeciwnika.statki[1].polozenie,
+            (8, 10), (9, 10), (9, 9)
+        )
+        druga_inne_wspolrzedne = self.plansza_gracza.stworz_salwe(
+            self.plansza_przeciwnika.statki[0].polozenie,
+            (2, 3), (3, 3), (3, 4)
+        )
+        druga_inne_wspolrzedne_niewypal = self.plansza_gracza.stworz_salwe(
+            self.plansza_przeciwnika.statki[0].polozenie,
+            (1, 1), (1, 2), (0, 2)
+        )
+        for druga in [druga_inne_zrodlo, druga_inne_wspolrzedne, druga_inne_wspolrzedne_niewypal]:
+            with self.subTest(salwa=str(druga)):
+                self.assertNotEqual(self.salwa, druga)
 
 
 class TestyStatku(unittest.TestCase):
