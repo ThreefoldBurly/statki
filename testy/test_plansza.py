@@ -112,7 +112,7 @@ class TestyPola(unittest.TestCase):
         """
         self.assertEqual(self.pole.znacznik, Pole.ZNACZNIKI.pusty)
 
-    def testuj_pole__konwersja_do_stringu_w_nawiasach(self):
+    def testuj_pole__konwersja_do_str_w_nawiasach(self):
         """
         Czy pole jest zamieniane na stringa w odpowiednim formacie?
         """
@@ -193,6 +193,63 @@ class TestySalwy(unittest.TestCase):
         for druga in [druga_inne_zrodlo, druga_inne_wspolrzedne, druga_inne_wspolrzedne_niewypal]:
             with self.subTest(salwa=str(druga)):
                 self.assertNotEqual(self.salwa, druga)
+
+    def testuj_salwe__konwersja_do_str_jedno_pole(self):
+        """
+        Czy salwa jest zamieniana na stringa w odpowiednim formacie? Test salwy składającej się z 1 pola.
+        """
+        salwa = self.plansza_gracza.stworz_salwe(
+            self.plansza_przeciwnika.statki[0].polozenie,
+            (8, 10)
+        )
+        self.assertEqual(str(salwa), "(H10)")
+
+    def testuj_salwe__konwersja_do_str_dwa_pola(self):
+        """
+        Czy salwa jest zamieniana na stringa w odpowiednim formacie? Test salwy składającej się z 2 póla.
+        """
+        salwa = self.plansza_gracza.stworz_salwe(
+            self.plansza_przeciwnika.statki[0].polozenie,
+            (8, 10), (9, 10)
+        )
+        self.assertEqual(str(salwa), "(H10) i (I10)")
+
+    def testuj_salwe__konwersja_do_str_trzy_pola(self):
+        """
+        Czy salwa jest zamieniana na stringa w odpowiednim formacie? Test salwy składającej się z 3 pól.
+        """
+        self.assertEqual(str(self.salwa), "(H10), (I9) i (I10)" or "(I9), (H10) i (I10)")
+
+    def testuj_salwe__rozmiar(self):
+        """
+        Czy próba stworzenia salwy o nieprawidłowym rozmiarze zwraca odpowiedni błąd?
+        """
+        with self.assertRaises(ValueError):
+            salwa = self.plansza_gracza.stworz_salwe(
+                self.plansza_przeciwnika.statki[0].polozenie,
+                (8, 10), (9, 10), (9, 9), (10, 10), (9, 11)
+            )
+
+    def testuj_salwe__nieprawidlowe_pola(self):
+        """
+        Czy próba stworzenia salwy z pól o nieprawidłowym położeniu zwraca odpowiedni błąd?
+        """
+        zestaw_wspolrzednych = [
+            ((8, 10), (9, 9)),
+            ((8, 9), (9, 10)),
+            ((8, 10), (10, 8)),
+            ((8, 10), (9, 9), (10, 8)),
+            ((8, 8), (9, 9), (10, 10)),
+            ((8, 10), (9, 9), (10, 8)),
+            ((9, 9), (9, 10), (9, 12))
+        ]
+        for wspolrzedne in zestaw_wspolrzednych:
+            with self.subTest(wspolrzedne=wspolrzedne):
+                with self.assertRaises(ValueError):
+                    salwa = self.plansza_gracza.stworz_salwe(
+                        self.plansza_przeciwnika.statki[0].polozenie,
+                        *wspolrzedne
+                    )
 
 
 class TestyStatku(unittest.TestCase):

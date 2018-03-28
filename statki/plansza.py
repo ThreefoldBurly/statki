@@ -523,7 +523,7 @@ class Salwa:
 
     def __init__(self, zrodlo, pola):
         self.zrodlo = zrodlo  # polozenie statku który oddał salwę
-        self.pola = self.filtruj_pola(pola)
+        self.pola = self.filtruj_pola(pola)  # w otrzymanych polach może być None
         self.niewypaly = [None for pole in pola if pole is None]  # strzały poza planszę
         self.trafienia = [True if pole.znacznik in (
             Pole.ZNACZNIKI.trafiony,
@@ -550,14 +550,20 @@ class Salwa:
         return NotImplemented
 
     def __str__(self):
-        """Zwróć reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6)."""
+        """
+        Zwróć reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6). Zakłada 1-3 pola jako dopuszczalny rozmiar salwy.
+        """
         pola_tekst = ["(" + str(pole) + ")" for pole in self.pola]
         if len(self.pola) == 1:
             return pola_tekst[0]
         elif len(self.pola) == 2:
             return " i ".join(pola_tekst)
-        else:
+        elif len(self.pola) == 3:
             return pola_tekst[0] + ", " + " i ".join(pola_tekst[1:])
+        else:
+            tekst_bledu = "Błąd konwersji do str."
+            tekst_bledu += " Nieobsługiwana ilość pól salwy: {}."
+            raise ValueError(tekst_bledu.format(len(self)))
 
     def __len__(self):
         return len(self.pola) + len(self.niewypaly)
@@ -569,12 +575,14 @@ class Salwa:
             tekst_bledu += "Otrzymany rozmiar: {}"
             raise ValueError(tekst_bledu.format(self.MIN_ROZMIAR, self.MAX_ROZMIAR, len(self)))
 
+    # TODO: przenieść tworzenie i sprawdzanie salw do Planszy
     def sprawdz_pola(self):
         """Zweryfikuj poprawność pól tworzonej salwy."""
         sumy_wsplrz = [pole.kolumna + pole.rzad for pole in self.pola]
         if len(sumy_wsplrz) > 1:
             roznice = [sumy_wsplrz[i + 1] - sumy_wsplrz[i] for i in range(len(sumy_wsplrz) - 1)]
-            if sum(roznice) == 0 or not all(True for roznica in roznice if roznica in range(2)):
+            if sum(roznice) == 0 or any(False if roznica in range(2) else True
+                                        for roznica in roznice):
                 tekst_bledu = "Błąd pól salwy. Salwa może składać się tylko z pól "
                 tekst_bledu += "sąsiadujących ze sobą ortogonalnie. Otrzymane pola: {}."
                 raise ValueError(tekst_bledu.format([str(pole) for pole in self.pola]))
