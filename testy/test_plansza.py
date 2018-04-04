@@ -9,7 +9,43 @@
 
 import unittest
 
-from statki.plansza import Plansza, Pole
+from statki.plansza import Plansza, Pole, Salwa, Statek
+
+# TODO: testy funkcji tego modułu
+
+
+def podaj_pusta_plansze(kolumny, rzedy):
+    """Podaj pustą planszę."""
+    plansza = Plansza(kolumny, rzedy)
+    for rzad in plansza.pola:
+        for pole in rzad:
+            pole.znacznik = Pole.ZNACZNIKI.pusty
+    plansza.statki, plansza.niezatopione, plansza.zatopione = [], [], []
+    plansza.ilosc_pol_statkow = 0
+    return plansza
+
+
+def stworz_statek(plansza, *wspolrzedne):
+    """Stwórz na podanej planszy statek z pól o podanych współrzędnych."""
+    if len(wspolrzedne) not in range(plansza.MIN_ROZMIAR_STATKU, plansza.MAX_ROZMIAR_STATKU + 1):
+        raise ValueError("Błąd tworzenia statku. Podano złą ilość współrzędnych pól.")
+
+    pola_statku = [plansza.podaj_pole(kolumna, rzad) for kolumna, rzad in wspolrzedne]
+    for pole in pola_statku:
+        if pole is None:
+            raise ValueError("Błąd tworzenia statku. Podano współrzędne pól spoza planszy.")
+        pole.znacznik = Pole.ZNACZNIKI.statek
+
+    return Statek.fabryka(pola_statku)
+
+
+def stworz_salwe(plansza, zrodlo, *wspolrzedne):
+    """Stwórz na podanej planszy salwę z pól o podanych współrzędnych."""
+    if len(wspolrzedne) not in range(Salwa.MIN_ROZMIAR, Salwa.MAX_ROZMIAR + 1):
+        raise ValueError("Błąd tworzenia salwy. Podano złą ilość współrzędnych pól.")
+    pola_salwy = [plansza.podaj_pole(kolumna, rzad) for kolumna, rzad in wspolrzedne]
+    plansza.odkryj_pola([pole for pole in pola_salwy if pole is not None])
+    return Salwa(zrodlo, pola_salwy)
 
 
 class TestyPlanszy(unittest.TestCase):
@@ -17,35 +53,38 @@ class TestyPlanszy(unittest.TestCase):
 
     def setUp(self):
         """Przygotuj pustą planszę do testów."""
-        self.plansza = Plansza(26, 30)
-        for rzad in self.plansza.pola:
-            for pole in rzad:
-                pole.znacznik = Pole.ZNACZNIKI.pusty
-        self.plansza.statki, self.plansza.niezatopione, self.plansza.zatopione = [], [], []
-        self.plansza.ilosc_pol_statkow = 0
+        self.plansza = podaj_pusta_plansze(26, 30)
 
-    def tearDown(self):
-        """Usuń przygotowaną wcześniej planszę."""
-        del self.plansza
+    def testuj_plansze__nieprawidlowe_wymiary(self):
+        """
+        Czy wymiary planszy są prawidłowo sprawdzane?"
+        """
+        nieprawidlowe_wymiary = [(7, 7), (4, 13), (3, 35), (12, 34), (27, 31)]
+        for kolumny, rzedy in nieprawidlowe_wymiary:
+            with self.subTest(wymiary="{}x{}".format(kolumny, rzedy)):
+                with self.assertRaises(ValueError):
+                    self.plansza.sprawdz_wymiary(kolumny, rzedy)
 
     def testuj_plansze__pola_prawidlowego_statku(self):
         """
         Czy pola prawidłowego statku są prawidłowo sprawdzane (czy każde kolejne pole statku jest ortogonalnym sąsiadem któregoś z poprzednich)? Test 4 różnych statków.
         """
-        pancernik_prawidlowy = self.plansza.stworz_statek(
+        pancernik_prawidlowy = stworz_statek(
+            self.plansza,
             (1, 5), (2, 5), (3, 5), (4, 5), (4, 4), (4, 3), (5, 3), (5, 4), (6, 4), (6, 5),
             (6, 6), (5, 6), (5, 5), (5, 7), (4, 7), (3, 7), (2, 7), (2, 6), (1, 6), (1, 7)
         )
-        niszczyciel_prawidlowy = self.plansza.stworz_statek(
+        niszczyciel_prawidlowy = stworz_statek(
+            self.plansza,
             (10, 13), (11, 13), (12, 13), (12, 14), (12, 15), (11, 15), (10, 15), (10, 14),
             (11, 14), (9, 14), (9, 15)
         )
-        patrolowiec_prawidlowy_dwapola = self.plansza.stworz_statek((5, 12), (5, 13))
-        patrolowiec_prawidlowy_trzypola = self.plansza.stworz_statek((8, 10), (9, 10), (9, 9))
-        kuter = self.plansza.stworz_statek((2, 11))
+        patrolowiec_prawidlowy_dwapola = stworz_statek(self.plansza, (5, 12), (5, 13))
+        patrolowiec_prawidlowy_trzypola = stworz_statek(self.plansza, (8, 10), (9, 10), (9, 9))
+        kuter = stworz_statek(self.plansza, (2, 11))
 
-        for statek in [pancernik_prawidlowy, patrolowiec_prawidlowy_dwapola,
-                       patrolowiec_prawidlowy_trzypola, kuter]:
+        for statek in [pancernik_prawidlowy, niszczyciel_prawidlowy,
+                       patrolowiec_prawidlowy_dwapola, patrolowiec_prawidlowy_trzypola, kuter]:
             with self.subTest(statek=str(statek)):
                 try:
                     self.plansza.sprawdz_pola_statku(statek)
@@ -57,30 +96,36 @@ class TestyPlanszy(unittest.TestCase):
         """
         Czy pola nieprawidłowego statku są prawidłowo sprawdzane (czy każde kolejne pole statku jest ortogonalnym sąsiadem któregoś z poprzednich)? Test 7 różnych statków.
         """
-        pancernik_nieprawidlowy_koniec = self.plansza.stworz_statek(
+        pancernik_nieprawidlowy_koniec = stworz_statek(
+            self.plansza,
             (1, 5), (2, 5), (3, 5), (4, 5), (4, 4), (4, 3), (5, 3), (5, 4), (6, 4), (6, 5),
             (6, 6), (5, 6), (5, 5), (5, 7), (4, 7), (3, 7), (2, 7), (2, 6), (1, 6),
             (1, 8)  # nieprawidłowe pole
         )
-        pancernik_nieprawidlowy_srodek = self.plansza.stworz_statek(
+        pancernik_nieprawidlowy_srodek = stworz_statek(
+            self.plansza,
             (16, 5), (17, 5), (18, 5), (19, 5), (19, 4), (19, 3), (20, 3), (20, 4), (21, 4),
             (21, 5), (21, 6), (20, 6), (20, 5), (19, 7),  # nieprawidłowe pole
             (18, 7), (17, 7), (17, 6), (16, 6), (16, 7), (16, 8)
         )
-        pancernik_nieprawidlowy_poczatek = self.plansza.stworz_statek(
+        pancernik_nieprawidlowy_poczatek = stworz_statek(
+            self.plansza,
             (16, 13),  # nieprawidłowe pole
             (17, 14), (18, 14), (19, 14), (19, 13), (19, 12), (18, 12), (18, 11), (18, 10),
             (19, 10), (20, 10), (20, 11), (19, 11), (20, 12), (21, 12), (21, 13), (21, 14),
             (20, 14), (20, 13), (20, 15)
         )
-        patrolowiec_nieprawidlowy_dwapola = self.plansza.stworz_statek((5, 12), (4, 13))
-        patrolowiec_nieprawidlowy_trzypola = self.plansza.stworz_statek(
+        patrolowiec_nieprawidlowy_dwapola = stworz_statek(self.plansza, (5, 12), (4, 13))
+        patrolowiec_nieprawidlowy_trzypola = stworz_statek(
+            self.plansza,
             (8, 10), (9, 10), (11, 8)  # nieprawidłowe pole
         )
-        korweta_nieprawidlowa_powtorzenie = self.plansza.stworz_statek(
+        korweta_nieprawidlowa_powtorzenie = stworz_statek(
+            self.plansza,
             (10, 5), (11, 5), (11, 5), (11, 4), (12, 4)
         )
-        niszczyciel_nieprawidlowy = self.plansza.stworz_statek(
+        niszczyciel_nieprawidlowy = stworz_statek(
+            self.plansza,
             (10, 13), (11, 13), (12, 13), (12, 14), (12, 15), (11, 15), (10, 15), (10, 14),
             (11, 14),
             (11, 17), (11, 18)  # nieprawidłowe pola
@@ -101,10 +146,6 @@ class TestyPola(unittest.TestCase):
     def setUp(self):
         """Stwórz pole do testów."""
         self.pole = Pole(id(self), 10, 10)
-
-    def tearDown(self):
-        """Usuń stworzone wcześniej pole do testów."""
-        del self.pole
 
     def testuj_pole__domyslny_znacznik(self):
         """
@@ -153,22 +194,18 @@ class TestySalwy(unittest.TestCase):
     def setUp(self):
         """Stwórz salwę do testów."""
         self.plansza_gracza, self.plansza_przeciwnika = Plansza(26, 30), Plansza(26, 30)
-        self.salwa = self.plansza_gracza.stworz_salwe(
+        self.salwa = stworz_salwe(
+            self.plansza_gracza,
             self.plansza_przeciwnika.statki[0].polozenie,
             (8, 10), (9, 10), (9, 9)
         )
-
-    def tearDown(self):
-        """Usuń stworzoną wcześniej salwę do testów."""
-        del self.plansza_gracza
-        del self.plansza_przeciwnika
-        del self.salwa
 
     def testuj_salwe__ekwiwalencja(self):
         """
         Czy dwie salwy mające to samo źródło i składające się z równych sobie pól są równe?
         """
-        druga = self.plansza_gracza.stworz_salwe(
+        druga = stworz_salwe(
+            self.plansza_gracza,
             self.plansza_przeciwnika.statki[0].polozenie,
             (8, 10), (9, 10), (9, 9)
         )
@@ -178,15 +215,18 @@ class TestySalwy(unittest.TestCase):
         """
         Czy dwie salwy mające różne źródła i składające się z różnych pól są różne?
         """
-        druga_inne_zrodlo = self.plansza_gracza.stworz_salwe(
+        druga_inne_zrodlo = stworz_salwe(
+            self.plansza_gracza,
             self.plansza_przeciwnika.statki[1].polozenie,
             (8, 10), (9, 10), (9, 9)
         )
-        druga_inne_wspolrzedne = self.plansza_gracza.stworz_salwe(
+        druga_inne_wspolrzedne = stworz_salwe(
+            self.plansza_gracza,
             self.plansza_przeciwnika.statki[0].polozenie,
             (2, 3), (3, 3), (3, 4)
         )
-        druga_inne_wspolrzedne_niewypal = self.plansza_gracza.stworz_salwe(
+        druga_inne_wspolrzedne_niewypal = stworz_salwe(
+            self.plansza_gracza,
             self.plansza_przeciwnika.statki[0].polozenie,
             (1, 1), (1, 2), (0, 2)
         )
@@ -198,7 +238,8 @@ class TestySalwy(unittest.TestCase):
         """
         Czy salwa jest zamieniana na stringa w odpowiednim formacie? Test salwy składającej się z 1 pola.
         """
-        salwa = self.plansza_gracza.stworz_salwe(
+        salwa = stworz_salwe(
+            self.plansza_gracza,
             self.plansza_przeciwnika.statki[0].polozenie,
             (8, 10)
         )
@@ -208,7 +249,8 @@ class TestySalwy(unittest.TestCase):
         """
         Czy salwa jest zamieniana na stringa w odpowiednim formacie? Test salwy składającej się z 2 póla.
         """
-        salwa = self.plansza_gracza.stworz_salwe(
+        salwa = stworz_salwe(
+            self.plansza_gracza,
             self.plansza_przeciwnika.statki[0].polozenie,
             (8, 10), (9, 10)
         )
@@ -225,7 +267,8 @@ class TestySalwy(unittest.TestCase):
         Czy próba stworzenia salwy o nieprawidłowym rozmiarze zwraca odpowiedni błąd?
         """
         with self.assertRaises(ValueError):
-            salwa = self.plansza_gracza.stworz_salwe(
+            stworz_salwe(
+                self.plansza_gracza,
                 self.plansza_przeciwnika.statki[0].polozenie,
                 (8, 10), (9, 10), (9, 9), (10, 10), (9, 11)
             )
@@ -246,7 +289,8 @@ class TestySalwy(unittest.TestCase):
         for wspolrzedne in zestaw_wspolrzednych:
             with self.subTest(wspolrzedne=wspolrzedne):
                 with self.assertRaises(ValueError):
-                    salwa = self.plansza_gracza.stworz_salwe(
+                    stworz_salwe(
+                        self.plansza_gracza,
                         self.plansza_przeciwnika.statki[0].polozenie,
                         *wspolrzedne
                     )

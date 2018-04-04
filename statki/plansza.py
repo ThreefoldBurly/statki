@@ -76,7 +76,7 @@ class Plansza:
         """Drukuj planszę w standard output."""
         # numeracja kolumn
         print()
-        print("##### PLANSZA #####".center(self.kolumny * 3 + 2))
+        print("{:#^19s}".format(" PLANSZA ").center(self.kolumny * 3 + 2))
         print()
         print("    " + "  ".join([self.ALFABET[liczba] for liczba in range(1, self.kolumny + 1)]))
         print()
@@ -86,7 +86,7 @@ class Plansza:
                 print(str(i + 1) + "  ", end=" ")
             else:
                 print(str(i + 1) + " ", end=" ")
-            # właściwe pola planszy
+            # pola planszy
             print("  ".join([pole.znacznik for pole in rzad]))
         print()
 
@@ -358,26 +358,6 @@ class Plansza:
         for statek in self.statki:
             self.sprawdz_pola_statku(statek)
 
-    def stworz_statek(self, *wspolrzedne):
-        """Stwórz statek z pól o podanych współrzędnych (tylko dla testów jednostkowych)."""
-        if len(wspolrzedne) not in range(self.MIN_ROZMIAR_STATKU, self.MAX_ROZMIAR_STATKU + 1):
-            raise ValueError("Błąd tworzenia statku. Podano złą ilość współrzędnych pól.")
-
-        pola_statku = [self.podaj_pole(kolumna, rzad) for kolumna, rzad in wspolrzedne]
-        for pole in pola_statku:
-            if pole is None:
-                raise ValueError("Błąd tworzenia statku. Podano współrzędne pól spoza planszy.")
-            pole.znacznik = Pole.ZNACZNIKI.statek
-        return Statek.fabryka(pola_statku)
-
-    def stworz_salwe(self, zrodlo, *wspolrzedne):  # TODO
-        """Stwórz salwę z pól o podanych współrzędnych (tylko dla testów jednostkowych)."""
-        if len(wspolrzedne) not in range(Salwa.MIN_ROZMIAR, Salwa.MAX_ROZMIAR + 1):
-            raise ValueError("Błąd tworzenia salwy. Podano złą ilość współrzędnych pól.")
-        pola_salwy = [self.podaj_pole(kolumna, rzad) for kolumna, rzad in wspolrzedne]
-        self.odkryj_pola([pole for pole in pola_salwy if pole is not None])
-        return Salwa(zrodlo, pola_salwy)
-
     def odkryj_pola(self, pola):
         """Odkryj wskazane pola."""
         for pole in pola:
@@ -474,7 +454,7 @@ class Pole:
 
     def __eq__(self, other):
         """
-        Przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes). Pola są równe jeśli: 1) należą do tej samej planszy, 2) ich współrzędne są równe i 3) ich znaczniki są równe.
+        Przeładowanie operatora "==" (na podstawie: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes). Pola są równe jeśli: 1) należą do tej samej planszy, 2) ich współrzędne są równe i 3) ich znaczniki są równe.
         """
         if isinstance(self, other.__class__):
             return self.__dict__ == other.__dict__
@@ -482,7 +462,7 @@ class Pole:
 
     def __hash__(self):
         """
-        Przeładowanie operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach).
+        Zwróć hash pola. Potrzebne również dla pełnego przeładowania operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach).
         """
         return hash(tuple(sorted(self.__dict__.items())))
 
@@ -575,7 +555,6 @@ class Salwa:
             tekst_bledu += "Otrzymany rozmiar: {}"
             raise ValueError(tekst_bledu.format(self.MIN_ROZMIAR, self.MAX_ROZMIAR, len(self)))
 
-    # TODO: przenieść tworzenie i sprawdzanie salw do Planszy
     def sprawdz_pola(self):
         """Zweryfikuj poprawność pól tworzonej salwy."""
         sumy_wsplrz = [pole.kolumna + pole.rzad for pole in self.pola]

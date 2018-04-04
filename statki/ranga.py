@@ -44,9 +44,10 @@ class Ranga:
 
     def __hash__(self):
         """
-        Przeładowanie operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach)
+        Zwróć hash rangi. Potrzebne również dla pełnego przeładowania operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach).
         """
-        return hash(tuple(sorted(self.__dict__.items())))
+        return hash(tuple(self.nazwa, self.symbol, self.zakres, self.sila_ognia,
+                          self.nazwy_statkow))
 
     def resetuj_pule_nazw(self):
         """

@@ -8,7 +8,6 @@
 """
 
 import json
-import sys
 
 from statki.ranga import Ranga, Rangi
 
