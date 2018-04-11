@@ -5,6 +5,7 @@
     Skrypt uruchomieniowy wszystkich modułów testowych.
 
 """
+
 import unittest
 
 import testy.test_plansza as tpl
