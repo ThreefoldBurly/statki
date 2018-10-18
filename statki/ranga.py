@@ -65,7 +65,7 @@ class Ranga:
         """
         Losuj nazwę dla statku z dostępnej puli nazw. By zapewnić unikalność statku, po użyciu usuń nazwę z puli.
         """
-        if len(self.pula_nazw) < 1:
+        if not self.pula_nazw:
             self.resetuj_pule_nazw()
         nazwa = choice(self.pula_nazw)
         self.pula_nazw.remove(nazwa)

@@ -8,6 +8,9 @@
 """
 
 # TODO: skrócić wszystkie gettery o "podaj", lepiej usystematyzować nazwy metod
+# TODO: rozważyć wprowadzenie klasy abstrakcyjnej KolecjaPol, po której dziedziczyły by: Plansza, Salwa i Statek, a która zawierałaby atrybut 'pola' i implementowałaby iterację po polach (protokół Iterable: klasa wewnętrzna IteratorPol, funkcja __iter__ zwracająca iterator pól (który również implementuje funkcję __iter__ (gdzie zwraca siebie) oraz funkcję __next__). Wtedy można by było iterować po polach zawartych w planszy, salwie i statku bezpośrednio poprzez: 'for pole in statek' zamiast 'for pole in statek.pola'. Należałoby też zaimplementować __len__ i __getitem__ w kolekcji pól
+# inna (prostsza) metoda na implementację protokołu Iterable (jeśli klasa bazuje na jakiejś gotowym obiekcie iterable (np. liście)) to zaimplementowanie metody '__iter__' jako zwracającej 'iter(iterable)' (wtedy korzysta się z gotowego iteratora obiektu iterable) albo jako zwracającej generator (metoda '__iter__' staje się wtedy tzw. generator function) np. 'for element in sekwencja: yield element'
+
 
 from random import randint, choice, gauss
 from decimal import Decimal as D
@@ -48,6 +51,13 @@ class Plansza:
         # TODO: zamienić na generatory
         self.zatopione = []  # statki zatopione tej planszy
         self.niezatopione = self.statki[:]  # statki niezatopione tej planszy
+
+    def __repr__(self):
+        """
+        Zwróć reprezentację tekstową planszy w formacie: Plansza(kolumny=12, rzedy=15)
+        """
+        tresc = "kolumny=" + str(self.kolumny) + ", rzedy=" + str(self.rzedy)
+        return type(self).__name__ + "(" + tresc + ")"
 
     def sprawdz_wymiary(self, kolumny, rzedy):
         """Sprawdź wymiary planszy podane przy inicjalizacji."""
@@ -92,7 +102,7 @@ class Plansza:
 
     def podaj_pole(self, kolumna, rzad):
         """
-        Podaj pole wg wskazanych współrzędnych. Jeśli podane współrzędne wykraczają poza zakres planszy zwróć None.
+        Podaj pole wg wskazanych współrzędnych. Jeśli podane współrzędne wykraczają poza zakres planszy zwróć 'None'.
         """
         if self.czy_w_planszy(kolumna, rzad):
             return self.pola[rzad - 1][kolumna - 1]
@@ -134,7 +144,7 @@ class Plansza:
 
     def umiesc_statek(self, kolumna, rzad, rozmiar):
         """
-        Spróbuj umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu zwróć umieszczony statek, w razie porażki zwróć None (czyszcząc oznaczone wcześniej pola).
+        Spróbuj umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu zwróć umieszczony statek, w razie porażki zwróć 'None' (czyszcząc oznaczone wcześniej pola).
         """
         licznik_iteracji = 0
         pola_statku = []
@@ -452,6 +462,15 @@ class Pole:
         """Zwróć informację o polu w formacie: litera kolumny+cyfra rzędu np. B9"""
         return "{}{}".format(Plansza.ALFABET[self.kolumna], self.rzad)
 
+    def __repr__(self):
+        """
+        Zwróć reprezentację tekstową pola w formacie:
+
+        Pole[B7(x)] gdzie B7(x) to współrzędne i znacznik pola
+        """
+        tresc = "{}({})".format(str(self), self.znacznik)
+        return type(self).__name__ + "[" + tresc + "]"
+
     def __eq__(self, other):
         """
         Przeładowanie operatora "==" (na podstawie: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes). Pola są równe jeśli: 1) należą do tej samej planszy, 2) ich współrzędne są równe i 3) ich znaczniki są równe.
@@ -548,6 +567,15 @@ class Salwa:
     def __len__(self):
         return len(self.pola) + len(self.niewypaly)
 
+    def __repr__(self):
+        """
+        Zwróć reprezentację tekstową salwy w formacie:
+
+        Salwa[B7(T), B8(x), B9(x)] gdzie B7(x) to współrzędne i znacznik pola salwy
+        """
+        tresc = ", ".join(["{}({})".format(str(pole), pole.znacznik) for pole in self.pola])
+        return type(self).__name__ + "[" + tresc + "]"
+
     def sprawdz_rozmiar(self):
         """Zweryfikuj rozmiar tworzonej salwy."""
         if len(self) not in range(self.MIN_ROZMIAR, self.MAX_ROZMIAR + 1):
@@ -620,7 +648,7 @@ class Statek:
         """
         Zwróć informację o statku w formacie:
 
-        ranga "nazwa" (A6) [10/17] **
+        Ranga "Nazwa" (A6) [10/17] **
 
         gdzie:
         - (A6) to położenie pola najbardziej wysuniętego na NW (self.polozenie)
@@ -639,6 +667,15 @@ class Statek:
             info = info[:-1]
 
         return info
+
+    def __repr__(self):
+        """
+        Zwróć reprezentację tekstową statku w formacie:
+
+        Ranga[B7(&), B8(&), B9(T), ...] gdzie B7(&) to współrzędne i znacznik pola statku
+        """
+        tresc = ", ".join(["{}({})".format(str(pole), pole.znacznik) for pole in self.pola])
+        return self.RANGA_BAZOWA.nazwa + "[" + tresc + "]"
 
     def ile_otrzymanych_trafien(self):
         """Podaj ilość otrzymanych trafień."""

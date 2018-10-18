@@ -113,7 +113,7 @@ class AI(Gra):
     1. Wybór napastnika.
     2. Wybór celu i orientacji salwy (polowanie lub celowanie).
     3. Oddanie salwy.
-    Punkty 2-4 powtarzane są tak długo jak długo są salwy do oddania.
+    Punkty 2-3 powtarzane są tak długo jak długo są salwy do oddania.
 
     To AI dokonuje prostych, losowych wyborów. Bardziej zaawansowana implementacja w klasach potomnych.
     """
