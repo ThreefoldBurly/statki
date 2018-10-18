@@ -1,10 +1,10 @@
 # statki
 
-*Uwaga dla rekruterów: ten projekt jest po polsku, ponieważ chciałem dla odmiany napisać coś po polsku i przy okazji skorzystać z tej wygody niedodawania wszędzie `u`, którą daje Python 3. Tak naprawdę wolę kodować po angielsku :). W razie wątpliwości zapraszam [tutaj](https://github.com/tburly/warriors).*
+*Uwaga dla rekruterów: ten projekt jest po polsku, ponieważ chciałem dla odmiany napisać coś po polsku i przy okazji skorzystać z tej wygody niedodawania wszędzie `u`, którą daje Python 3. Tak naprawdę wolę kodować po angielsku :). W razie wątpliwości zapraszam [tutaj](https://github.com/z33kz33k/warriors).*
 
 ---
 
-Gra w Statki na planszy o arbitralnym rozmiarze z nieznacznie zmodyfikowanymi (czyt. *wzbogaconymi*) zasadami ([więcej](https://github.com/tburly/statki/blob/master/meta/zasady.md)).
+Gra w Statki na planszy o arbitralnym rozmiarze z nieznacznie zmodyfikowanymi (czyt. *wzbogaconymi*) zasadami ([więcej](https://github.com/z33kz33k/statki/blob/master/meta/zasady.md)).
 
 Podstawowe różnice względem klasycznej wersji:
 
@@ -31,7 +31,7 @@ Podstawowe różnice względem klasycznej wersji:
 
 ---
 
-**statki** to WIP. Aktualnie zbudowałem większość interfejsu w Tkinterze, co dało efekty lepsze niż się spodziewałem. Teraz przechodzę do pracy nad AI przeciwnika (przynajmniej w jakiejś podstawowej formie) oraz implementacji bardziej zaawansowanych zasad gry (jak trafienia, które obniżają rzeczywistą rangę statku oraz premie dla statków za zatopienie statku przeciwnika). Bieżące rozwijanie programu robię w gałęzi [`develop`](https://github.com/tburly/statki/tree/develop), więc tam należy szukać najbardziej aktualnej wersji.
+**statki** to WIP. Aktualnie zbudowałem większość interfejsu w Tkinterze, co dało efekty lepsze niż się spodziewałem. Teraz przechodzę do pracy nad AI przeciwnika (przynajmniej w jakiejś podstawowej formie) oraz implementacji bardziej zaawansowanych zasad gry (jak trafienia, które obniżają rzeczywistą rangę statku oraz premie dla statków za zatopienie statku przeciwnika). Bieżące rozwijanie programu robię w gałęzi [`develop`](https://github.com/z33kz33k/statki/tree/develop), więc tam należy szukać najbardziej aktualnej wersji.
 
 ![Zrzut ekranu z 20180212](/meta/zrzut-ekranu_20180212.png "Zrzut ekranu z 20180212")
 

@@ -8,6 +8,9 @@
 """
 
 # TODO: skrócić wszystkie gettery o "podaj", lepiej usystematyzować nazwy metod
+# TODO: rozważyć wprowadzenie klasy abstrakcyjnej KolecjaPol, po której dziedziczyły by: Plansza, Salwa i Statek, a która zawierałaby atrybut 'pola' i implementowałaby iterację po polach (protokół Iterable: klasa wewnętrzna IteratorPol, funkcja __iter__ zwracająca iterator pól (który również implementuje funkcję __iter__ (gdzie zwraca siebie) oraz funkcję __next__). Wtedy można by było iterować po polach zawartych w planszy, salwie i statku bezpośrednio poprzez: 'for pole in statek' zamiast 'for pole in statek.pola'. Należałoby też zaimplementować __len__ i __getitem__ w kolekcji pól
+# inna (prostsza) metoda na implementację protokołu Iterable (jeśli klasa bazuje na jakiejś gotowym obiekcie iterable (np. liście)) to zaimplementowanie metody '__iter__' jako zwracającej 'iter(iterable)' (wtedy korzysta się z gotowego iteratora obiektu iterable) albo jako zwracającej generator (metoda '__iter__' staje się wtedy tzw. generator function) np. 'for element in sekwencja: yield element'
+
 
 from random import randint, choice, gauss
 from decimal import Decimal as D
@@ -41,24 +44,33 @@ class Plansza:
         self.pola = self.stworz_pola()  # matryca pól (krotka krotek (rzędów))
         self.statki = []
         self.wypelnij_statkami(self.ZAPELNIENIE, self.ODCH_ST, self.PRZ_MEDIANY)
-        self.o_statkach()  # test
-        self.drukuj()  # test
+        self.sprawdz_statki()
+        # self.o_statkach()  # test
+        # self.drukuj()  # test
         self.ilosc_pol_statkow = sum([statek.rozmiar for statek in self.statki])
         # TODO: zamienić na generatory
         self.zatopione = []  # statki zatopione tej planszy
         self.niezatopione = self.statki[:]  # statki niezatopione tej planszy
 
+    def __repr__(self):
+        """
+        Zwróć reprezentację tekstową planszy w formacie: Plansza(kolumny=12, rzedy=15)
+        """
+        tresc = "kolumny=" + str(self.kolumny) + ", rzedy=" + str(self.rzedy)
+        return type(self).__name__ + "(" + tresc + ")"
+
     def sprawdz_wymiary(self, kolumny, rzedy):
         """Sprawdź wymiary planszy podane przy inicjalizacji."""
         if kolumny not in range(self.MIN_KOLUMNY, self.MAX_KOLUMNY + 1) or rzedy not in range(
                 self.MIN_RZEDY, self.MAX_RZEDY + 1):
-            raise ValueError(
-                "Błąd wymiarów planszy.",
-                "Prawidłowe wymiary planszy to: {}-{} kolumn x {}-{} rzędów.".format(
-                    self.MIN_KOLUMNY, self.MAX_KOLUMNY, self.MIN_RZEDY, self.MAX_RZEDY
-                ),
-                "Otrzymane wymiary: {} x {}".format(str(kolumny), str(rzedy))
-            )
+            tekst_bledu = "Błąd wymiarów planszy. "
+            tekst_bledu += "Prawidłowe wymiary planszy to: {}-{} kolumn x {}-{} rzędów. "
+            tekst_bledu += "Otrzymane wymiary: {} x {}."
+            raise ValueError(tekst_bledu.format(
+                self.MIN_KOLUMNY, self.MAX_KOLUMNY,
+                self.MIN_RZEDY, self.MAX_RZEDY,
+                str(kolumny), str(rzedy)
+            ))
 
     def stworz_pola(self):
         """Stwórz pola planszy."""
@@ -74,7 +86,7 @@ class Plansza:
         """Drukuj planszę w standard output."""
         # numeracja kolumn
         print()
-        print("##### PLANSZA #####".center(self.kolumny * 3 + 2))
+        print("{:#^19s}".format(" PLANSZA ").center(self.kolumny * 3 + 2))
         print()
         print("    " + "  ".join([self.ALFABET[liczba] for liczba in range(1, self.kolumny + 1)]))
         print()
@@ -84,12 +96,13 @@ class Plansza:
                 print(str(i + 1) + "  ", end=" ")
             else:
                 print(str(i + 1) + " ", end=" ")
-            # właściwe pola planszy
+            # pola planszy
             print("  ".join([pole.znacznik for pole in rzad]))
+        print()
 
     def podaj_pole(self, kolumna, rzad):
         """
-        Podaj pole wg wskazanych współrzędnych. Jeśli podane współrzędne wykraczają poza zakres planszy zwróć None.
+        Podaj pole wg wskazanych współrzędnych. Jeśli podane współrzędne wykraczają poza zakres planszy zwróć 'None'.
         """
         if self.czy_w_planszy(kolumna, rzad):
             return self.pola[rzad - 1][kolumna - 1]
@@ -131,7 +144,7 @@ class Plansza:
 
     def umiesc_statek(self, kolumna, rzad, rozmiar):
         """
-        Spróbuj umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu zwróć umieszczony statek, w razie porażki zwróć None (czyszcząc oznaczone wcześniej pola).
+        Spróbuj umieścić statek o podanym rozmiarze na planszy. Statek rozrasta się w przypadkowych kierunkach ze wskazanego pola początkowego. W razie sukcesu zwróć umieszczony statek, w razie porażki zwróć 'None' (czyszcząc oznaczone wcześniej pola).
         """
         licznik_iteracji = 0
         pola_statku = []
@@ -142,7 +155,7 @@ class Plansza:
             pola_statku.append(pole)
 
         while len(pola_statku) < rozmiar:
-            if licznik_iteracji > rozmiar * 5:  # za dużo iteracji - NIEUDANE UMIESZCZENIE
+            if licznik_iteracji > rozmiar * 10:  # za dużo iteracji - NIEUDANE UMIESZCZENIE
                 return None
 
             if licznik_iteracji == 0:  # pole początkowe
@@ -154,9 +167,9 @@ class Plansza:
                 pula_kierunkow = list(self.KIERUNKI[:4])
 
                 while True:
-                    if len(pula_kierunkow) < 1:  # powrót po wyczerpaniu kierunków
+                    if not pula_kierunkow:  # powrót po wyczerpaniu kierunków
                         indeks = pola_statku.index(pole)
-                        if indeks > 0:
+                        if indeks:
                             pole = pola_statku[indeks - 1]
                             break
                         else:  # powrót do pola początkowego - NIEUDANE UMIESZCZENIE
@@ -287,6 +300,74 @@ class Plansza:
 
         self.statki.sort(key=lambda s: s.rozmiar, reverse=True)  # od największego do najmniejszego
 
+    def sprawdz_pola_statku(self, statek):
+        """Zweryfikuj poprawność pól wskazanego statku."""
+
+        # unikalność pól
+        if len(statek.pola) != len(set(statek.pola)):
+            tekst_bledu = "Błąd pól statku: {}. "
+            tekst_bledu += "Statek może składać się tylko z unikalnych pól"
+            tekst_bledu += "Otrzymane pola statku zawierają duplikaty: {}. "
+            raise ValueError(tekst_bledu.format(
+                str(statek),
+                [str(pole) for pole in statek.pola]
+            ))
+
+        # ortogonalne sąsiedztwo pól
+        def czy_nastepne_pole_sasiadem(pole, nastepne_pole):
+            """Sprawdza czy następne pole jest sąsiadem"""
+            pula_kierunkow = list(Plansza.KIERUNKI[:4])
+            while pula_kierunkow:
+                kierunek = pula_kierunkow[0]
+                sasiad = self.podaj_sasiednie_pole(pole, kierunek)
+                if sasiad == nastepne_pole:
+                    return True
+                else:
+                    pula_kierunkow.remove(kierunek)
+            return False
+
+        pola_do_sprawdzenia = statek.pola[:]
+        pola_sprawdzone = []
+
+        while pola_do_sprawdzenia:
+            pole = pola_do_sprawdzenia[0]
+
+            if len(pola_do_sprawdzenia) > 1:
+                nastepne_pole = pola_do_sprawdzenia[1]
+                if czy_nastepne_pole_sasiadem(pole, nastepne_pole):
+                    pola_sprawdzone.append(pole)
+                    pola_do_sprawdzenia.remove(pole)
+                else:
+                    sciezka_cofania = pola_sprawdzone[::-1]
+                    # ostatnie pole przed powrotem należy dodać do sprawdzonych i usunąć ze sprawdzanych
+                    pola_sprawdzone.append(pole)
+                    pola_do_sprawdzenia.remove(pole)
+
+                    while sciezka_cofania:
+                        pole = sciezka_cofania[0]
+                        if czy_nastepne_pole_sasiadem(pole, nastepne_pole):
+                            break
+                        else:
+                            sciezka_cofania.remove(pole)
+
+                    if not sciezka_cofania:
+                        tekst_bledu = "Błąd pól statku: {}. "
+                        tekst_bledu += "Statek może składać się tylko z pól sąsiadujących"
+                        tekst_bledu += " ze sobą ortogonalnie. Otrzymane pola statku: {}. "
+                        tekst_bledu += "Pole nie sąsiadujące ortogonalnie: {}."
+                        raise ValueError(tekst_bledu.format(
+                            str(statek),
+                            [str(pole) for pole in statek.pola],
+                            nastepne_pole
+                        ))
+            else:
+                break
+
+    def sprawdz_statki(self):
+        """Zweryfikuj poprawność umieszczonych statków."""
+        for statek in self.statki:
+            self.sprawdz_pola_statku(statek)
+
     def odkryj_pola(self, pola):
         """Odkryj wskazane pola."""
         for pole in pola:
@@ -306,6 +387,7 @@ class Plansza:
 
     def o_statkach(self):  # do testów
         """Drukuj informację o umieszczonych statkach"""
+        print()
         print()
         print("##### STATKI #####".center(self.kolumny * 3 + 2))
         sum_rozmiar = 0
@@ -380,9 +462,18 @@ class Pole:
         """Zwróć informację o polu w formacie: litera kolumny+cyfra rzędu np. B9"""
         return "{}{}".format(Plansza.ALFABET[self.kolumna], self.rzad)
 
+    def __repr__(self):
+        """
+        Zwróć reprezentację tekstową pola w formacie:
+
+        Pole[B7(x)] gdzie B7(x) to współrzędne i znacznik pola
+        """
+        tresc = "{}({})".format(str(self), self.znacznik)
+        return type(self).__name__ + "[" + tresc + "]"
+
     def __eq__(self, other):
         """
-        Przeładowanie operatora "==" (wzięte z: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes). Pola są równe jeśli: 1) należą do tej samej planszy, 2) ich współrzędne są równe i 3) ich znaczniki są równe.
+        Przeładowanie operatora "==" (na podstawie: https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes). Pola są równe jeśli: 1) należą do tej samej planszy, 2) ich współrzędne są równe i 3) ich znaczniki są równe.
         """
         if isinstance(self, other.__class__):
             return self.__dict__ == other.__dict__
@@ -390,7 +481,7 @@ class Pole:
 
     def __hash__(self):
         """
-        Przeładowanie operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach).
+        Zwróć hash pola. Potrzebne również dla pełnego przeładowania operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach).
         """
         return hash(tuple(sorted(self.__dict__.items())))
 
@@ -423,63 +514,96 @@ class Salwa:
     )
     MIN_ROZMIAR, MAX_ROZMIAR = Parser.podaj_minmax_rozmiar_salwy()
 
-    def __init__(self, zrodlo, pola, niewypaly=None):
+    @staticmethod
+    def filtruj_pola(pola):
+        """Filtruj niewypały (strzały poza planszę) od prawidłowych pól salwy."""
+        pola = [pole for pole in pola if pole is not None]
+        return sorted(pola, key=lambda p: p.kolumna + p.rzad)  # sortowanie od pola najbardziej na NW (self.polozenie) do pola najbardziej na SE
+
+    def __init__(self, zrodlo, pola):
         self.zrodlo = zrodlo  # polozenie statku który oddał salwę
-        self.pola = pola
+        self.pola = self.filtruj_pola(pola)  # w otrzymanych polach może być None
+        self.niewypaly = [None for pole in pola if pole is None]  # strzały poza planszę
         self.trafienia = [True if pole.znacznik in (
             Pole.ZNACZNIKI.trafiony,
             Pole.ZNACZNIKI.zatopiony
         ) else False for pole in self.pola]
         self.pudla = [True if pole.znacznik == Pole.ZNACZNIKI.pudlo
                       else False for pole in self.pola]
-        self.niewypaly = niewypaly if niewypaly is not None else []  # strzały poza planszę
         self.sprawdz_rozmiar()
+        self.sprawdz_pola()
 
     def __eq__(self, other):
         """
-        Przeładowanie operatora '=='. Salwy są równe, jeśli wszystkie ich pola są równe.
+        Przeładowanie operatora '=='. Salwy są równe, jeśli: 1) mają to samo źródło, 2) mają tyle samo pól i 3) wszystkie ich pola są równe.
         """
         if isinstance(self, other.__class__):
-            if len(self) == len(other):
-                for pole_tu, pole_tam in zip(self.pola, other.pola):
-                    if pole_tu != pole_tam:
-                        return False
-                return True
+            if self.zrodlo == other.zrodlo:
+                if len(self) == len(other):
+                    for pole_tu, pole_tam in zip(self.pola, other.pola):
+                        if pole_tu != pole_tam:
+                            return False
+                    return True
+                return False
             return False
         return NotImplemented
 
     def __str__(self):
-        """Zwróć reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6)."""
+        """
+        Zwróć reprezentację salwy w postaci współrzędnych pól w formacie: (A5), (B4) i (C6). Zakłada 1-3 pola jako dopuszczalny rozmiar salwy.
+        """
         pola_tekst = ["(" + str(pole) + ")" for pole in self.pola]
         if len(self.pola) == 1:
             return pola_tekst[0]
         elif len(self.pola) == 2:
             return " i ".join(pola_tekst)
-        else:
+        elif len(self.pola) == 3:
             return pola_tekst[0] + ", " + " i ".join(pola_tekst[1:])
+        else:
+            tekst_bledu = "Błąd konwersji do str."
+            tekst_bledu += " Nieobsługiwana ilość pól salwy: {}."
+            raise ValueError(tekst_bledu.format(len(self)))
 
     def __len__(self):
         return len(self.pola) + len(self.niewypaly)
 
+    def __repr__(self):
+        """
+        Zwróć reprezentację tekstową salwy w formacie:
+
+        Salwa[B7(T), B8(x), B9(x)] gdzie B7(x) to współrzędne i znacznik pola salwy
+        """
+        tresc = ", ".join(["{}({})".format(str(pole), pole.znacznik) for pole in self.pola])
+        return type(self).__name__ + "[" + tresc + "]"
+
     def sprawdz_rozmiar(self):
-        """Weryfikuje rozmiar salwy."""
+        """Zweryfikuj rozmiar tworzonej salwy."""
         if len(self) not in range(self.MIN_ROZMIAR, self.MAX_ROZMIAR + 1):
-            raise ValueError(
-                "Błąd rozmiaru salwy.",
-                "Salwa może składać się z 1-3 pól.",
-                "Otrzymany rozmiar: {}".format(len(self))
-            )
+            tekst_bledu = "Błąd rozmiaru salwy. Salwa może składać się z {}-{} pól. "
+            tekst_bledu += "Otrzymany rozmiar: {}"
+            raise ValueError(tekst_bledu.format(self.MIN_ROZMIAR, self.MAX_ROZMIAR, len(self)))
+
+    def sprawdz_pola(self):
+        """Zweryfikuj poprawność pól tworzonej salwy."""
+        sumy_wsplrz = [pole.kolumna + pole.rzad for pole in self.pola]
+        if len(sumy_wsplrz) > 1:
+            roznice = [sumy_wsplrz[i + 1] - sumy_wsplrz[i] for i in range(len(sumy_wsplrz) - 1)]
+            if sum(roznice) == 0 or any(False if roznica in range(2) else True
+                                        for roznica in roznice):
+                tekst_bledu = "Błąd pól salwy. Salwa może składać się tylko z pól "
+                tekst_bledu += "sąsiadujących ze sobą ortogonalnie. Otrzymane pola: {}."
+                raise ValueError(tekst_bledu.format([str(pole) for pole in self.pola]))
 
 
 class Statek:
-    """Statek. Klasa abstrakcyjna - inicjalizowane tylko obiekty klas potomnych."""
+    """Statek. Klasa abstrakcyjna - inicjalizowane są tylko obiekty klas potomnych."""
 
     RANGI = Parser.podaj_rangi()  # namedtuple
     ORDER = "★"  # TODO
 
     @classmethod
     def fabryka(cls, pola_statku):
-        """Tworzy statki odpowiedniej rangi."""
+        """Twórz z podanych pól statek odpowiedniej rangi."""
         rozmiar = len(pola_statku)
         if rozmiar in cls.RANGI.kuter.zakres:
             return Kuter(pola_statku)
@@ -497,8 +621,8 @@ class Statek:
             return Pancernik(pola_statku)
 
     def __init__(self, pola):
-        self.pola = sorted(pola, key=lambda p: p.kolumna + p.rzad)  # sortowanie od pola najbardziej na NW (self.polozenie) do pola najbardziej na SE
-        self.polozenie = self.pola[0]
+        self.pola = pola
+        self.polozenie = sorted(pola, key=lambda p: p.kolumna + p.rzad)[0]
         self.obwiednia = []  # lista pól obwiedni wokół statku
         self.rozmiar = len(pola)
         self.ofiary = []  # statki przeciwnika zatopione przez ten statek
@@ -524,7 +648,7 @@ class Statek:
         """
         Zwróć informację o statku w formacie:
 
-        ranga "nazwa" (A6) [10/17] **
+        Ranga "Nazwa" (A6) [10/17] **
 
         gdzie:
         - (A6) to położenie pola najbardziej wysuniętego na NW (self.polozenie)
@@ -543,6 +667,15 @@ class Statek:
             info = info[:-1]
 
         return info
+
+    def __repr__(self):
+        """
+        Zwróć reprezentację tekstową statku w formacie:
+
+        Ranga[B7(&), B8(&), B9(T), ...] gdzie B7(&) to współrzędne i znacznik pola statku
+        """
+        tresc = ", ".join(["{}({})".format(str(pole), pole.znacznik) for pole in self.pola])
+        return self.RANGA_BAZOWA.nazwa + "[" + tresc + "]"
 
     def ile_otrzymanych_trafien(self):
         """Podaj ilość otrzymanych trafień."""

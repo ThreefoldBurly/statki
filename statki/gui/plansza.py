@@ -468,21 +468,15 @@ class PlanszaPrzeciwnika(PlanszaGUI):
         """Oddaj salwę w pola o podanych współrzędnych."""
         if len(self.gra.tura.runda.salwy_oddane) == 0:
             self.blokuj_zmiane_statku()
+
         pola_salwy = []
-        niewypaly = []
-        # współrzędne sortowane od pola najbardziej na NW do pola najbardziej na SE
-        for kolumna, rzad in sorted(wspolrzedne, key=lambda w: w[0] + w[1]):
+        for kolumna, rzad in wspolrzedne:
             if self.gra.plansza.czy_w_planszy(kolumna, rzad):
                 self.odkryj_pole(kolumna, rzad)
-                pola_salwy.append(self.gra.plansza.podaj_pole(kolumna, rzad))
-            else:
-                niewypaly.append((kolumna, rzad))
+            pola_salwy.append(self.gra.plansza.podaj_pole(kolumna, rzad))
+
         napastnik = self.pg.gra.tura.runda.napastnik
-        self.pg.gra.tura.runda.dodaj_salwe_oddana(Salwa(
-            napastnik.polozenie,
-            pola_salwy,
-            niewypaly
-        ))
+        self.pg.gra.tura.runda.dodaj_salwe_oddana(Salwa(napastnik.polozenie, pola_salwy))
         self.ka.ustaw_combo_salwy()
 
     def blokuj_zmiane_statku(self):

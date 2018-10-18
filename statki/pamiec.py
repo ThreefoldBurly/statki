@@ -57,10 +57,10 @@ class Parser:
                 ranga_dane["liczba_mnoga"],
                 ranga_dane["biernik"]
             ))
-            print("\nRanga: {}. Sparsowano nazw: [{}]".format(
-                ranga_dane["nazwa"],
-                len(ranga_dane["nazwy_statkow"])
-            ))  # test
+            # print("\nRanga: {}. Sparsowano nazw: [{}]".format(
+            #     ranga_dane["nazwa"],
+            #     len(ranga_dane["nazwy_statkow"])
+            # ))  # test
 
         return Rangi._make(lista_rang)
 

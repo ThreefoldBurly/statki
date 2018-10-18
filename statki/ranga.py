@@ -34,19 +34,20 @@ class Ranga:
 
     def __eq__(self, other):
         """
-        Przeładowanie operatora '=='. Rangi są równe, jeśli ich nazwy są równe.
+        Przeładowanie operatora '=='. Rangi są równe, jeśli ich nazwy, symbole, zakresy, siła ognia i nazwy statków są równe.
         """
         if isinstance(self, other.__class__):
-            if self.nazwa == other.nazwa:
+            if (self.nazwa, self.symbol, self.zakres, self.sila_ognia, self.nazwy_statkow) == (other.nazwa, other.symbol, other.zakres, other.sila_ognia, other.nazwy_statkow):
                 return True
             return False
         return NotImplemented
 
     def __hash__(self):
         """
-        Przeładowanie operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach)
+        Zwróć hash rangi. Potrzebne również dla pełnego przeładowania operatora "==" (dla porównań przy poprawnej obsłudze wyjątkowości w zbiorach).
         """
-        return hash(tuple(sorted(self.__dict__.items())))
+        return hash((self.nazwa, self.symbol, tuple(self.zakres), tuple(self.sila_ognia),
+                     tuple(self.nazwy_statkow)))
 
     def resetuj_pule_nazw(self):
         """
@@ -64,7 +65,7 @@ class Ranga:
         """
         Losuj nazwę dla statku z dostępnej puli nazw. By zapewnić unikalność statku, po użyciu usuń nazwę z puli.
         """
-        if len(self.pula_nazw) < 1:
+        if not self.pula_nazw:
             self.resetuj_pule_nazw()
         nazwa = choice(self.pula_nazw)
         self.pula_nazw.remove(nazwa)

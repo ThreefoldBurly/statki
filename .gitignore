@@ -2,9 +2,13 @@
 *.sublime-project
 *.sublime-workspace
 
+# VS Code
+.vscode/
+
 # Python compiled files
 **/__pycache__
 *.pyc
 
 # temporary code
-testy/temp*.py
+# testy/temp*.py
+temp/
